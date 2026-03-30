@@ -37,6 +37,7 @@ export const api = {
       }).then((r) => r.json()),
     me: () => request('/api/auth/me'),
     updateProfile: (data) => request('/api/auth/profile', { method: 'PUT', body: JSON.stringify(data) }),
+    calculateCalories: (data) => request('/api/auth/calculate-calories', { method: 'POST', body: JSON.stringify(data) }),
   },
   meals: {
     getToday: () => request('/api/meals'),

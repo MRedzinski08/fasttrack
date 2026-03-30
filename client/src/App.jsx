@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import NavBar from './components/NavBar.jsx';
 import ChatPanel from './components/ChatPanel.jsx';
 import Login from './pages/Login.jsx';
+import Onboarding from './pages/Onboarding.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import LogMeal from './pages/LogMeal.jsx';
 import History from './pages/History.jsx';
@@ -36,6 +37,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/*" element={<AppLayout />} />
         </Routes>
       </BrowserRouter>
