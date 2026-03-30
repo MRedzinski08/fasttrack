@@ -70,8 +70,8 @@ async function getUserContext(firebaseUid) {
 }
 
 function buildSystemPrompt(user, context) {
-  return `You are FastTrack, a friendly nutrition and intermittent fasting coach.
-Give concise, encouraging, practical advice. Never give medical advice.
+  return `You are FastTrack, a data-driven nutrition and intermittent fasting analyst.
+Give concise, direct, practical advice based on the numbers. Be honest about progress — don't sugarcoat or over-praise. Keep your tone neutral and analytical. Never give medical advice.
 Always base answers on the user's actual data provided below.
 
 User profile:
@@ -151,10 +151,24 @@ export async function getDailySummary(req, res) {
       return res.json({ summary: user.ai_summary_text, cached: true });
     }
 
-    const prompt = `Generate a brief, personalized daily summary for ${user.display_name}.
-Cover: fasting performance today, calorie adherence (${context.todayCalories}/${user.daily_calorie_goal} kcal),
-fasting streak (${context.streak} days), and one actionable tip.
-Keep it under 100 words. Be warm and encouraging.`;
+    const prompt = `Produce a brief analytical report on today's data.
+
+Data:
+- Calories: ${context.todayCalories}/${user.daily_calorie_goal} kcal
+- Protein: ${context.protein}g | Carbs: ${context.carbs}g | Fat: ${context.fat}g
+- Fasting: ${context.fastingStatus} (${context.timeRemaining})
+- Streak: ${context.streak} days
+- Recent meals: ${context.recentMeals}
+
+Format rules:
+- Write in third person or impersonal ("Intake is...", "Protein is trending...", "Consider...")
+- Never use the user's name. Never greet them. Never say "Great job", "Keep it up", or similar.
+- No exclamation marks. No conversational tone.
+- State variances from targets as percentages or absolute numbers.
+- When something is off track, frame it as a gentle suggestion ("Adding a protein source at lunch could help close the gap") rather than a criticism ("Protein intake is insufficient").
+- Keep the tone like a helpful note on a dashboard — informative, not judgmental.
+- Max 60 words.
+- Put each distinct point on its own line, separated by a newline.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

@@ -1,14 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { Button } from '@/components/ui/button';
 
 const navLinks = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/log-meal', label: 'Log Meal' },
   { to: '/history', label: 'History' },
-  { to: '/settings', label: 'Settings' },
 ];
 
-export default function NavBar({ onChatOpen }) {
+export default function NavBar({ onChatOpen, onSettingsOpen }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -18,50 +18,68 @@ export default function NavBar({ onChatOpen }) {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <nav className="sticky top-0 z-40 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(40px) saturate(1.5)', WebkitBackdropFilter: 'blur(40px) saturate(1.5)' }}>
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <span className="text-xl font-black text-primary-600 tracking-tight">FastTrack</span>
+        <span className="text-xl font-medium text-primary-600 tracking-tight">FastTrack</span>
 
         <div className="hidden md:flex items-center gap-1">
           {navLinks.map((l) => (
-            <NavLink
+            <Button
               key={l.to}
-              to={l.to}
-              className={({ isActive }) =>
-                `px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`
-              }
+              variant="ghost"
+              asChild
+              className="text-[#B8A860] hover:text-primary-50 hover:bg-[#2E2B20]"
             >
-              {l.label}
-            </NavLink>
+              <NavLink
+                to={l.to}
+                className={({ isActive }) =>
+                  isActive ? 'bg-primary-500/10 !text-primary-500' : ''
+                }
+              >
+                {l.label}
+              </NavLink>
+            </Button>
           ))}
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onChatOpen}
-            className="p-2 rounded-lg text-gray-500 hover:text-primary-700 hover:bg-primary-50 transition-colors"
+            className="text-[#706530] hover:text-primary-500 hover:bg-[#2E2B20]"
             title="AI Coach"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onSettingsOpen}
+            className="text-[#706530] hover:text-primary-500 hover:bg-[#2E2B20]"
+            title="Settings"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </Button>
+          <Button
+            variant="ghost"
             onClick={handleLogout}
-            className="text-sm text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-50 transition-colors"
+            className="text-sm text-[#706530] hover:text-[#B8A860] hover:bg-[#2E2B20]"
           >
             Sign out
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Mobile nav */}
-      <div className="md:hidden flex border-t border-gray-100">
+      <div className="md:hidden flex border-t border-[#2E2B20]">
         {navLinks.map((l) => (
           <NavLink
             key={l.to}
@@ -69,14 +87,20 @@ export default function NavBar({ onChatOpen }) {
             className={({ isActive }) =>
               `flex-1 py-2 text-center text-xs font-medium transition-colors ${
                 isActive
-                  ? 'text-primary-700 border-b-2 border-primary-500'
-                  : 'text-gray-500'
+                  ? 'text-primary-500 border-b-2 border-primary-500'
+                  : 'text-[#706530]'
               }`
             }
           >
             {l.label}
           </NavLink>
         ))}
+        <button
+          onClick={onSettingsOpen}
+          className="flex-1 py-2 text-center text-xs font-medium text-[#706530] transition-colors"
+        >
+          Settings
+        </button>
       </div>
     </nav>
   );

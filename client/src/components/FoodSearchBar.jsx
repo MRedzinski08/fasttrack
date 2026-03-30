@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api.js';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function FoodSearchBar({ onSelect }) {
   const [query, setQuery] = useState('');
@@ -36,12 +38,12 @@ export default function FoodSearchBar({ onSelect }) {
   return (
     <div className="space-y-2">
       <div className="relative">
-        <input
+        <Input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="e.g. 2 scrambled eggs and whole wheat toast"
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+          className="bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder:text-[#5A5228] h-11 px-4 pr-10"
         />
         {loading && (
           <div className="absolute right-3 top-3.5 w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -51,30 +53,31 @@ export default function FoodSearchBar({ onSelect }) {
       {error && <p className="text-xs text-red-500">{error}</p>}
 
       {results.length > 0 && (
-        <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="border border-[#2E2B20] rounded-xl overflow-hidden shadow-lg shadow-black/20">
           {results.map((food, i) => (
-            <button
+            <Button
               key={i}
+              variant="ghost"
               onClick={() => handleSelect(food)}
-              className="w-full text-left px-4 py-3 hover:bg-primary-50 transition-colors border-b border-gray-100 last:border-0"
+              className="w-full text-left px-4 py-3 h-auto hover:bg-[#2E2B20] rounded-none border-b border-[#2E2B20] last:border-0 justify-start"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start w-full">
                 <div>
-                  <p className="text-sm font-medium text-gray-800 capitalize">{food.name}</p>
-                  <p className="text-xs text-gray-500">{food.servingQty} {food.servingUnit}</p>
+                  <p className="text-sm font-medium text-primary-50 capitalize">{food.name}</p>
+                  <p className="text-xs text-[#706530]">{food.servingQty} {food.servingUnit}</p>
                 </div>
                 <div className="text-right shrink-0 ml-3">
-                  <p className="text-sm font-bold text-gray-700">{food.calories} kcal</p>
-                  <p className="text-xs text-gray-400">P:{food.protein}g C:{food.carbs}g F:{food.fat}g</p>
+                  <p className="text-sm font-medium text-[#B8A860]">{food.calories} kcal</p>
+                  <p className="text-xs text-[#5A5228]">P:{food.protein}g C:{food.carbs}g F:{food.fat}g</p>
                 </div>
               </div>
-            </button>
+            </Button>
           ))}
         </div>
       )}
 
       {query.trim() && !loading && results.length === 0 && !error && (
-        <p className="text-xs text-gray-400 text-center py-2">No results — try manual entry below</p>
+        <p className="text-xs text-[#5A5228] text-center py-2">No results — try manual entry below</p>
       )}
     </div>
   );

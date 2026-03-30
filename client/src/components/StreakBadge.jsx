@@ -1,11 +1,10 @@
+import { Badge } from '@/components/ui/badge';
+
 export default function StreakBadge({ streak = 0 }) {
   return (
-    <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
-      <span className="text-2xl">🔥</span>
-      <div>
-        <p className="text-lg font-bold text-orange-600 leading-tight">{streak}</p>
-        <p className="text-xs text-orange-500">day streak</p>
-      </div>
-    </div>
+    <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/30 rounded-xl px-4 h-[55px] gap-0.5 align-top flex items-center justify-center ml-[10px] mt-[5px]">
+      <span className="text-3xl leading-none">🔥</span>
+      <span className="text-2xl font-medium text-orange-500 leading-none">{streak}</span>
+    </Badge>
   );
 }

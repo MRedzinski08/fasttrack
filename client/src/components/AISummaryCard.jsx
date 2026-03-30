@@ -1,51 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function AISummaryCard({ initialSummary }) {
   const [summary, setSummary] = useState(initialSummary || '');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(!initialSummary);
+  const [phase, setPhase] = useState(initialSummary ? 'done' : 'loading'); // loading | exiting | showing | done
 
-  async function generateSummary() {
-    setLoading(true);
-    setError('');
-    try {
-      const data = await api.ai.summary();
-      setSummary(data.summary);
-    } catch {
-      setError('Could not generate summary. Check your OpenAI API key.');
-    } finally {
+  useEffect(() => {
+    if (initialSummary) {
+      setSummary(initialSummary);
       setLoading(false);
+      setPhase('done');
+      return;
     }
-  }
+    setLoading(true);
+    setPhase('loading');
+    api.ai.summary()
+      .then((data) => {
+        setSummary(data.summary);
+        setPhase('exiting');
+        setTimeout(() => {
+          setLoading(false);
+          setPhase('showing');
+          setTimeout(() => setPhase('done'), 850);
+        }, 850);
+      })
+      .catch(() => {
+        setLoading(false);
+        setPhase('done');
+      });
+  }, [initialSummary]);
+
+  if (!loading && !summary && phase === 'done') return null;
 
   return (
-    <div className="bg-gradient-to-br from-primary-50 to-yellow-50 rounded-xl p-5 border border-primary-100">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-primary-800">AI Daily Summary</h3>
-        <button
-          onClick={generateSummary}
-          disabled={loading}
-          className="text-xs text-primary-700 hover:text-primary-900 disabled:opacity-50 font-medium"
-        >
-          {loading ? 'Generating…' : 'Refresh'}
-        </button>
-      </div>
-      {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
-      {summary ? (
-        <p className="text-sm text-gray-700 leading-relaxed">{summary}</p>
-      ) : (
-        <div className="text-center py-3">
-          <p className="text-xs text-gray-500 mb-2">No summary yet for today.</p>
-          <button
-            onClick={generateSummary}
-            disabled={loading}
-            className="text-xs bg-primary-500 hover:bg-primary-600 text-gray-900 px-3 py-1.5 rounded-lg disabled:opacity-50 font-medium"
-          >
-            {loading ? 'Generating…' : 'Generate Summary'}
-          </button>
-        </div>
-      )}
-    </div>
+    <Card className="bg-gradient-to-br from-[#1A1810] to-[#22201A] border-[#2E2B20] overflow-hidden min-h-[220px]">
+      <CardContent>
+        <h3 className="text-xl font-medium text-primary-500 mb-4">Daily Analysis</h3>
+
+        {(phase === 'loading' || phase === 'exiting') && (
+          <div className={`flex flex-col items-center py-10 ${phase === 'exiting' ? 'slide-out-right' : ''}`}>
+            <div className="trinity-spinner mb-4">
+              <svg className="ring-1" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFDF00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
+              <svg className="ring-2" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFDF00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
+              <svg className="ring-3" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFDF00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
+            </div>
+            <span className="text-2xl font-semibold text-shimmer">Thinking...</span>
+          </div>
+        )}
+
+        {(phase === 'showing' || phase === 'done') && (
+          <p className={`text-base text-[#B8A860] leading-relaxed ${phase === 'showing' ? 'slide-in-left' : ''}`}>
+            {summary}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

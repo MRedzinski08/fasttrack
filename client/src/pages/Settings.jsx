@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api.js';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const IF_PROTOCOLS = [
   { label: '16:8', hours: 16 },
@@ -123,217 +127,238 @@ export default function Settings() {
     }
   }
 
+  const inputClass = "bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder:text-[#5A5228] h-10";
+  const selectClass = "w-full border border-[#2E2B20] bg-[#22201A] text-primary-50 placeholder-[#5A5228] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400";
+
   return (
     <div className="max-w-xl mx-auto px-4 py-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">Settings</h2>
+      <h2 className="text-xl font-medium text-primary-50 mb-6">Settings</h2>
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Profile */}
-        <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-          <h3 className="font-semibold text-gray-800">Profile</h3>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
-            <input
-              type="text"
-              value={form.displayName}
-              onChange={(e) => setForm({ ...form, displayName: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+        <Card className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
+          <CardHeader>
+            <CardTitle className="font-medium text-primary-50">Profile</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-              <input
-                type="number"
-                min="13"
-                max="120"
-                value={form.age}
-                onChange={(e) => setForm({ ...form, age: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+              <Label className="text-sm font-medium text-[#B8A860] mb-1">Display Name</Label>
+              <Input
+                type="text"
+                value={form.displayName}
+                onChange={(e) => setForm({ ...form, displayName: e.target.value })}
+                className={inputClass}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sex</label>
-              <select
-                value={form.sex}
-                onChange={(e) => setForm({ ...form, sex: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              >
-                <option value="">--</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Height</label>
             <div className="grid grid-cols-2 gap-3">
-              <div className="relative">
-                <input
+              <div>
+                <Label className="text-sm font-medium text-[#B8A860] mb-1">Age</Label>
+                <Input
                   type="number"
-                  min="3"
-                  max="8"
-                  value={form.heightFeet}
-                  onChange={(e) => setForm({ ...form, heightFeet: e.target.value })}
-                  placeholder="Feet"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                  min="13"
+                  max="120"
+                  value={form.age}
+                  onChange={(e) => setForm({ ...form, age: e.target.value })}
+                  className={inputClass}
                 />
-                <span className="absolute right-3 top-2 text-xs text-gray-400">ft</span>
               </div>
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  max="11"
-                  value={form.heightInches}
-                  onChange={(e) => setForm({ ...form, heightInches: e.target.value })}
-                  placeholder="Inches"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-                />
-                <span className="absolute right-3 top-2 text-xs text-gray-400">in</span>
+              <div>
+                <Label className="text-sm font-medium text-[#B8A860] mb-1">Sex</Label>
+                <select
+                  value={form.sex}
+                  onChange={(e) => setForm({ ...form, sex: e.target.value })}
+                  className={selectClass}
+                >
+                  <option value="">--</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
               </div>
             </div>
-          </div>
-        </div>
+            <div>
+              <Label className="text-sm font-medium text-[#B8A860] mb-1">Height</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="3"
+                    max="8"
+                    value={form.heightFeet}
+                    onChange={(e) => setForm({ ...form, heightFeet: e.target.value })}
+                    placeholder="Feet"
+                    className={inputClass}
+                  />
+                  <span className="absolute right-3 top-2.5 text-xs text-[#5A5228]">ft</span>
+                </div>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="0"
+                    max="11"
+                    value={form.heightInches}
+                    onChange={(e) => setForm({ ...form, heightInches: e.target.value })}
+                    placeholder="Inches"
+                    className={inputClass}
+                  />
+                  <span className="absolute right-3 top-2.5 text-xs text-[#5A5228]">in</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Weight */}
-        <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-          <h3 className="font-semibold text-gray-800">Weight Goals</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Current Weight (lbs)</label>
-              <input
-                type="number"
-                min="50"
-                max="800"
-                step="0.1"
-                value={form.currentWeight}
-                onChange={(e) => setForm({ ...form, currentWeight: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              />
+        <Card className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
+          <CardHeader>
+            <CardTitle className="font-medium text-primary-50">Weight Goals</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm font-medium text-[#B8A860] mb-1">Current Weight (lbs)</Label>
+                <Input
+                  type="number"
+                  min="50"
+                  max="800"
+                  step="0.1"
+                  value={form.currentWeight}
+                  onChange={(e) => setForm({ ...form, currentWeight: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-[#B8A860] mb-1">Goal Weight (lbs)</Label>
+                <Input
+                  type="number"
+                  min="50"
+                  max="800"
+                  step="0.1"
+                  value={form.goalWeight}
+                  onChange={(e) => setForm({ ...form, goalWeight: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Goal Weight (lbs)</label>
-              <input
-                type="number"
-                min="50"
-                max="800"
-                step="0.1"
-                value={form.goalWeight}
-                onChange={(e) => setForm({ ...form, goalWeight: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm font-medium text-[#B8A860] mb-1">Activity Level</Label>
+                <select
+                  value={form.activityLevel}
+                  onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
+                  className={selectClass}
+                >
+                  {ACTIVITY_LEVELS.map((a) => (
+                    <option key={a.value} value={a.value}>{a.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-[#B8A860] mb-1">Loss Goal</Label>
+                <select
+                  value={form.weeklyLossGoal}
+                  onChange={(e) => setForm({ ...form, weeklyLossGoal: parseFloat(e.target.value) })}
+                  className={selectClass}
+                >
+                  <option value={0.5}>0.5 lbs/week</option>
+                  <option value={1.0}>1 lb/week</option>
+                  <option value={1.5}>1.5 lbs/week</option>
+                  <option value={2.0}>2 lbs/week</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Activity Level</label>
-              <select
-                value={form.activityLevel}
-                onChange={(e) => setForm({ ...form, activityLevel: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              >
-                {ACTIVITY_LEVELS.map((a) => (
-                  <option key={a.value} value={a.value}>{a.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Loss Goal</label>
-              <select
-                value={form.weeklyLossGoal}
-                onChange={(e) => setForm({ ...form, weeklyLossGoal: parseFloat(e.target.value) })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-              >
-                <option value={0.5}>0.5 lbs/week</option>
-                <option value={1.0}>1 lb/week</option>
-                <option value={1.5}>1.5 lbs/week</option>
-                <option value={2.0}>2 lbs/week</option>
-              </select>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={recalculateCalories}
-            className="w-full text-sm text-primary-600 hover:text-primary-700 font-semibold py-2 border border-primary-300 rounded-lg hover:bg-primary-50 transition-colors"
-          >
-            Recalculate Recommended Calories
-          </button>
-          {recalcResult && (
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-3 text-center text-sm">
-              <span className="font-bold text-primary-700">{recalcResult.recommended} cal/day</span>
-              <span className="text-gray-500 ml-2">(TDEE: {recalcResult.tdee} - {recalcResult.dailyDeficit} deficit)</span>
-            </div>
-          )}
-        </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={recalculateCalories}
+              className="w-full border-[#2E2B20] bg-transparent text-primary-500 hover:bg-[#2E2B20] hover:text-primary-50 font-medium text-sm"
+            >
+              Recalculate Recommended Calories
+            </Button>
+            {recalcResult && (
+              <div className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-3 text-center text-sm">
+                <span className="font-medium text-primary-500">{recalcResult.recommended} cal/day</span>
+                <span className="text-[#706530] ml-2">(TDEE: {recalcResult.tdee} - {recalcResult.dailyDeficit} deficit)</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Nutrition */}
-        <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-          <h3 className="font-semibold text-gray-800">Nutrition</h3>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Daily Calorie Goal</label>
-            <input
-              type="number"
-              min="500"
-              max="5000"
-              value={form.dailyCalorieGoal}
-              onChange={(e) => setForm({ ...form, dailyCalorieGoal: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
-            />
-          </div>
-        </div>
-
-        {/* Fasting */}
-        <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-          <h3 className="font-semibold text-gray-800">Fasting Protocol</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {IF_PROTOCOLS.map((p) => (
-              <button
-                key={p.label}
-                type="button"
-                onClick={() => selectProtocol(p)}
-                className={`py-2 rounded-lg text-sm font-semibold border transition-colors ${
-                  form.fastingProtocol === p.label
-                    ? 'bg-primary-500 text-gray-900 border-primary-500'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-primary-400'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          {form.fastingProtocol === 'Custom' && (
+        <Card className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
+          <CardHeader>
+            <CardTitle className="font-medium text-primary-50">Nutrition</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Fasting hours (e.g. 14)</label>
-              <input
+              <Label className="text-sm font-medium text-[#B8A860] mb-1">Daily Calorie Goal</Label>
+              <Input
                 type="number"
-                min="8"
-                max="23"
-                value={customHours}
-                onChange={(e) => setCustomHours(e.target.value)}
-                placeholder="e.g. 14"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                min="500"
+                max="5000"
+                value={form.dailyCalorieGoal}
+                onChange={(e) => setForm({ ...form, dailyCalorieGoal: e.target.value })}
+                className={inputClass}
               />
             </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Fasting */}
+        <Card className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
+          <CardHeader>
+            <CardTitle className="font-medium text-primary-50">Fasting Protocol</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {IF_PROTOCOLS.map((p) => (
+                <Button
+                  key={p.label}
+                  type="button"
+                  variant={form.fastingProtocol === p.label ? 'default' : 'outline'}
+                  onClick={() => selectProtocol(p)}
+                  className={
+                    form.fastingProtocol === p.label
+                      ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium'
+                      : 'border-[#2E2B20] bg-[#1A1810] text-[#B8A860] hover:border-primary-400 hover:bg-[#2E2B20] hover:text-primary-50 font-medium'
+                  }
+                >
+                  {p.label}
+                </Button>
+              ))}
+            </div>
+            {form.fastingProtocol === 'Custom' && (
+              <div>
+                <Label className="text-xs text-[#706530] mb-1">Fasting hours (e.g. 14)</Label>
+                <Input
+                  type="number"
+                  min="8"
+                  max="23"
+                  value={customHours}
+                  onChange={(e) => setCustomHours(e.target.value)}
+                  placeholder="e.g. 14"
+                  className={inputClass}
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2">{error}</div>
+          <div className="bg-red-900/20 border border-red-500/30 text-red-300 text-sm rounded-lg px-3 py-2">{error}</div>
         )}
         {saved && (
-          <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-3 py-2">
+          <div className="bg-green-500/10 border border-green-500/30 text-green-500 text-sm rounded-lg px-3 py-2">
             Settings saved!
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
           disabled={saving}
-          className="w-full bg-primary-500 hover:bg-primary-600 disabled:opacity-60 text-gray-900 font-semibold py-2.5 px-4 rounded-lg transition-colors"
+          className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium py-2.5 px-4"
         >
-          {saving ? 'Saving…' : 'Save Settings'}
-        </button>
+          {saving ? 'Saving...' : 'Save Settings'}
+        </Button>
       </form>
     </div>
   );
