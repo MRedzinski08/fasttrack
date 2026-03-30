@@ -7,10 +7,12 @@ export default function History() {
   const [calorieTrend, setCalorieTrend] = useState([]);
   const [fastingData, setFastingData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     async function load() {
       setLoading(true);
+      setError('');
       try {
         const [trend, fasting] = await Promise.all([
           api.history.calories(calorieRange),
@@ -20,6 +22,7 @@ export default function History() {
         setFastingData(fasting);
       } catch (err) {
         console.error(err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -31,6 +34,17 @@ export default function History() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">
+          {error}
+          <button onClick={() => setCalorieRange((r) => r)} className="ml-3 underline">Retry</button>
+        </div>
       </div>
     );
   }
@@ -82,17 +96,17 @@ export default function History() {
 
       <div className="flex flex-col gap-4 md:grid md:grid-cols-3">
         <div className="bg-white rounded-xl shadow-md p-6 text-center">
-          <p className="text-3xl font-bold text-primary-600">{fastingData?.adherencePercent ?? 0}%</p>
+          <p className="text-2xl sm:text-3xl font-bold text-primary-600">{fastingData?.adherencePercent ?? 0}%</p>
           <p className="text-sm text-gray-500 mt-1">Fasting Adherence</p>
           <p className="text-xs text-gray-400">Last 30 days</p>
         </div>
         <div className="bg-white rounded-xl shadow-md p-6 text-center">
-          <p className="text-3xl font-bold text-green-600">{fastingData?.completedSessions ?? 0}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-green-600">{fastingData?.completedSessions ?? 0}</p>
           <p className="text-sm text-gray-500 mt-1">Fasts Completed</p>
           <p className="text-xs text-gray-400">of {fastingData?.totalSessions ?? 0} total</p>
         </div>
         <div className="bg-white rounded-xl shadow-md p-6 text-center">
-          <p className="text-3xl font-bold text-purple-600">{fastingData?.longestFastHours ?? 0}h</p>
+          <p className="text-2xl sm:text-3xl font-bold text-purple-600">{fastingData?.longestFastHours ?? 0}h</p>
           <p className="text-sm text-gray-500 mt-1">Longest Fast</p>
           <p className="text-xs text-gray-400">Personal record</p>
         </div>

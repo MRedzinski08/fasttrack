@@ -1,3 +1,21 @@
+// USDA FoodData Central API
+// Docs: https://fdc.nal.usda.gov/api-guide
+
+const USDA_BASE = 'https://api.nal.usda.gov/fdc/v1';
+
+// Nutrient IDs we care about
+const NUTRIENT = {
+  calories: 1008,
+  protein:  1003,
+  carbs:    1005,
+  fat:      1004,
+};
+
+function getNutrient(foodNutrients, id) {
+  const match = foodNutrients.find((n) => n.nutrientId === id);
+  return match ? Math.round(match.value * 10) / 10 : 0;
+}
+
 export async function searchFood(req, res) {
   const { q } = req.query;
   if (!q?.trim()) {
@@ -5,19 +23,12 @@ export async function searchFood(req, res) {
   }
 
   try {
-    const response = await fetch('https://trackapi.nutritionix.com/v2/natural/nutrients', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-app-id': process.env.NUTRITIONIX_APP_ID,
-        'x-app-key': process.env.NUTRITIONIX_API_KEY,
-      },
-      body: JSON.stringify({ query: q }),
-    });
+    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(q)}&api_key=${process.env.USDA_API_KEY}&pageSize=8&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation`;
+
+    const response = await fetch(url);
 
     if (!response.ok) {
-      const errText = await response.text();
-      console.error('Nutritionix error:', errText);
+      console.error('USDA API error:', response.status);
       return res.status(502).json({ error: 'Food lookup failed', foods: [] });
     }
 
@@ -27,18 +38,27 @@ export async function searchFood(req, res) {
       return res.json({ foods: [] });
     }
 
-    const foods = data.foods.map((f) => ({
-      name: f.food_name,
-      calories: Math.round(f.nf_calories),
-      protein: Math.round(f.nf_protein * 10) / 10,
-      carbs: Math.round(f.nf_total_carbohydrate * 10) / 10,
-      fat: Math.round(f.nf_total_fat * 10) / 10,
-      servingQty: f.serving_qty,
-      servingUnit: f.serving_unit,
-      photo: f.photo?.thumb || null,
-    }));
+    const foods = data.foods.map((f) => {
+      const nutrients = f.foodNutrients || [];
+      const calories = Math.round(getNutrient(nutrients, NUTRIENT.calories));
+      const protein  = getNutrient(nutrients, NUTRIENT.protein);
+      const carbs    = getNutrient(nutrients, NUTRIENT.carbs);
+      const fat      = getNutrient(nutrients, NUTRIENT.fat);
 
-    res.json({ foods });
+      // Clean up the description (USDA names are often ALL CAPS)
+      const name = f.description
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
+      // Use serving size info if available
+      const servingQty  = f.servingSize || 100;
+      const servingUnit = f.servingSizeUnit || 'g';
+
+      return { name, calories, protein, carbs, fat, servingQty, servingUnit };
+    });
+
+    // Filter out items with 0 calories (usually incomplete data)
+    res.json({ foods: foods.filter((f) => f.calories > 0) });
   } catch (err) {
     console.error('searchFood error:', err);
     res.status(500).json({ error: 'Food search failed', foods: [] });

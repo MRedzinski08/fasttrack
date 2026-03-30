@@ -131,7 +131,7 @@ export default function LogMeal() {
             onChange={(e) => setManual({ ...manual, foodName: e.target.value })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input required type="number" placeholder="Calories" value={manual.calories}
               onChange={(e) => setManual({ ...manual, calories: e.target.value })}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />

@@ -41,9 +41,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-md p-8 w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-md p-5 sm:p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black text-primary-600 tracking-tight">FastTrack</h1>
+          <h1 className="text-3xl sm:text-4xl font-black text-primary-600 tracking-tight">FastTrack</h1>
           <p className="text-gray-500 mt-1 text-sm">AI-Powered Fasting & Calorie Coach</p>
         </div>
 

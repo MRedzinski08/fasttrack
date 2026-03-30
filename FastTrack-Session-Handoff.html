@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FastTrack - Claude Code Session Handoff</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; font-size: 14px; color: #1e293b; background: #f8fafc; line-height: 1.6; }
+  .page { max-width: 960px; margin: 0 auto; background: white; padding: 60px; }
+  .title-block { text-align: center; padding: 60px 0 40px; border-bottom: 3px solid #1e40af; margin-bottom: 48px; }
+  .title-block h1 { font-size: 56px; color: #1e40af; font-weight: 900; letter-spacing: -1px; }
+  .title-block .subtitle { font-size: 18px; color: #64748b; margin-top: 8px; }
+  .title-block .doc-type { font-size: 14px; color: #94a3b8; margin-top: 4px; font-style: italic; }
+  .stack-pills { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+  .pill { padding: 8px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+  .pill-blue { background: #dbeafe; color: #1e40af; }
+  .pill-green { background: #dcfce7; color: #166534; }
+  .pill-purple { background: #f3e8ff; color: #581c87; }
+  h2.section { font-size: 22px; color: #1e40af; font-weight: 800; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 3px solid #1e40af; }
+  h3.sub { font-size: 16px; color: #1e293b; font-weight: 700; margin: 28px 0 10px; }
+  p { margin-bottom: 12px; color: #334155; }
+  .box { border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+  .box-label { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .box-blue { background: #dbeafe; border-left: 4px solid #1e40af; }
+  .box-blue .box-label { color: #1e40af; }
+  .box-green { background: #dcfce7; border-left: 4px solid #166534; }
+  .box-green .box-label { color: #166534; }
+  .box-purple { background: #f3e8ff; border-left: 4px solid #581c87; }
+  .box-purple .box-label { color: #581c87; }
+  .box-orange { background: #ffedd5; border-left: 4px solid #9a3412; }
+  .box-orange .box-label { color: #9a3412; }
+  .box-red { background: #fee2e2; border-left: 4px solid #991b1b; }
+  .box-red .box-label { color: #991b1b; }
+  .box p { margin: 4px 0; font-size: 13.5px; }
+  pre { background: #1e293b; color: #e2e8f0; border-radius: 8px; padding: 20px 24px; font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.7; margin: 16px 0; overflow-x: auto; white-space: pre; }
+  code { font-family: 'Courier New', monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #1e40af; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { background: #1e40af; color: white; padding: 10px 14px; text-align: left; font-weight: 700; }
+  td { padding: 10px 14px; border: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:nth-child(odd) td { background: #ffffff; }
+  ul { padding-left: 20px; margin: 8px 0; }
+  ul li { margin: 5px 0; color: #334155; }
+  ul.sub { padding-left: 36px; }
+  ul.sub li { color: #64748b; font-size: 13px; }
+  ol { padding-left: 20px; margin: 8px 0; }
+  ol li { margin: 6px 0; color: #334155; }
+  .status-done { color: #166534; font-weight: 700; }
+  .status-progress { color: #9a3412; font-weight: 700; }
+  .status-todo { color: #64748b; font-weight: 700; }
+  .footer { text-align: center; margin-top: 64px; padding-top: 24px; border-top: 2px solid #e2e8f0; color: #94a3b8; font-size: 13px; font-style: italic; }
+  @media print { body { background: white; } .page { padding: 40px; max-width: 100%; } pre { font-size: 11px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TITLE -->
+  <div class="title-block">
+    <h1>FastTrack</h1>
+    <div class="subtitle">AI-Assisted Calorie Tracking &amp; Intermittent Fasting Coach</div>
+    <div class="doc-type">Claude Code Session Handoff - Living Document</div>
+    <div class="stack-pills">
+      <span class="pill pill-blue">React 19 + Vite 8 + Tailwind CSS 4</span>
+      <span class="pill pill-green">Node/Express + PostgreSQL 18 (local)</span>
+      <span class="pill pill-purple">Firebase Auth + OpenAI (gpt-4o-mini) + USDA FoodData Central</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SESSION LOG -->
+  <!-- ============================================================ -->
+  <h2 class="section">1. Session Log</h2>
+  <p>Update this table at the end of every Claude Code session so the next session knows exactly where to resume.</p>
+  <table>
+    <tr><th style="width:80px">Session</th><th style="width:100px">Date</th><th>What Was Done</th><th style="width:100px">Build Day</th></tr>
+    <tr>
+      <td>1</td>
+      <td>2026-03-29</td>
+      <td>Initial scaffold: full-stack app structure, all pages, components, routes, controllers, services, DB schema, context, hooks. Installed all deps for client + server.</td>
+      <td>Day 1</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>2026-03-29</td>
+      <td>UI stylistic revisions to scaffold. Observed initial UI in browser.</td>
+      <td>Day 1</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>2026-03-29</td>
+      <td>Connected PostgreSQL (password URL-encoding fix for <code>!!</code> characters). Ran schema.sql (tables already existed from prior run). Started both servers. Tested API routes: auth/me, dashboard/summary, fasting/current all working. Food search (USDA FoodData Central) confirmed working through Node (curl fails on Windows due to TLS/cert revocation - not an app issue). Tested meal logging through UI - works, fasting timer starts on meal log. Updated DATABASE_URL in server/.env to use <code>%21%21</code> encoding.</td>
+      <td>Day 2</td>
+    </tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- TASK / NEXT TODO TABLE -->
+  <!-- ============================================================ -->
+  <h2 class="section">2. Task / Next To-Do</h2>
+  <p>Current progress through the 7-day build plan. Update statuses as work is completed.</p>
+  <table>
+    <tr><th style="width:60px">Status</th><th style="width:100px">Build Day</th><th>Task</th><th>Notes</th></tr>
+    <!-- Day 1 -->
+    <tr><td class="status-done">DONE</td><td>Day 1</td><td>Scaffold monorepo (client/ + server/)</td><td>Vite + React + Tailwind + Express</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 1</td><td>Install all dependencies</td><td>Both client and server node_modules present</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 1</td><td>Firebase project setup + client config</td><td>Project: fasttrack-demo-83702</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 1</td><td>Login/Signup page (Firebase email/password)</td><td>Toggle mode, error messages</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 1</td><td>AuthContext + useAuth hook</td><td>onAuthStateChanged listener</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 1</td><td>ProtectedRoute component</td><td>Redirects to /login</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 1</td><td>NavBar + React Router setup</td><td>Routes: /login, /dashboard, /log-meal, /history, /settings</td></tr>
+    <!-- Day 2 -->
+    <tr><td class="status-done">DONE</td><td>Day 2</td><td>PostgreSQL connection via DATABASE_URL</td><td>Password needs URL encoding: <code>%21%21</code> for <code>!!</code></td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 2</td><td>Run schema.sql (3 tables + indexes)</td><td>user_profiles, meal_logs, fasting_sessions</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 2</td><td>requireAuth middleware (Firebase Admin)</td><td>Verifies JWT, sets req.user</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 2</td><td>/api/auth routes (register, me, profile)</td><td>Tested and working</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 2</td><td>/api/meals CRUD routes</td><td>Tested via UI - meal logging works</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 2</td><td>/api/fasting routes + adaptive timer logic</td><td>30-min grace window, auto session management</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 2</td><td>Add OpenAI + USDA API keys to .env</td><td>Both keys populated and verified</td></tr>
+    <tr><td class="status-progress">NEXT</td><td>Day 2</td><td>Full end-to-end route testing via UI</td><td>Auth, meals, fasting all confirmed. Still need to test: AI chat, AI summary, history endpoints through UI</td></tr>
+    <!-- Day 3 -->
+    <tr><td class="status-done">DONE</td><td>Day 3</td><td>Dashboard page layout</td><td>Built in scaffold - needs live testing with real data</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 3</td><td>FastingTimer with live countdown</td><td>Built - confirmed working in browser</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 3</td><td>CalorieBar + MacroBar components</td><td>Built in scaffold</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 3</td><td>MealCard component</td><td>Built with delete button</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 3</td><td>Settings page</td><td>Calorie goal, IF protocol, display name</td></tr>
+    <!-- Day 4 -->
+    <tr><td class="status-done">DONE</td><td>Day 4</td><td>FoodSearchBar with debounce</td><td>Built in scaffold</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 4</td><td>USDA FoodData Central proxy</td><td>Working (replaced Nutritionix from original spec)</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 4</td><td>LogMeal page with search + confirm</td><td>Tested - working</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 4</td><td>Manual entry fallback</td><td>Built in scaffold</td></tr>
+    <!-- Day 5 -->
+    <tr><td class="status-done">DONE</td><td>Day 5</td><td>OpenAI client setup + /api/ai/chat</td><td>SSE streaming, gpt-4o-mini</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 5</td><td>ChatPanel floating UI</td><td>Slide-in panel, streaming display</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 5</td><td>/api/ai/summary with daily caching</td><td>Caches in user_profiles table</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 5</td><td>AISummaryCard on Dashboard</td><td>Built with regenerate button</td></tr>
+    <!-- Day 6 -->
+    <tr><td class="status-done">DONE</td><td>Day 6</td><td>History page with Recharts</td><td>7-day/30-day toggle, calorie trend line chart</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 6</td><td>Fasting adherence display</td><td>Percentage, completed count, longest fast</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 6</td><td>StreakBadge component</td><td>Fire emoji badge</td></tr>
+    <tr><td class="status-todo">TODO</td><td>Day 6</td><td>Responsive layout pass (mobile)</td><td>Not yet tested on mobile viewports</td></tr>
+    <tr><td class="status-todo">TODO</td><td>Day 6</td><td>Loading spinners + error states</td><td>Review all pages for missing states</td></tr>
+    <tr><td class="status-todo">TODO</td><td>Day 6</td><td>Empty states for new users</td><td>Dashboard, History when no data exists</td></tr>
+    <!-- Day 7 -->
+    <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Full app walkthrough + bug fixes</td><td></td></tr>
+    <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Deploy backend (GCP Cloud Run)</td><td>Optional</td></tr>
+    <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Deploy frontend (Firebase Hosting)</td><td>Optional</td></tr>
+    <!-- Future / Backlog -->
+    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>Google Sign-In (Firebase GoogleAuthProvider)</td><td>User requested - add during polish</td></tr>
+    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>UI redesign pass</td><td>User wants to restyle - Tailwind makes this easy</td></tr>
+    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>Port to mobile app</td><td>React Native likely candidate</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- PROJECT OVERVIEW -->
+  <!-- ============================================================ -->
+  <h2 class="section">3. Project Overview</h2>
+  <p>FastTrack is a full-stack web application combining calorie tracking with an intelligent intermittent fasting timer. The app adapts to real user behavior - if a user eats outside their scheduled window, the fasting timer automatically recalculates from that meal's timestamp. An AI assistant powered by OpenAI provides personalized coaching, daily summaries, and nutritional guidance based on the user's actual logged data.</p>
+  <div class="box box-blue">
+    <div class="box-label">Primary Goal</div>
+    <p>Portfolio/interview demo piece demonstrating proficiency across a professional tech stack: React, Tailwind CSS, Node/Express, PostgreSQL, Firebase Auth, OpenAI, and external API integration (USDA FoodData Central).</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- IMPORTANT DEVIATIONS FROM ORIGINAL SPEC -->
+  <!-- ============================================================ -->
+  <h2 class="section">4. Deviations from Original Handoff Spec</h2>
+  <div class="box box-orange">
+    <div class="box-label">Key Changes from FastTrack-Handoff.html</div>
+    <p><strong>Food API:</strong> Switched from <strong>Nutritionix</strong> to <strong>USDA FoodData Central</strong> because the USDA API key was immediately available (no waiting). The controller is at <code>server/controllers/foodController.js</code>. Uses USDA search endpoint with nutrient IDs: 1008 (calories), 1003 (protein), 1005 (carbs), 1004 (fat). Filters to SR Legacy, Survey (FNDDS), and Foundation data types.</p>
+    <p><strong>Database:</strong> Currently running on <strong>local PostgreSQL 18</strong> (localhost:5432), not Google Cloud SQL yet. The DATABASE_URL password contains <code>!!</code> which must be URL-encoded as <code>%21%21</code> in the connection string.</p>
+    <p><strong>Frontend port:</strong> Vite runs on <strong>5174</strong> (not 5173). The server's CLIENT_URL and CORS are configured for this.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TECH STACK -->
+  <!-- ============================================================ -->
+  <h2 class="section">5. Tech Stack (Actual Installed Versions)</h2>
+  <table>
+    <tr><th>Technology</th><th>Version</th><th>Role</th></tr>
+    <tr><td>React</td><td>19.2.4</td><td>Frontend UI (functional components + hooks only)</td></tr>
+    <tr><td>Vite</td><td>8.0.1</td><td>Build tool + dev server</td></tr>
+    <tr><td>Tailwind CSS</td><td>4.2.2</td><td>Utility-first styling (via @tailwindcss/vite plugin)</td></tr>
+    <tr><td>React Router DOM</td><td>7.13.2</td><td>Client-side routing (v6+ API)</td></tr>
+    <tr><td>Recharts</td><td>3.8.1</td><td>Calorie trend / fasting charts</td></tr>
+    <tr><td>Firebase (client)</td><td>12.11.0</td><td>Email/password authentication</td></tr>
+    <tr><td>Express</td><td>4.18.2</td><td>REST API server</td></tr>
+    <tr><td>pg</td><td>8.11.5</td><td>PostgreSQL client (no ORM)</td></tr>
+    <tr><td>firebase-admin</td><td>12.0.0</td><td>JWT token verification on backend</td></tr>
+    <tr><td>OpenAI</td><td>4.47.1</td><td>AI chat + daily summaries (gpt-4o-mini)</td></tr>
+    <tr><td>PostgreSQL</td><td>18 (local)</td><td>Primary database</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- FOLDER STRUCTURE -->
+  <!-- ============================================================ -->
+  <h2 class="section">6. Project Folder Structure</h2>
+  <h3 class="sub">Frontend (client/)</h3>
+<pre>client/
+  src/
+    main.jsx                # Entry point
+    App.jsx                 # Router setup + AuthProvider wrapper
+    index.css               # Tailwind directives + custom primary color theme (yellow/gold)
+    pages/
+      Login.jsx             # Firebase email/password sign in + sign up toggle
+      Dashboard.jsx         # Timer, calories, macros, meals, AI summary
+      LogMeal.jsx           # USDA food search + confirmation + logging
+      History.jsx           # Recharts calorie trend + fasting adherence
+      Settings.jsx          # Calorie goal, IF protocol, display name
+    components/
+      NavBar.jsx            # Top nav + mobile menu + chat button + logout
+      FastingTimer.jsx      # Live countdown with color status
+      CalorieBar.jsx        # Progress bar (blue/amber/red thresholds)
+      MacroBar.jsx          # Three mini bars: protein, carbs, fat
+      MealCard.jsx          # Single meal: name, time, calories, macros, delete
+      FoodSearchBar.jsx     # Debounced search + USDA result cards
+      ChatPanel.jsx         # Floating slide-in AI chat (SSE streaming)
+      StreakBadge.jsx        # Fasting streak fire badge
+      AISummaryCard.jsx     # Daily AI summary card with refresh
+      ProtectedRoute.jsx    # Auth guard, redirects to /login
+    context/
+      AuthContext.jsx       # Firebase auth state + useAuth() hook
+    services/
+      firebase.js           # Firebase app init + auth export
+      api.js                # All fetch() calls to backend (with auth header injection)
+  index.html
+  vite.config.js
+  package.json</pre>
+
+  <h3 class="sub">Backend (server/)</h3>
+<pre>server/
+  index.js                  # Express setup, CORS, middleware, route mounting
+  routes/
+    auth.js                 # /api/auth/*
+    meals.js                # /api/meals/*
+    fasting.js              # /api/fasting/*
+    food.js                 # /api/food/* (USDA FoodData Central proxy)
+    ai.js                   # /api/ai/* (OpenAI)
+    dashboard.js            # /api/dashboard/*
+    history.js              # /api/history/*
+  controllers/
+    authController.js       # Register, getMe, updateProfile
+    mealsController.js      # getMeals, logMeal (with adaptive fasting), deleteMeal
+    fastingController.js    # getCurrent, startFast, breakFast, getHistory
+    foodController.js       # searchFood (USDA API)
+    aiController.js         # chat (streaming SSE), getDailySummary (cached)
+    historyController.js    # getCalorieTrend, getFastingHistory
+  middleware/
+    authMiddleware.js       # requireAuth: Firebase JWT verification
+  db/
+    index.js                # pg Pool from DATABASE_URL
+    schema.sql              # CREATE TABLE statements + indexes
+  .env                      # All secrets (never commit)
+  package.json</pre>
+
+  <!-- ============================================================ -->
+  <!-- DATABASE SCHEMA -->
+  <!-- ============================================================ -->
+  <h2 class="section">7. Database Schema</h2>
+  <p>Three tables in the <code>fasttrack</code> database on local PostgreSQL 18. All queries use parameterized <code>$1, $2</code> syntax via the <code>pg</code> library.</p>
+<pre>CREATE TABLE user_profiles (
+  id                  SERIAL PRIMARY KEY,
+  firebase_uid        VARCHAR(128) UNIQUE NOT NULL,
+  email               VARCHAR(255),
+  display_name        VARCHAR(100),
+  daily_calorie_goal  INTEGER DEFAULT 2000,
+  fasting_protocol    VARCHAR(20) DEFAULT '16:8',
+  fasting_hours       INTEGER DEFAULT 16,
+  eating_hours        INTEGER DEFAULT 8,
+  timezone            VARCHAR(50) DEFAULT 'America/New_York',
+  ai_summary_date     DATE,
+  ai_summary_text     TEXT,
+  created_at          TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE meal_logs (
+  id           SERIAL PRIMARY KEY,
+  user_id      INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  food_name    VARCHAR(255) NOT NULL,
+  calories     INTEGER NOT NULL,
+  protein_g    DECIMAL(6,1),
+  carbs_g      DECIMAL(6,1),
+  fat_g        DECIMAL(6,1),
+  quantity     DECIMAL(6,2) DEFAULT 1,
+  unit         VARCHAR(50),
+  eaten_at     TIMESTAMP DEFAULT NOW(),
+  created_at   TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE fasting_sessions (
+  id             SERIAL PRIMARY KEY,
+  user_id        INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  fast_start     TIMESTAMP NOT NULL,
+  fast_end       TIMESTAMP,
+  target_hours   INTEGER NOT NULL,
+  completed      BOOLEAN DEFAULT FALSE,
+  broken_early   BOOLEAN DEFAULT FALSE,
+  created_at     TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_meal_logs_user_id ON meal_logs(user_id);
+CREATE INDEX idx_meal_logs_eaten_at ON meal_logs(eaten_at);
+CREATE INDEX idx_fasting_sessions_user_id ON fasting_sessions(user_id);
+CREATE INDEX idx_fasting_sessions_fast_end ON fasting_sessions(fast_end);</pre>
+
+  <!-- ============================================================ -->
+  <!-- API ROUTES -->
+  <!-- ============================================================ -->
+  <h2 class="section">8. API Routes</h2>
+  <p>All routes prefixed with <code>/api</code>. All routes except <code>POST /api/auth/register</code> require the <code>requireAuth</code> middleware.</p>
+  <table>
+    <tr><th>Method + Endpoint</th><th>Description</th><th>Key Notes</th></tr>
+    <tr><td><code>POST /api/auth/register</code></td><td>Create user_profile after Firebase signup</td><td>No auth required. Upsert operation.</td></tr>
+    <tr><td><code>GET /api/auth/me</code></td><td>Get current user profile</td><td>Returns full user_profile row</td></tr>
+    <tr><td><code>PUT /api/auth/profile</code></td><td>Update user settings</td><td>displayName, dailyCalorieGoal, fastingHours, fastingProtocol, timezone</td></tr>
+    <tr><td><code>GET /api/meals</code></td><td>Get meals (today or by date)</td><td>Query: ?date=YYYY-MM-DD, ?limit=N</td></tr>
+    <tr><td><code>POST /api/meals</code></td><td>Log meal + recalculate fast</td><td>Transaction. Returns meal + new fasting session.</td></tr>
+    <tr><td><code>DELETE /api/meals/:id</code></td><td>Delete a meal</td><td>Does not reverse fasting recalculation</td></tr>
+    <tr><td><code>GET /api/fasting/current</code></td><td>Active fasting session</td><td>Returns session + timeRemainingSeconds</td></tr>
+    <tr><td><code>POST /api/fasting/start</code></td><td>Start a fast</td><td>Body: { targetHours }</td></tr>
+    <tr><td><code>POST /api/fasting/break</code></td><td>Break a fast</td><td>Closes session, starts new one</td></tr>
+    <tr><td><code>GET /api/fasting/history</code></td><td>Past sessions</td><td>Query: ?limit=30</td></tr>
+    <tr><td><code>GET /api/food/search</code></td><td>USDA FoodData Central proxy</td><td>Query: ?q=search+terms. Returns parsed food items.</td></tr>
+    <tr><td><code>GET /api/dashboard/summary</code></td><td>All dashboard data</td><td>todayMeals, calorieTotal, macros, activeFast, streak, aiSummary</td></tr>
+    <tr><td><code>GET /api/ai/summary</code></td><td>Daily AI summary</td><td>Cached per day in user_profiles table</td></tr>
+    <tr><td><code>POST /api/ai/chat</code></td><td>AI chatbot (streaming SSE)</td><td>Body: { message, history[] }. User context injected into system prompt.</td></tr>
+    <tr><td><code>GET /api/history/calories</code></td><td>Calorie trend</td><td>Query: ?days=7 or ?days=30</td></tr>
+    <tr><td><code>GET /api/history/fasting</code></td><td>Fasting adherence</td><td>Returns adherence %, completed count, longest fast</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- KEY LOGIC -->
+  <!-- ============================================================ -->
+  <h2 class="section">9. Key Implementation Details</h2>
+
+  <h3 class="sub">9.1 Adaptive Fasting Timer (mealsController.js)</h3>
+  <p>When <code>POST /api/meals</code> is called:</p>
+  <ol>
+    <li>Insert meal into meal_logs with current timestamp</li>
+    <li>Find active fasting session (fast_end IS NULL)</li>
+    <li>If active session exists and fast_start is within 30 minutes (grace window): just shift fast_start forward to current time</li>
+    <li>If active session exists and older than 30 min: close it (set fast_end, calculate completed/broken_early), open new session from current timestamp</li>
+    <li>If no active session: create new one from current timestamp</li>
+    <li>Return meal + fasting session + timeRemainingSeconds in response</li>
+  </ol>
+  <p>All of this runs inside a database transaction for atomicity.</p>
+
+  <h3 class="sub">9.2 USDA FoodData Central (foodController.js)</h3>
+  <p>Endpoint: <code>https://api.nal.usda.gov/fdc/v1/foods/search</code></p>
+  <p>Nutrient IDs: 1008 (calories), 1003 (protein), 1005 (carbs), 1004 (fat)</p>
+  <p>Filters: SR Legacy, Survey (FNDDS), Foundation data types. Excludes 0-calorie items. Cleans up ALL CAPS descriptions to Title Case.</p>
+
+  <h3 class="sub">9.3 AI Chat (aiController.js)</h3>
+  <p>System prompt includes user's live data: name, calorie goal, fasting protocol, today's calories/macros, fasting status, time remaining, streak, recent meals. Uses SSE streaming (text/event-stream) with gpt-4o-mini. Chat history limited to last 10 messages.</p>
+
+  <h3 class="sub">9.4 Firebase Auth Flow</h3>
+  <p>Frontend: Firebase SDK handles login, returns JWT. Token attached as <code>Authorization: Bearer &lt;token&gt;</code> on every API call via <code>api.js</code>.</p>
+  <p>Backend: <code>authMiddleware.js</code> calls <code>admin.auth().verifyIdToken()</code>, sets <code>req.user</code> with decoded UID. All controllers look up user_profiles by <code>firebase_uid</code>.</p>
+
+  <!-- ============================================================ -->
+  <!-- ENV VARS -->
+  <!-- ============================================================ -->
+  <h2 class="section">10. Environment Variables</h2>
+  <div class="box box-red">
+    <div class="box-label">Important: Password Encoding</div>
+    <p>The PostgreSQL password contains <code>!!</code> characters. In the DATABASE_URL, these MUST be URL-encoded as <code>%21%21</code>. This also causes issues with bash shell (which interprets <code>!!</code> as history expansion). Use PowerShell or URL-encoded connection strings for psql commands.</p>
+  </div>
+
+  <h3 class="sub">server/.env</h3>
+<pre># PostgreSQL (local)
+DATABASE_URL=postgresql://postgres:MATEOjr02%21%21@localhost:5432/fasttrack
+
+# Firebase Admin SDK
+FIREBASE_PROJECT_ID=fasttrack-demo-83702
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...(truncated)...\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-fbsvc@fasttrack-demo-83702.iam.gserviceaccount.com
+
+# OpenAI
+OPENAI_API_KEY=sk-proj-...(truncated)
+
+# USDA FoodData Central
+USDA_API_KEY=Lf5F9pypqIPd5VNHc7pJgnEcH5ZoDCIGYBRcUnvl
+
+# Server config
+PORT=3001
+CLIENT_URL=http://localhost:5174</pre>
+
+  <h3 class="sub">client/.env</h3>
+<pre>VITE_FIREBASE_API_KEY=AIzaSyCQ0...
+VITE_FIREBASE_AUTH_DOMAIN=fasttrack-demo-83702.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=fasttrack-demo-83702
+VITE_FIREBASE_APP_ID=1:409911693506:web:...
+VITE_API_URL=http://localhost:3001</pre>
+
+  <!-- ============================================================ -->
+  <!-- STARTUP -->
+  <!-- ============================================================ -->
+  <h2 class="section">11. How to Start the App</h2>
+<pre># Terminal 1 - Backend
+cd server
+node index.js
+# Runs on http://localhost:3001
+
+# Terminal 2 - Frontend
+cd client
+npm run dev
+# Runs on http://localhost:5174
+
+# PostgreSQL must be running (Windows service: postgresql-x64-18)
+# Check: sc query postgresql-x64-18
+
+# To run psql with the !! password, use URL-encoded connection string:
+"C:\Program Files\PostgreSQL\18\bin\psql.exe" "postgresql://postgres:MATEOjr02%21%21@127.0.0.1:5432/fasttrack"</pre>
+
+  <!-- ============================================================ -->
+  <!-- KNOWN ISSUES -->
+  <!-- ============================================================ -->
+  <h2 class="section">12. Known Issues &amp; Gotchas</h2>
+  <ul>
+    <li><strong>curl on Windows:</strong> Fails to reach USDA API due to TLS certificate revocation check (<code>CRYPT_E_NO_REVOCATION_CHECK</code>). This is a Windows curl issue only - Node fetch works fine. The app is not affected.</li>
+    <li><strong>Vite port:</strong> If port 5174 is occupied, Vite picks the next available port. If this happens, update <code>CLIENT_URL</code> in <code>server/.env</code> and restart the backend so CORS allows the new origin.</li>
+    <li><strong>Firebase token expiry:</strong> Tokens expire after 1 hour. The client SDK auto-refreshes them via <code>getIdToken()</code> on each API call.</li>
+    <li><strong>Timezone handling:</strong> Stored in user_profiles but not actively used in queries yet - all timestamps are UTC.</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <!-- USER PROFILE -->
+  <!-- ============================================================ -->
+  <h2 class="section">13. Current User in Database</h2>
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>ID</td><td>1</td></tr>
+    <tr><td>Firebase UID</td><td>tTiwue9IXVbW6SYVx34YNlnM2rh1</td></tr>
+    <tr><td>Email</td><td>mateojrgfx@gmail.com</td></tr>
+    <tr><td>Display Name</td><td>Matthew Redzinski</td></tr>
+    <tr><td>Calorie Goal</td><td>2000</td></tr>
+    <tr><td>Fasting Protocol</td><td>16:8</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- INSTRUCTIONS FOR CLAUDE -->
+  <!-- ============================================================ -->
+  <h2 class="section">14. Instructions for New Claude Code Session</h2>
+  <div class="box box-purple">
+    <div class="box-label">Paste This When Starting a New Session</div>
+    <p>I'm continuing work on FastTrack - an intermittent fasting timer and calorie tracker. I'm attaching the session handoff HTML that has everything you need: current project state, what's been built, what's next, tech stack, API routes, schema, env vars, known issues, and the session log.</p>
+    <p>Read the handoff document thoroughly, then check the Task / Next To-Do table (Section 2) to see what needs to be done next. Pick up from the first task marked as NEXT or TODO.</p>
+    <p>Before starting work, read the actual source files to verify the handoff document is accurate - code is the source of truth.</p>
+  </div>
+
+  <div class="footer">
+    FastTrack Session Handoff &nbsp;|&nbsp; Last updated: 2026-03-29 (Session 3)
+  </div>
+
+</div>
+</body>
+</html>

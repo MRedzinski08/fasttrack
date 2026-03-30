@@ -56,7 +56,7 @@ export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
         {statusLabel}
       </div>
 
-      <div className={`text-6xl font-bold tabular-nums tracking-tight mb-2 ${colorClass}`}>
+      <div className={`text-4xl sm:text-5xl md:text-6xl font-bold tabular-nums tracking-tight mb-2 ${colorClass}`}>
         {formatTime(seconds)}
       </div>
 
