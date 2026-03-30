@@ -1,0 +1,30 @@
+@property --overlay-1 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #5A3800;
+}
+
+@property --overlay-2 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #2E1E00;
+}
+
+@keyframes gradientshift {
+  from {
+    --overlay-1: #5A3800;
+    --overlay-2: #2E1E00;
+  }
+  to {
+    --overlay-1: #2E1E00;
+    --overlay-2: #4A3000;
+  }
+}
+
+.bg-metallic-gold-bg {
+  background-color: #0A0800;
+  background-image:
+    linear-gradient(190deg, color(from var(--overlay-1) xyz x y z / 0.4), transparent 50%),
+    linear-gradient(160deg, color(from var(--overlay-2) xyz x y z / 0.6), transparent 50%);
+  animation: 3s linear 0s infinite alternate gradientshift;
+}

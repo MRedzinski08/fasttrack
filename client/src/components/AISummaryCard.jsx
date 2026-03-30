@@ -42,9 +42,9 @@ export default function AISummaryCard({ initialSummary }) {
         {(phase === 'loading' || phase === 'exiting') && (
           <div className={`flex flex-col items-center py-10 ${phase === 'exiting' ? 'slide-out-right' : ''}`}>
             <div className="trinity-spinner mb-4">
-              <svg className="ring-1" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFDF00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
-              <svg className="ring-2" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFDF00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
-              <svg className="ring-3" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFDF00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
+              <svg className="ring-1" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFAA00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
+              <svg className="ring-2" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFAA00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
+              <svg className="ring-3" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFAA00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
             </div>
             <span className="text-2xl font-semibold text-shimmer">Thinking...</span>
           </div>

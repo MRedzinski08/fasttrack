@@ -80,7 +80,7 @@ export default function History() {
                   contentStyle={{ backgroundColor: '#1A1810', border: '1px solid #2E2B20', borderRadius: '8px', color: '#B8A860' }}
                   labelStyle={{ color: '#B8A860' }}
                 />
-                <Line type="monotone" dataKey="total_calories" stroke="#FFDF00" strokeWidth={2} dot={{ r: 3, fill: '#CCB200' }} />
+                <Line type="monotone" dataKey="total_calories" stroke="#FFAA00" strokeWidth={2} dot={{ r: 3, fill: '#CC8800' }} />
               </LineChart>
             </ResponsiveContainer>
           ) : (
@@ -106,7 +106,7 @@ export default function History() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-col gap-4 md:grid md:grid-cols-3">
+      <div className="flex flex-col gap-4 md:grid md:grid-cols-2">
         <Card className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
           <CardContent className="text-center">
             <p className="text-2xl sm:text-3xl font-medium text-primary-600">{fastingData?.adherencePercent ?? 0}%</p>
@@ -119,13 +119,6 @@ export default function History() {
             <p className="text-2xl sm:text-3xl font-medium text-green-600">{fastingData?.completedSessions ?? 0}</p>
             <p className="text-sm text-[#706530] mt-1">Fasts Completed</p>
             <p className="text-xs text-[#5A5228]">of {fastingData?.totalSessions ?? 0} total</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
-          <CardContent className="text-center">
-            <p className="text-2xl sm:text-3xl font-medium text-purple-600">{fastingData?.longestFastHours ?? 0}h</p>
-            <p className="text-sm text-[#706530] mt-1">Longest Fast</p>
-            <p className="text-xs text-[#5A5228]">Personal record</p>
           </CardContent>
         </Card>
       </div>

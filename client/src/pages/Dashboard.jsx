@@ -157,7 +157,7 @@ export default function Dashboard() {
                   contentStyle={{ backgroundColor: '#1A1810', border: '1px solid #2E2B20', borderRadius: '8px', color: '#B8A860' }}
                   labelStyle={{ color: '#B8A860' }}
                 />
-                <Line type="monotone" dataKey="total_calories" stroke="#FFDF00" strokeWidth={2} dot={{ r: 3, fill: '#CCB200' }} />
+                <Line type="monotone" dataKey="total_calories" stroke="#FFAA00" strokeWidth={2} dot={{ r: 3, fill: '#CC8800' }} />
               </LineChart>
             </ResponsiveContainer>
           ) : (

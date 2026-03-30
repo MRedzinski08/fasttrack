@@ -7,16 +7,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-primary-50: #FFFDE7;
-  --color-primary-100: #FFF9C2;
-  --color-primary-200: #FFF38A;
-  --color-primary-300: #FFEA45;
-  --color-primary-400: #FFE41A;
-  --color-primary-500: #FFDF00;
-  --color-primary-600: #CCB200;
-  --color-primary-700: #A68E00;
-  --color-primary-800: #7A6800;
-  --color-primary-900: #4D4200;
+  --color-primary-50: #FFF5E0;
+  --color-primary-100: #FFE8B8;
+  --color-primary-200: #FFD880;
+  --color-primary-300: #FFC845;
+  --color-primary-400: #FFB820;
+  --color-primary-500: #FFAA00;
+  --color-primary-600: #CC8800;
+  --color-primary-700: #A66E00;
+  --color-primary-800: #7A5200;
+  --color-primary-900: #4D3300;
 }
 
 * {
@@ -84,7 +84,7 @@ body {
   --card-foreground: #FFFDE7;
   --popover: #1A1810;
   --popover-foreground: #FFFDE7;
-  --primary: #FFDF00;
+  --primary: #FFAA00;
   --primary-foreground: #0F0E08;
   --secondary: #22201A;
   --secondary-foreground: #B8A860;
@@ -95,21 +95,21 @@ body {
   --destructive: #dc2626;
   --border: #2E2B20;
   --input: #2E2B20;
-  --ring: #FFDF00;
-  --chart-1: #FFDF00;
-  --chart-2: #CCB200;
-  --chart-3: #A68E00;
-  --chart-4: #7A6800;
-  --chart-5: #4D4200;
+  --ring: #FFAA00;
+  --chart-1: #FFAA00;
+  --chart-2: #CC8800;
+  --chart-3: #A66E00;
+  --chart-4: #7A5200;
+  --chart-5: #4D3300;
   --radius: 0.625rem;
   --sidebar: #1A1810;
   --sidebar-foreground: #FFFDE7;
-  --sidebar-primary: #FFDF00;
+  --sidebar-primary: #FFAA00;
   --sidebar-primary-foreground: #0F0E08;
   --sidebar-accent: #22201A;
   --sidebar-accent-foreground: #FFFDE7;
   --sidebar-border: #2E2B20;
-  --sidebar-ring: #FFDF00;
+  --sidebar-ring: #FFAA00;
 }
 
 .dark {
@@ -119,7 +119,7 @@ body {
   --card-foreground: #FFFDE7;
   --popover: #1A1810;
   --popover-foreground: #FFFDE7;
-  --primary: #FFDF00;
+  --primary: #FFAA00;
   --primary-foreground: #0F0E08;
   --secondary: #22201A;
   --secondary-foreground: #B8A860;
@@ -130,20 +130,20 @@ body {
   --destructive: #dc2626;
   --border: #2E2B20;
   --input: #2E2B20;
-  --ring: #FFDF00;
-  --chart-1: #FFDF00;
-  --chart-2: #CCB200;
-  --chart-3: #A68E00;
-  --chart-4: #7A6800;
-  --chart-5: #4D4200;
+  --ring: #FFAA00;
+  --chart-1: #FFAA00;
+  --chart-2: #CC8800;
+  --chart-3: #A66E00;
+  --chart-4: #7A5200;
+  --chart-5: #4D3300;
   --sidebar: #1A1810;
   --sidebar-foreground: #FFFDE7;
-  --sidebar-primary: #FFDF00;
+  --sidebar-primary: #FFAA00;
   --sidebar-primary-foreground: #0F0E08;
   --sidebar-accent: #22201A;
   --sidebar-accent-foreground: #FFFDE7;
   --sidebar-border: #2E2B20;
-  --sidebar-ring: #FFDF00;
+  --sidebar-ring: #FFAA00;
 }
 
 @layer base {
@@ -170,7 +170,6 @@ body {
   left: 0;
   width: 100%;
   height: 250vh;
-  background-color: #0A0800;
   z-index: 0;
   pointer-events: none;
   will-change: transform;
@@ -204,7 +203,7 @@ body {
 }
 
 .text-shimmer {
-  background: linear-gradient(90deg, #FFDF00 0%, #FFDF00 35%, #FFF9C2 50%, #FFDF00 65%, #FFDF00 100%);
+  background: linear-gradient(90deg, #FFAA00 0%, #FFAA00 35%, #FFE8B8 50%, #FFAA00 65%, #FFAA00 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
