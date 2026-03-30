@@ -93,6 +93,12 @@
       <td>Connected PostgreSQL (password URL-encoding fix for <code>!!</code> characters). Ran schema.sql (tables already existed from prior run). Started both servers. Tested API routes: auth/me, dashboard/summary, fasting/current all working. Food search (USDA FoodData Central) confirmed working through Node (curl fails on Windows due to TLS/cert revocation - not an app issue). Tested meal logging through UI - works, fasting timer starts on meal log. Updated DATABASE_URL in server/.env to use <code>%21%21</code> encoding.</td>
       <td>Day 2</td>
     </tr>
+    <tr>
+      <td>4</td>
+      <td>2026-03-29</td>
+      <td>Added OpenAI credits — AI chat and daily summary now working. Responsive layout pass (9 fixes across 6 files). Added error state to History page. Full bug audit (frontend + backend). Fixed: macro bars not updating on meal delete, fasting schedule change not syncing to active session, DB connection leak in mealsController, retry button in History, AI summary date caching logic, breakFast made transactional with row locking. Created session handoff HTML document. All core features verified working end-to-end.</td>
+      <td>Day 6-7</td>
+    </tr>
   </table>
 
   <!-- ============================================================ -->
@@ -139,11 +145,11 @@
     <tr><td class="status-done">DONE</td><td>Day 6</td><td>History page with Recharts</td><td>7-day/30-day toggle, calorie trend line chart</td></tr>
     <tr><td class="status-done">DONE</td><td>Day 6</td><td>Fasting adherence display</td><td>Percentage, completed count, longest fast</td></tr>
     <tr><td class="status-done">DONE</td><td>Day 6</td><td>StreakBadge component</td><td>Fire emoji badge</td></tr>
-    <tr><td class="status-todo">TODO</td><td>Day 6</td><td>Responsive layout pass (mobile)</td><td>Not yet tested on mobile viewports</td></tr>
-    <tr><td class="status-todo">TODO</td><td>Day 6</td><td>Loading spinners + error states</td><td>Review all pages for missing states</td></tr>
-    <tr><td class="status-todo">TODO</td><td>Day 6</td><td>Empty states for new users</td><td>Dashboard, History when no data exists</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 6</td><td>Responsive layout pass (mobile)</td><td>9 fixes: ChatPanel, FastingTimer, History, LogMeal, Login, Settings</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 6</td><td>Loading spinners + error states</td><td>Error state added to History; others already had them</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 6</td><td>Empty states for new users</td><td>Already handled in Dashboard + History</td></tr>
     <!-- Day 7 -->
-    <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Full app walkthrough + bug fixes</td><td></td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 7</td><td>Full app walkthrough + bug fixes</td><td>Macro delete fix, fasting schedule sync, DB leak, retry logic, AI date cache, breakFast transaction</td></tr>
     <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Deploy backend (GCP Cloud Run)</td><td>Optional</td></tr>
     <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Deploy frontend (Firebase Hosting)</td><td>Optional</td></tr>
     <!-- Future / Backlog -->
@@ -451,7 +457,7 @@ npm run dev
   </div>
 
   <div class="footer">
-    FastTrack Session Handoff &nbsp;|&nbsp; Last updated: 2026-03-29 (Session 3)
+    FastTrack Session Handoff &nbsp;|&nbsp; Last updated: 2026-03-29 (Session 4)
   </div>
 
 </div>
