@@ -144,8 +144,10 @@ export async function getDailySummary(req, res) {
     const today = new Date().toISOString().split('T')[0];
 
     // Return cached summary if already generated today
-    if (user.ai_summary_date && user.ai_summary_date.toISOString?.()?.startsWith(today) ||
-        (user.ai_summary_date && String(user.ai_summary_date).startsWith(today))) {
+    const summaryDate = user.ai_summary_date
+      ? (typeof user.ai_summary_date === 'string' ? user.ai_summary_date : user.ai_summary_date.toISOString().split('T')[0])
+      : null;
+    if (summaryDate === today) {
       return res.json({ summary: user.ai_summary_text, cached: true });
     }
 

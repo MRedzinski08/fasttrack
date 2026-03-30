@@ -56,6 +56,7 @@ export async function logMeal(req, res) {
     const user = await getUser(req.user.uid);
     if (!user) {
       await client.query('ROLLBACK');
+      client.release();
       return res.status(404).json({ error: 'User not found' });
     }
 

@@ -9,6 +9,8 @@ export default function History() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [retryKey, setRetryKey] = useState(0);
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -28,7 +30,7 @@ export default function History() {
       }
     }
     load();
-  }, [calorieRange]);
+  }, [calorieRange, retryKey]);
 
   if (loading) {
     return (
@@ -43,7 +45,7 @@ export default function History() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">
           {error}
-          <button onClick={() => setCalorieRange((r) => r)} className="ml-3 underline">Retry</button>
+          <button onClick={() => setRetryKey((k) => k + 1)} className="ml-3 underline">Retry</button>
         </div>
       </div>
     );

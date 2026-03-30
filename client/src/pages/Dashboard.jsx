@@ -41,13 +41,19 @@ export default function Dashboard() {
   async function handleDeleteMeal(id) {
     try {
       await api.meals.delete(id);
-      setData((prev) => ({
-        ...prev,
-        todayMeals: prev.todayMeals.filter((m) => m.id !== id),
-        calorieTotal: prev.todayMeals
-          .filter((m) => m.id !== id)
-          .reduce((s, m) => s + m.calories, 0),
-      }));
+      setData((prev) => {
+        const remaining = prev.todayMeals.filter((m) => m.id !== id);
+        return {
+          ...prev,
+          todayMeals: remaining,
+          calorieTotal: remaining.reduce((s, m) => s + m.calories, 0),
+          macros: {
+            protein: remaining.reduce((s, m) => s + parseFloat(m.protein_g || 0), 0),
+            carbs: remaining.reduce((s, m) => s + parseFloat(m.carbs_g || 0), 0),
+            fat: remaining.reduce((s, m) => s + parseFloat(m.fat_g || 0), 0),
+          },
+        };
+      });
     } catch (err) {
       console.error(err);
     }

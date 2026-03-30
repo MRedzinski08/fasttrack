@@ -57,6 +57,16 @@ export async function updateProfile(req, res) {
        RETURNING *`,
       [dailyCalorieGoal, fastingHours, eatingHours, displayName, protocol, timezone, req.user.uid]
     );
+
+    // If fasting hours changed, update the active fasting session's target
+    if (fastingHours && result.rows[0]) {
+      await pool.query(
+        `UPDATE fasting_sessions SET target_hours = $1
+         WHERE user_id = $2 AND fast_end IS NULL`,
+        [fastingHours, result.rows[0].id]
+      );
+    }
+
     res.json({ user: result.rows[0] });
   } catch (err) {
     console.error('updateProfile error:', err);

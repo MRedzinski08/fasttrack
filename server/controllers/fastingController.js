@@ -66,18 +66,27 @@ export async function startFast(req, res) {
 }
 
 export async function breakFast(req, res) {
+  const client = await pool.connect();
   try {
-    const user = await getUserId(req.user.uid);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    await client.query('BEGIN');
 
-    const activeResult = await pool.query(
+    const user = await getUserId(req.user.uid);
+    if (!user) {
+      await client.query('ROLLBACK');
+      client.release();
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const activeResult = await client.query(
       `SELECT * FROM fasting_sessions
        WHERE user_id = $1 AND fast_end IS NULL
-       ORDER BY fast_start DESC LIMIT 1`,
+       ORDER BY fast_start DESC LIMIT 1 FOR UPDATE`,
       [user.id]
     );
 
     if (!activeResult.rows[0]) {
+      await client.query('ROLLBACK');
+      client.release();
       return res.status(400).json({ error: 'No active fasting session' });
     }
 
@@ -85,7 +94,7 @@ export async function breakFast(req, res) {
     const elapsedHours = (Date.now() - new Date(active.fast_start).getTime()) / (1000 * 60 * 60);
     const completed = elapsedHours >= active.target_hours;
 
-    const closed = await pool.query(
+    const closed = await client.query(
       `UPDATE fasting_sessions SET
          fast_end = NOW(),
          completed = $1,
@@ -95,16 +104,20 @@ export async function breakFast(req, res) {
     );
 
     // Start a new session
-    const newSession = await pool.query(
+    const newSession = await client.query(
       `INSERT INTO fasting_sessions (user_id, fast_start, target_hours)
        VALUES ($1, NOW(), $2) RETURNING *`,
       [user.id, active.target_hours]
     );
 
+    await client.query('COMMIT');
     res.json({ closedSession: closed.rows[0], newSession: newSession.rows[0] });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('breakFast error:', err);
     res.status(500).json({ error: 'Failed to break fast' });
+  } finally {
+    client.release();
   }
 }
 
