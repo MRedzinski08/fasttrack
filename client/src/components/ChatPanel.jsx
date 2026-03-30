@@ -21,8 +21,6 @@ export default function ChatPanel({ isOpen, onClose }) {
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setStreaming(true);
-
-    // Add empty assistant message to stream into
     setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
 
     try {
@@ -53,41 +51,35 @@ export default function ChatPanel({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Backdrop */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-black/20 z-40" onClick={onClose} />
-      )}
+      {isOpen && <div className="fixed inset-0 bg-black/20 z-40" onClick={onClose} />}
 
-      {/* Panel */}
       <div
         className={`fixed top-0 right-0 h-screen w-80 bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-blue-600 text-white">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-primary-300 bg-primary-500">
           <div className="flex items-center gap-2">
             <span className="text-lg">🤖</span>
             <div>
-              <p className="font-semibold text-sm">AI Coach</p>
-              <p className="text-xs text-blue-200">FastTrack Assistant</p>
+              <p className="font-semibold text-sm text-gray-900">AI Coach</p>
+              <p className="text-xs text-primary-800">FastTrack Assistant</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-blue-200 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-primary-700 hover:text-gray-900 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-sm'
+                    ? 'bg-primary-500 text-gray-900 rounded-br-sm'
                     : 'bg-gray-100 text-gray-800 rounded-bl-sm'
                 }`}
               >
@@ -104,7 +96,6 @@ export default function ChatPanel({ isOpen, onClose }) {
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
         <form onSubmit={sendMessage} className="p-3 border-t border-gray-200">
           <div className="flex gap-2">
             <input
@@ -113,12 +104,12 @@ export default function ChatPanel({ isOpen, onClose }) {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask your coach…"
               disabled={streaming}
-              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={!input.trim() || streaming}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-full w-9 h-9 flex items-center justify-center shrink-0 transition-colors"
+              className="bg-primary-500 hover:bg-primary-600 disabled:opacity-50 text-gray-900 rounded-full w-9 h-9 flex items-center justify-center shrink-0 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

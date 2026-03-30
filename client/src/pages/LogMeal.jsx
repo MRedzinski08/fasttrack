@@ -67,13 +67,11 @@ export default function LogMeal() {
     <div className="max-w-2xl mx-auto px-4 py-6">
       <h2 className="text-xl font-bold text-gray-800 mb-6">Log a Meal</h2>
 
-      {/* Search */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-4">
         <h3 className="font-semibold text-gray-700 mb-3 text-sm">Search Food</h3>
         <FoodSearchBar onSelect={handleFoodSelect} />
       </div>
 
-      {/* Selected items */}
       {selected.length > 0 && (
         <div className="bg-white rounded-xl shadow-md p-6 mb-4">
           <h3 className="font-semibold text-gray-700 mb-3 text-sm">Selected Foods</h3>
@@ -102,7 +100,7 @@ export default function LogMeal() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-2 px-6 rounded-lg transition-colors text-sm"
+              className="bg-primary-500 hover:bg-primary-600 disabled:opacity-60 text-gray-900 font-semibold py-2 px-6 rounded-lg transition-colors text-sm"
             >
               {saving ? 'Saving…' : 'Save Meal'}
             </button>
@@ -116,10 +114,9 @@ export default function LogMeal() {
         </div>
       )}
 
-      {/* Manual entry toggle */}
       <button
         onClick={() => setShowManual((v) => !v)}
-        className="text-sm text-blue-600 hover:underline"
+        className="text-sm text-primary-700 hover:underline"
       >
         {showManual ? 'Hide' : 'Use'} manual entry
       </button>
@@ -132,26 +129,26 @@ export default function LogMeal() {
             placeholder="Food name"
             value={manual.foodName}
             onChange={(e) => setManual({ ...manual, foodName: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
           />
           <div className="grid grid-cols-2 gap-3">
             <input required type="number" placeholder="Calories" value={manual.calories}
               onChange={(e) => setManual({ ...manual, calories: e.target.value })}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
             <input type="number" step="0.1" placeholder="Protein (g)" value={manual.protein}
               onChange={(e) => setManual({ ...manual, protein: e.target.value })}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
             <input type="number" step="0.1" placeholder="Carbs (g)" value={manual.carbs}
               onChange={(e) => setManual({ ...manual, carbs: e.target.value })}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
             <input type="number" step="0.1" placeholder="Fat (g)" value={manual.fat}
               onChange={(e) => setManual({ ...manual, fat: e.target.value })}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
           </div>
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
+            className="w-full bg-primary-500 hover:bg-primary-600 disabled:opacity-60 text-gray-900 font-semibold py-2 px-4 rounded-lg transition-colors text-sm"
           >
             {saving ? 'Saving…' : 'Save Manual Entry'}
           </button>

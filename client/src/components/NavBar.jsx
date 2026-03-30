@@ -9,7 +9,7 @@ const navLinks = [
 ];
 
 export default function NavBar({ onChatOpen }) {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -20,7 +20,7 @@ export default function NavBar({ onChatOpen }) {
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <span className="text-xl font-black text-blue-600 tracking-tight">FastTrack</span>
+        <span className="text-xl font-black text-primary-600 tracking-tight">FastTrack</span>
 
         <div className="hidden md:flex items-center gap-1">
           {navLinks.map((l) => (
@@ -29,7 +29,9 @@ export default function NavBar({ onChatOpen }) {
               to={l.to}
               className={({ isActive }) =>
                 `px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`
               }
             >
@@ -41,7 +43,7 @@ export default function NavBar({ onChatOpen }) {
         <div className="flex items-center gap-2">
           <button
             onClick={onChatOpen}
-            className="p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+            className="p-2 rounded-lg text-gray-500 hover:text-primary-700 hover:bg-primary-50 transition-colors"
             title="AI Coach"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +68,9 @@ export default function NavBar({ onChatOpen }) {
             to={l.to}
             className={({ isActive }) =>
               `flex-1 py-2 text-center text-xs font-medium transition-colors ${
-                isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'
+                isActive
+                  ? 'text-primary-700 border-b-2 border-primary-500'
+                  : 'text-gray-500'
               }`
             }
           >

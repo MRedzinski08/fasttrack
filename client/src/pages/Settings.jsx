@@ -41,7 +41,6 @@ export default function Settings() {
       const hours = form.fastingProtocol === 'Custom'
         ? parseInt(customHours)
         : form.fastingHours;
-
       await api.auth.updateProfile({
         displayName: form.displayName,
         dailyCalorieGoal: parseInt(form.dailyCalorieGoal),
@@ -76,7 +75,7 @@ export default function Settings() {
             type="text"
             value={form.displayName}
             onChange={(e) => setForm({ ...form, displayName: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
           />
         </div>
 
@@ -88,7 +87,7 @@ export default function Settings() {
             max="5000"
             value={form.dailyCalorieGoal}
             onChange={(e) => setForm({ ...form, dailyCalorieGoal: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
           />
         </div>
 
@@ -102,8 +101,8 @@ export default function Settings() {
                 onClick={() => selectProtocol(p)}
                 className={`py-2 rounded-lg text-sm font-semibold border transition-colors ${
                   form.fastingProtocol === p.label
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
+                    ? 'bg-primary-500 text-gray-900 border-primary-500'
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-primary-400'
                 }`}
               >
                 {p.label}
@@ -120,7 +119,7 @@ export default function Settings() {
                 value={customHours}
                 onChange={(e) => setCustomHours(e.target.value)}
                 placeholder="e.g. 14"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
           )}
@@ -138,7 +137,7 @@ export default function Settings() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"
+          className="w-full bg-primary-500 hover:bg-primary-600 disabled:opacity-60 text-gray-900 font-semibold py-2.5 px-4 rounded-lg transition-colors"
         >
           {saving ? 'Saving…' : 'Save Settings'}
         </button>

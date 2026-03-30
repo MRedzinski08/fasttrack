@@ -20,13 +20,13 @@ export default function AISummaryCard({ initialSummary }) {
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+    <div className="bg-gradient-to-br from-primary-50 to-yellow-50 rounded-xl p-5 border border-primary-100">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-blue-800">AI Daily Summary</h3>
+        <h3 className="text-sm font-semibold text-primary-800">AI Daily Summary</h3>
         <button
           onClick={generateSummary}
           disabled={loading}
-          className="text-xs text-blue-600 hover:text-blue-800 disabled:opacity-50 font-medium"
+          className="text-xs text-primary-700 hover:text-primary-900 disabled:opacity-50 font-medium"
         >
           {loading ? 'Generating…' : 'Refresh'}
         </button>
@@ -40,7 +40,7 @@ export default function AISummaryCard({ initialSummary }) {
           <button
             onClick={generateSummary}
             disabled={loading}
-            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg disabled:opacity-50"
+            className="text-xs bg-primary-500 hover:bg-primary-600 text-gray-900 px-3 py-1.5 rounded-lg disabled:opacity-50 font-medium"
           >
             {loading ? 'Generating…' : 'Generate Summary'}
           </button>

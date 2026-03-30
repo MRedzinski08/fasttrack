@@ -9,10 +9,7 @@ export default function FoodSearchBar({ onSelect }) {
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
+    if (!query.trim()) { setResults([]); return; }
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
@@ -44,10 +41,10 @@ export default function FoodSearchBar({ onSelect }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="e.g. 2 scrambled eggs and whole wheat toast"
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
         />
         {loading && (
-          <div className="absolute right-3 top-3.5 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="absolute right-3 top-3.5 w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
         )}
       </div>
 
@@ -59,7 +56,7 @@ export default function FoodSearchBar({ onSelect }) {
             <button
               key={i}
               onClick={() => handleSelect(food)}
-              className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-0"
+              className="w-full text-left px-4 py-3 hover:bg-primary-50 transition-colors border-b border-gray-100 last:border-0"
             >
               <div className="flex justify-between items-start">
                 <div>

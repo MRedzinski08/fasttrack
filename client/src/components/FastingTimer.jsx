@@ -11,7 +11,7 @@ function formatTime(seconds) {
 export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
   const [seconds, setSeconds] = useState(initialSeconds || 0);
   const isEatingWindow = seconds <= 0;
-  const isWarning = seconds > 0 && seconds <= 1800; // 30 min
+  const isWarning = seconds > 0 && seconds <= 1800;
 
   useEffect(() => {
     setSeconds(initialSeconds || 0);
@@ -26,7 +26,7 @@ export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
   }, [session]);
 
   const colorClass = isEatingWindow
-    ? 'text-blue-600'
+    ? 'text-primary-600'
     : isWarning
     ? 'text-amber-500'
     : 'text-green-600';
@@ -38,15 +38,21 @@ export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
     : 'Fasting';
 
   const statusBg = isEatingWindow
-    ? 'bg-blue-50 text-blue-700'
+    ? 'bg-primary-50 text-primary-700'
     : isWarning
     ? 'bg-amber-50 text-amber-700'
     : 'bg-green-50 text-green-700';
 
+  const dotColor = isEatingWindow
+    ? 'bg-primary-500'
+    : isWarning
+    ? 'bg-amber-500'
+    : 'bg-green-500';
+
   return (
     <div className="bg-white rounded-xl shadow-md p-6 text-center">
       <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4 ${statusBg}`}>
-        <span className={`w-2 h-2 rounded-full mr-1.5 ${isEatingWindow ? 'bg-blue-500' : isWarning ? 'bg-amber-500' : 'bg-green-500'}`} />
+        <span className={`w-2 h-2 rounded-full mr-1.5 ${dotColor}`} />
         {statusLabel}
       </div>
 
@@ -54,21 +60,19 @@ export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
         {formatTime(seconds)}
       </div>
 
-      {session && (
+      {session ? (
         <p className="text-gray-400 text-sm mb-5">
           {isEatingWindow
             ? 'Your eating window is open — enjoy your meal!'
             : `${session.target_hours}h fast · started ${new Date(session.fast_start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
         </p>
-      )}
-
-      {!session && (
+      ) : (
         <p className="text-gray-400 text-sm mb-5">No active fasting session</p>
       )}
 
       <button
         onClick={onBreakFast}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors text-sm"
+        className="bg-primary-500 hover:bg-primary-600 text-gray-900 font-semibold py-2 px-6 rounded-lg transition-colors text-sm"
       >
         {isEatingWindow ? 'Start New Fast' : 'Break Fast'}
       </button>

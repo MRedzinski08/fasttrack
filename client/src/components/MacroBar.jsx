@@ -1,7 +1,7 @@
 const macros = [
-  { key: 'protein', label: 'Protein', color: 'bg-blue-400', goal: 150 },
-  { key: 'carbs', label: 'Carbs', color: 'bg-amber-400', goal: 200 },
-  { key: 'fat', label: 'Fat', color: 'bg-red-400', goal: 65 },
+  { key: 'protein', label: 'Protein', color: 'bg-primary-400', goal: 150 },
+  { key: 'carbs',   label: 'Carbs',   color: 'bg-amber-400',   goal: 200 },
+  { key: 'fat',     label: 'Fat',     color: 'bg-red-400',     goal: 65  },
 ];
 
 export default function MacroBar({ protein = 0, carbs = 0, fat = 0 }) {

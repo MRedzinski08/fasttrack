@@ -3,7 +3,7 @@ export default function CalorieBar({ current, goal }) {
   const overGoal = current > goal;
   const nearGoal = pct >= 80;
 
-  const fillColor = overGoal ? 'bg-red-500' : nearGoal ? 'bg-amber-500' : 'bg-blue-500';
+  const fillColor = overGoal ? 'bg-red-500' : nearGoal ? 'bg-amber-500' : 'bg-primary-500';
 
   return (
     <div>
