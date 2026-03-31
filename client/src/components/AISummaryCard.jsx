@@ -35,7 +35,7 @@ export default function AISummaryCard({ initialSummary }) {
   if (!loading && !summary && phase === 'done') return null;
 
   return (
-    <Card className="bg-gradient-to-br from-[#1A1810] to-[#22201A] border-[#2E2B20] overflow-hidden min-h-[220px]">
+    <Card className="border-2 border-white/20 rounded-2xl overflow-hidden min-h-[220px]" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
       <CardContent>
         <h3 className="text-xl font-medium text-primary-500 mb-4">Daily Analysis</h3>
 

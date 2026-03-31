@@ -19,6 +19,52 @@
   --color-primary-900: #4D3300;
 }
 
+@keyframes sunPulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sunPulseSlow {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.sun-pulse-1 {
+  animation: sunPulse 8s ease-in-out infinite;
+}
+.sun-pulse-2 {
+  animation: sunPulseSlow 12s ease-in-out infinite;
+}
+.sun-pulse-3 {
+  animation: sunPulse 6s ease-in-out infinite;
+}
+
+@keyframes foregroundWave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.foreground-wave {
+  background:
+    linear-gradient(180deg, rgba(255,150,0,0.08) 0%, rgba(255,130,0,0.03) 15%, transparent 30%),
+    linear-gradient(160deg, transparent 0%, rgba(180,100,0,0.04) 20%, transparent 40%),
+    linear-gradient(200deg, transparent 0%, rgba(180,100,0,0.04) 25%, transparent 45%);
+  background-size: 200% 100%;
+  animation: foregroundWave 10s ease-in-out infinite;
+}
+
+.foreground-wave-bright {
+  background:
+    linear-gradient(180deg, rgba(255,150,0,0.1) 0%, rgba(255,130,0,0.04) 20%, rgba(180,100,0,0.02) 40%, transparent 60%),
+    linear-gradient(160deg, transparent 0%, rgba(255,140,0,0.05) 25%, transparent 50%),
+    linear-gradient(200deg, transparent 0%, rgba(255,140,0,0.05) 30%, transparent 55%);
+  background-size: 250% 100%;
+  animation: foregroundWave 20s ease-in-out infinite;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -179,6 +225,16 @@ body {
   0% { transform: translateX(0); opacity: 1; }
   50% { opacity: 0.7; }
   100% { transform: translateX(150px); opacity: 0; }
+}
+
+@keyframes slideInFromRight {
+  0% { transform: translateX(100px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+.slide-in-from-right {
+  animation: slideInFromRight 0.8s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+  opacity: 0;
 }
 
 @keyframes slideInLeft {

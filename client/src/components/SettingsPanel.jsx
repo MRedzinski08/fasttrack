@@ -147,10 +147,10 @@ export default function SettingsPanel({ isOpen, onClose }) {
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{
-          background: 'rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(40px) saturate(1.5)',
-          WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
-          borderLeft: '1px solid rgba(255, 255, 255, 0.12)',
+          background: 'rgba(255, 255, 255, 0.02)',
+          backdropFilter: 'blur(10px) saturate(1.2)',
+          WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
+          borderLeft: '2px solid rgba(255, 255, 255, 0.2)',
           boxShadow: '-20px 0 60px rgba(0, 0, 0, 0.3)',
         }}
       >

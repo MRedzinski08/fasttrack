@@ -120,7 +120,7 @@ export default function Dashboard() {
       </div>
 
       {/* Calories & Macros — own row */}
-      <Card data-scroll-scale className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
+      <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
         <CardContent className="space-y-5">
           <CalorieBar
             current={data?.calorieTotal || 0}
@@ -135,7 +135,7 @@ export default function Dashboard() {
       </Card>
 
       {/* Calorie Trend */}
-      <Card data-scroll-scale className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20 !py-4">
+      <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl !py-4" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
         <CardHeader className="!pb-0 !pt-0">
           <CardTitle className="text-xl font-medium text-primary-50">Your Activity</CardTitle>
         </CardHeader>
@@ -187,7 +187,7 @@ export default function Dashboard() {
       <div data-scroll-scale><AISummaryCard initialSummary={data?.aiSummary} /></div>
 
       {/* Recent Meals */}
-      <Card data-scroll-scale className="bg-[#1A1810] border-[#2E2B20] shadow-lg shadow-black/20">
+      <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-medium text-primary-50">Today's Meals</CardTitle>

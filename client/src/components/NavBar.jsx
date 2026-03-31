@@ -18,7 +18,7 @@ export default function NavBar({ onChatOpen, onSettingsOpen }) {
   }
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(40px) saturate(1.5)', WebkitBackdropFilter: 'blur(40px) saturate(1.5)' }}>
+    <nav className="sticky top-0 z-40 border-b-2 border-white/20" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)' }}>
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <span className="text-xl font-medium text-primary-600 tracking-tight">FastTrack</span>
 

@@ -90,7 +90,13 @@ export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
   const elapsedInfo = formatElapsed(session);
 
   return (
-    <Card className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/30 rounded-2xl">
+    <Card className="border-2 border-white/20 rounded-2xl"
+      style={{
+        background: 'rgba(255,255,255,0.02)',
+        backdropFilter: 'blur(10px) saturate(1.2)',
+        WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)',
+      }}>
       <CardContent className="text-center py-8">
         {/* Header */}
         <h2 className={`text-4xl sm:text-5xl font-medium mb-6 ${isEatingWindow ? 'text-primary-500' : 'text-green-500'}`}>
