@@ -134,9 +134,9 @@ export default function SettingsPanel({ isOpen, onClose }) {
     }
   }
 
-  const inputClass = "bg-white/5 border-white/10 text-primary-50 placeholder:text-white/20 h-10";
-  const selectClass = "w-full border border-white/10 bg-white/5 text-primary-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400";
-  const labelClass = "text-sm font-medium text-white/60 mb-1";
+  const inputClass = "bg-white/5 border-white/10 text-primary-50 placeholder:text-white/20 !h-14 !text-base";
+  const selectClass = "w-full border border-white/10 bg-white/5 text-primary-50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-primary-400";
+  const labelClass = "text-base font-medium text-white/60 mb-2";
 
   return (
     <>
@@ -155,35 +155,38 @@ export default function SettingsPanel({ isOpen, onClose }) {
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-          <h2 className="text-lg font-medium text-primary-50">Settings</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+          <h2 className="text-xl font-medium text-primary-50">Settings</h2>
           <button onClick={onClose} className="text-white/40 hover:text-white/80 transition-colors text-xl">
             ✕
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-white/10">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => { setTab(t.id); setError(''); }}
-              className={`flex-1 py-3 text-xs font-medium text-center transition-colors ${
-                tab === t.id
-                  ? 'text-primary-500 border-b-2 border-primary-500 bg-white/5'
-                  : 'text-white/40 hover:text-white/70'
-              }`}
-            >
-              <span className="block text-base mb-0.5">{t.icon}</span>
-              {t.label}
-            </button>
-          ))}
-        </div>
+        {/* Layout: sidebar tabs + content */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Vertical tabs */}
+          <div className="flex flex-col border-r border-white/10 w-[160px] shrink-0 py-3">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => { setTab(t.id); setError(''); }}
+                className={`flex items-center gap-3 px-5 py-4 text-base font-medium text-left transition-colors ${
+                  tab === t.id
+                    ? 'text-primary-500 bg-white/5 border-r-2 border-primary-500'
+                    : 'text-white/40 hover:text-white/70 hover:bg-white/3'
+                }`}
+              >
+                <span className="text-lg" style={{ filter: 'grayscale(1) brightness(1.5) sepia(1) hue-rotate(10deg) saturate(3)' }}>{t.icon}</span>
+                {t.label}
+              </button>
+            ))}
+          </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-8 space-y-6">
           {tab === 'profile' && (
             <>
+              <h3 className="text-2xl font-medium text-primary-500 mb-2">Profile</h3>
               <div>
                 <Label className={labelClass}>Display Name</Label>
                 <Input
@@ -193,7 +196,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                   className={inputClass}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className={labelClass}>Age</Label>
                   <Input
@@ -220,7 +223,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
               </div>
               <div>
                 <Label className={labelClass}>Height</Label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="relative">
                     <Input
                       type="number"
@@ -252,7 +255,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {tab === 'weight' && (
             <>
-              <div className="grid grid-cols-2 gap-3">
+              <h3 className="text-2xl font-medium text-primary-500 mb-2">Weight Goals</h3>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className={labelClass}>Current Weight (lbs)</Label>
                   <Input
@@ -278,7 +282,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className={labelClass}>Activity Level</Label>
                   <select
@@ -309,12 +313,12 @@ export default function SettingsPanel({ isOpen, onClose }) {
                 type="button"
                 variant="outline"
                 onClick={recalculateCalories}
-                className="w-full border-white/10 bg-white/5 text-primary-500 hover:bg-white/10 hover:text-primary-400 font-medium text-sm"
+                className="w-full border-white/10 bg-white/5 text-primary-500 hover:bg-white/10 hover:text-primary-400 font-medium text-base !py-3 !h-auto"
               >
                 Recalculate Recommended Calories
               </Button>
               {recalcResult && (
-                <div className="bg-primary-500/10 border border-primary-500/20 rounded-lg p-3 text-center text-sm">
+                <div className="bg-primary-500/10 border border-primary-500/20 rounded-xl p-4 text-center text-base">
                   <span className="font-medium text-primary-500">{recalcResult.recommended} cal/day</span>
                   <span className="text-white/40 ml-2">(TDEE: {recalcResult.tdee} - {recalcResult.dailyDeficit} deficit)</span>
                 </div>
@@ -324,6 +328,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {tab === 'nutrition' && (
             <>
+              <h3 className="text-2xl font-medium text-primary-500 mb-2">Nutrition</h3>
+              <p className="text-base text-white/60 mb-5">To re-calculate your estimated calorie goal, go to the Weight tab in Settings.</p>
               <div>
                 <Label className={labelClass}>Daily Calorie Goal</Label>
                 <Input
@@ -340,7 +346,9 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {tab === 'fasting' && (
             <>
-              <div className="grid grid-cols-2 gap-2">
+              <h3 className="text-2xl font-medium text-primary-500 mb-2">Fasting Protocol</h3>
+              <p className="text-base text-white/60 mb-5">Select the time interval that best works for your schedule and dieting goals.</p>
+              <div className="grid grid-cols-2 gap-4">
                 {IF_PROTOCOLS.map((p) => (
                   <Button
                     key={p.label}
@@ -349,8 +357,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
                     onClick={() => selectProtocol(p)}
                     className={
                       form.fastingProtocol === p.label
-                        ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium'
-                        : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-primary-50 font-medium'
+                        ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-5 !text-xl !h-auto'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-primary-50 font-medium !py-5 !text-xl !h-auto'
                     }
                   >
                     {p.label}
@@ -373,22 +381,23 @@ export default function SettingsPanel({ isOpen, onClose }) {
               )}
             </>
           )}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/10 space-y-2">
+        <div className="px-8 py-5 border-t border-white/10 space-y-3">
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-300 text-sm rounded-lg px-3 py-2">{error}</div>
+            <div className="bg-red-500/10 border border-red-500/20 text-red-300 text-base rounded-xl px-4 py-3">{error}</div>
           )}
           {saved && (
-            <div className="bg-green-500/10 border border-green-500/20 text-green-400 text-sm rounded-lg px-3 py-2">
+            <div className="bg-green-500/10 border border-green-500/20 text-green-400 text-base rounded-xl px-4 py-3">
               Settings saved!
             </div>
           )}
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium"
+            className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-4 !text-lg !h-auto"
           >
             {saving ? 'Saving...' : 'Save Settings'}
           </Button>

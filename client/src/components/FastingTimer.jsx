@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -28,7 +29,7 @@ function formatElapsed(session) {
   return { elapsed, timeStr };
 }
 
-export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
+export default function FastingTimer({ session, initialSeconds }) {
   const [seconds, setSeconds] = useState(initialSeconds || 0);
   const [, setTick] = useState(0); // force re-render for elapsed time
   const isEatingWindow = seconds <= 0;
@@ -126,21 +127,15 @@ export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
           </div>
         </div>
 
-        {/* Elapsed info */}
+        {/* Status info */}
         {session ? (
           <p className="text-white font-medium text-xl sm:text-2xl mb-8 px-4 leading-relaxed">
             {isEatingWindow ? (
-              elapsedInfo ? (
-                <>
-                  You broke your fast <span className="font-medium text-primary-50">{elapsedInfo.elapsed}</span> ago<br />at <span className="font-medium text-primary-50">{elapsedInfo.timeStr}</span>.
-                </>
-              ) : (
-                'Your eating window is open — enjoy your meal!'
-              )
+              'Your eating window is open. Log a meal to start your next fast.'
             ) : (
               elapsedInfo ? (
                 <>
-                  You broke your fast <span className="font-medium text-primary-50">{elapsedInfo.elapsed}</span> ago<br />at <span className="font-medium text-primary-50">{elapsedInfo.timeStr}</span>.
+                  Your fast started <span className="font-medium text-primary-50">{elapsedInfo.elapsed}</span> ago at <span className="font-medium text-primary-50">{elapsedInfo.timeStr}</span>.
                 </>
               ) : (
                 `${session.target_hours}h fast in progress`
@@ -151,13 +146,14 @@ export default function FastingTimer({ session, initialSeconds, onBreakFast }) {
           <p className="text-[#5A5228] text-base sm:text-lg font-medium mb-8">No active fasting session</p>
         )}
 
-        {/* Break Fast / Start Fast button */}
-        <button
-          onClick={onBreakFast}
-          className="bg-primary-500 hover:bg-primary-400 text-primary-900 font-medium text-lg sm:text-xl tracking-wide py-4 px-10 rounded-xl transition-colors select-none"
+        {/* Log Meal button */}
+        <Link
+          to="/log-meal"
+          className="inline-block bg-primary-500 hover:bg-primary-400 text-primary-900 font-medium text-lg sm:text-xl tracking-wide py-4 rounded-xl transition-colors select-none text-center"
+          style={{ width: 'calc(50% - 8px)' }}
         >
-          {isEatingWindow ? 'Start New Fast' : 'Log Meal'}
-        </button>
+          Log Meal
+        </Link>
       </CardContent>
     </Card>
   );

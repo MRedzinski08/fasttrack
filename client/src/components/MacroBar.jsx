@@ -11,12 +11,12 @@ export default function MacroBar({ protein = 0, carbs = 0, fat = 0 }) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-[#B8A860]">Macros</h3>
+      <h3 className="text-xl font-medium text-white">Macros</h3>
       {macros.map((m) => {
         const pct = Math.min((values[m.key] / m.goal) * 100, 100);
         return (
           <div key={m.key}>
-            <div className="flex justify-between text-xs text-[#706530] mb-0.5">
+            <div className="flex justify-between text-base text-white mb-0.5">
               <span>{m.label}</span>
               <span>{values[m.key]}g</span>
             </div>

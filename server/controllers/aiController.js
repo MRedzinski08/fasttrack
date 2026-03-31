@@ -161,9 +161,9 @@ Data:
 - Recent meals: ${context.recentMeals}
 
 Format rules:
-- Write in third person or impersonal ("Intake is...", "Protein is trending...", "Consider...")
+- Write in second person ("Your caloric intake is...", "Your protein is trending...", "Consider...")
 - Never use the user's name. Never greet them. Never say "Great job", "Keep it up", or similar.
-- No exclamation marks. No conversational tone.
+- No exclamation marks. Keep it direct but personal — address the user as "you/your".
 - State variances from targets as percentages or absolute numbers.
 - When something is off track, frame it as a gentle suggestion ("Adding a protein source at lunch could help close the gap") rather than a criticism ("Protein intake is insufficient").
 - Keep the tone like a helpful note on a dashboard — informative, not judgmental.

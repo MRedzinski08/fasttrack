@@ -71,7 +71,7 @@ export async function logMeal(req, res) {
     );
     const meal = mealResult.rows[0];
 
-    // Adaptive fasting logic
+    // Fasting logic: only reset timer when eating window is open
     const activeResult = await client.query(
       `SELECT * FROM fasting_sessions
        WHERE user_id = $1 AND fast_end IS NULL
@@ -80,21 +80,17 @@ export async function logMeal(req, res) {
     );
 
     let fastingSession;
+    let outsideEatingWindow = false;
 
     if (activeResult.rows[0]) {
       const active = activeResult.rows[0];
-      const fastStartAge = (now - new Date(active.fast_start)) / (1000 * 60); // minutes
+      const elapsedMs = now - new Date(active.fast_start);
+      const targetMs = active.target_hours * 60 * 60 * 1000;
+      const eatingWindowOpen = elapsedMs >= targetMs;
 
-      if (fastStartAge <= GRACE_WINDOW_MINUTES) {
-        // Within grace window — just shift the fast_start forward
-        const updated = await client.query(
-          `UPDATE fasting_sessions SET fast_start = $1 WHERE id = $2 RETURNING *`,
-          [now, active.id]
-        );
-        fastingSession = updated.rows[0];
-      } else {
-        // Close current session
-        const elapsedHours = fastStartAge / 60;
+      if (eatingWindowOpen) {
+        // Eating window is open — this meal resets the fast
+        const elapsedHours = elapsedMs / (1000 * 60 * 60);
         const completed = elapsedHours >= active.target_hours;
         await client.query(
           `UPDATE fasting_sessions SET fast_end = $1, completed = $2, broken_early = $3
@@ -102,13 +98,17 @@ export async function logMeal(req, res) {
           [now, completed, !completed, active.id]
         );
 
-        // Open new session from this meal's timestamp
+        // Start new fasting session from this meal
         const newSession = await client.query(
           `INSERT INTO fasting_sessions (user_id, fast_start, target_hours)
            VALUES ($1, $2, $3) RETURNING *`,
           [user.id, now, user.fasting_hours]
         );
         fastingSession = newSession.rows[0];
+      } else {
+        // Still fasting — meal is outside eating window, do NOT reset timer
+        outsideEatingWindow = true;
+        fastingSession = active;
       }
     } else {
       // No active session — start one from now
@@ -126,7 +126,7 @@ export async function logMeal(req, res) {
     const elapsedMs = now - new Date(fastingSession.fast_start);
     const timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
 
-    res.status(201).json({ meal, fastingSession, timeRemainingSeconds });
+    res.status(201).json({ meal, fastingSession, timeRemainingSeconds, outsideEatingWindow });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('logMeal error:', err);

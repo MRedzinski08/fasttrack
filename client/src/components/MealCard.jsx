@@ -18,7 +18,7 @@ export default function MealCard({ meal, onDelete }) {
             variant="ghost"
             size="icon-xs"
             onClick={() => onDelete(meal.id)}
-            className="text-[#5A5228] hover:text-red-500 hover:bg-transparent"
+            className="text-primary-500 hover:text-red-500 hover:bg-transparent"
             title="Remove"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -23,7 +23,7 @@ export async function searchFood(req, res) {
   }
 
   try {
-    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(q)}&api_key=${process.env.USDA_API_KEY}&pageSize=8&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation`;
+    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(q)}&api_key=${process.env.USDA_API_KEY}&pageSize=12&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation,Branded`;
 
     const response = await fetch(url);
 

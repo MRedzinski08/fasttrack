@@ -38,19 +38,6 @@ export default function Dashboard() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function handleBreakFast() {
-    try {
-      const result = await api.fasting.break();
-      setData((prev) => ({
-        ...prev,
-        activeFast: result.newSession,
-        timeRemainingSeconds: result.newSession.target_hours * 3600,
-      }));
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   async function handleDeleteMeal(id) {
     try {
       await api.meals.delete(id);
@@ -82,7 +69,7 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-[96rem] mx-auto px-4 py-8">
         <div className="bg-red-900/20 border border-red-500/30 text-red-300 rounded-xl p-4 text-sm">
           {error}
           <Button variant="link" onClick={load} className="ml-3 text-red-300 underline">Retry</Button>
@@ -92,7 +79,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div ref={scrollRef} className="max-w-5xl mx-auto px-4 py-6 space-y-4">
+    <div ref={scrollRef} className="max-w-[96rem] mx-auto px-4 py-6 space-y-4">
       <div data-scroll-scale>
         <div className="inline-block">
           <div className="flex items-center gap-3">
@@ -115,8 +102,41 @@ export default function Dashboard() {
       <FastingTimer
         session={data?.activeFast}
         initialSeconds={data?.timeRemainingSeconds}
-        onBreakFast={handleBreakFast}
       />
+      </div>
+
+      {/* Calorie stat cards */}
+      <div data-scroll-scale className="grid gap-4" style={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
+        {(() => {
+          const goal = data?.user?.dailyCalorieGoal || 2000;
+          const intake = data?.calorieTotal || 0;
+          const net = goal - intake;
+          const isOver = net < 0;
+          return (
+            <>
+              <Card className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
+                <CardContent className="text-center py-6">
+                  <p className="text-5xl font-medium text-primary-500">{goal.toLocaleString()}</p>
+                  <p className="text-lg text-white/50 mt-2">Calorie Goal</p>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
+                <CardContent className="text-center py-6">
+                  <p className="text-5xl font-medium text-white">{intake.toLocaleString()}</p>
+                  <p className="text-lg text-white/50 mt-2">Today's Intake</p>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
+                <CardContent className="text-center py-6">
+                  <p className={`text-5xl font-medium ${isOver ? 'text-red-500' : 'text-green-500'}`}>
+                    {isOver ? '+' : ''}{Math.abs(net).toLocaleString()}
+                  </p>
+                  <p className="text-lg text-white/50 mt-2">{isOver ? 'Over' : 'Remaining'}</p>
+                </CardContent>
+              </Card>
+            </>
+          );
+        })()}
       </div>
 
       {/* Calories & Macros — own row */}
@@ -134,62 +154,10 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Calorie Trend */}
-      <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl !py-4" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-        <CardHeader className="!pb-0 !pt-0">
-          <CardTitle className="text-xl font-medium text-primary-50">Your Activity</CardTitle>
-        </CardHeader>
-        <CardContent className="!pb-0">
-          {calorieTrend.length > 0 ? (
-            <ResponsiveContainer width="100%" height={180}>
-              <LineChart data={calorieTrend} margin={{ left: -30, right: 8, top: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2E2B20" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(d) => new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                  tick={{ fontSize: 11, fill: '#706530' }}
-                  stroke="#2E2B20"
-                />
-                <YAxis tick={{ fontSize: 11, fill: '#706530' }} stroke="#2E2B20" />
-                <Tooltip
-                  labelFormatter={(d) => new Date(d).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-                  formatter={(v) => [`${v} kcal`, 'Calories']}
-                  contentStyle={{ backgroundColor: '#1A1810', border: '1px solid #2E2B20', borderRadius: '8px', color: '#B8A860' }}
-                  labelStyle={{ color: '#B8A860' }}
-                />
-                <Line type="monotone" dataKey="total_calories" stroke="#FFAA00" strokeWidth={2} dot={{ r: 3, fill: '#CC8800' }} />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <p className="text-center text-[#5A5228] text-sm py-8">No calorie data yet. Start logging meals!</p>
-          )}
-          <div className="flex gap-2 -mt-[6px] px-4">
-            {[{ label: '1W', days: 7 }, { label: '1M', days: 30 }, { label: '1Y', days: 365 }, { label: 'YTD', days: Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 1)) / 86400000) }].map((r) => (
-              <Button
-                key={r.label}
-                size="xs"
-                variant={chartRange === r.days ? 'default' : 'outline'}
-                onClick={() => setChartRange(r.days)}
-                className={
-                  chartRange === r.days
-                    ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-full'
-                    : 'border-[#2E2B20] bg-transparent text-[#B8A860] hover:bg-[#2E2B20] hover:text-primary-50 rounded-full'
-                }
-              >
-                {r.label}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* AI Summary */}
-      <div data-scroll-scale><AISummaryCard initialSummary={data?.aiSummary} /></div>
-
       {/* Recent Meals */}
       <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <CardTitle className="text-xl font-medium text-primary-50">Today's Meals</CardTitle>
             <Button variant="link" asChild className="text-primary-500 hover:text-primary-400 p-0 h-auto text-sm font-medium">
               <Link to="/log-meal">+ Log Meal</Link>
@@ -209,6 +177,58 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Calorie Trend */}
+      <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl !py-4" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
+        <CardHeader className="!pb-0 !pt-0">
+          <CardTitle className="text-xl font-medium text-primary-50">Your Activity</CardTitle>
+        </CardHeader>
+        <CardContent className="!pb-0">
+          {calorieTrend.length > 0 ? (
+            <ResponsiveContainer width="100%" height={360}>
+              <LineChart data={calorieTrend} margin={{ left: -30, right: 8, top: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#2E2B20" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(d) => new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                  tick={{ fontSize: 14, fill: '#706530' }}
+                  stroke="#2E2B20"
+                />
+                <YAxis tick={{ fontSize: 14, fill: '#706530' }} stroke="#2E2B20" />
+                <Tooltip
+                  labelFormatter={(d) => new Date(d).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                  formatter={(v) => [`${v} kcal`, 'Calories']}
+                  contentStyle={{ backgroundColor: '#1A1810', border: '1px solid #2E2B20', borderRadius: '8px', color: '#B8A860' }}
+                  labelStyle={{ color: '#B8A860' }}
+                />
+                <Line type="monotone" dataKey="total_calories" stroke="#FFAA00" strokeWidth={2} dot={{ r: 3, fill: '#CC8800' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-center text-[#5A5228] text-sm py-8">No calorie data yet. Start logging meals!</p>
+          )}
+          <div className="flex gap-3 mt-2 px-4">
+            {[{ label: '1W', days: 7 }, { label: '1M', days: 30 }, { label: '1Y', days: 365 }, { label: 'YTD', days: Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 1)) / 86400000) }].map((r) => (
+              <Button
+                key={r.label}
+                size="sm"
+                variant={chartRange === r.days ? 'default' : 'outline'}
+                onClick={() => setChartRange(r.days)}
+                className={
+                  chartRange === r.days
+                    ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-full px-5 py-2 text-base'
+                    : 'border-[#2E2B20] bg-transparent text-[#B8A860] hover:bg-[#2E2B20] hover:text-primary-50 rounded-full px-5 py-2 text-base'
+                }
+              >
+                {r.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* AI Summary */}
+      <div data-scroll-scale><AISummaryCard initialSummary={data?.aiSummary} /></div>
     </div>
   );
 }

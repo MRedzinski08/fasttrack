@@ -227,6 +227,24 @@ body {
   100% { transform: translateX(150px); opacity: 0; }
 }
 
+@keyframes pageSlideUp {
+  0% { transform: translateY(60px) scale(1.02); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.98); }
+}
+
+.page-enter {
+  animation: pageSlideUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.page-exit {
+  animation: pageFadeOut 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
 @keyframes slideInFromRight {
   0% { transform: translateX(100px); opacity: 0; }
   100% { transform: translateX(0); opacity: 1; }
