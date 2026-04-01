@@ -32,12 +32,21 @@ function formatElapsed(session) {
 export default function FastingTimer({ session, initialSeconds }) {
   const [seconds, setSeconds] = useState(initialSeconds || 0);
   const [, setTick] = useState(0); // force re-render for elapsed time
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const isEatingWindow = seconds <= 0;
   const isWarning = seconds > 0 && seconds <= 1800;
 
   useEffect(() => {
     setSeconds(initialSeconds || 0);
   }, [initialSeconds]);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth < 640);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (!session) return;
@@ -82,7 +91,7 @@ export default function FastingTimer({ session, initialSeconds }) {
   const totalSeconds = session ? session.target_hours * 3600 : 1;
   const elapsed = totalSeconds - seconds;
   const progress = Math.min(1, Math.max(0, elapsed / totalSeconds));
-  const radius = 120;
+  const radius = isMobile ? 75 : 120;
   const svgSize = (radius + 16) * 2;
   const center = svgSize / 2;
   const circumference = 2 * Math.PI * radius;
@@ -100,7 +109,7 @@ export default function FastingTimer({ session, initialSeconds }) {
       }}>
       <CardContent className="text-center py-8">
         {/* Header */}
-        <h2 className={`text-4xl sm:text-5xl font-medium mb-6 ${isEatingWindow ? 'text-primary-500' : 'text-green-500'}`}>
+        <h2 className={`text-2xl sm:text-4xl lg:text-5xl font-medium mb-6 ${isEatingWindow ? 'text-primary-500' : 'text-green-500'}`}>
           {isEatingWindow ? 'TIME TO EAT!' : 'FASTING'}
         </h2>
 
@@ -129,7 +138,7 @@ export default function FastingTimer({ session, initialSeconds }) {
 
         {/* Status info */}
         {session ? (
-          <p className="text-white font-medium text-xl sm:text-2xl mb-8 px-4 leading-relaxed">
+          <p className="text-white font-medium text-base sm:text-xl lg:text-2xl mb-8 px-4 leading-relaxed">
             {isEatingWindow ? (
               'Your eating window is open. Log a meal to start your next fast.'
             ) : (
@@ -149,8 +158,7 @@ export default function FastingTimer({ session, initialSeconds }) {
         {/* Log Meal button */}
         <Link
           to="/log-meal"
-          className="inline-block bg-primary-500 hover:bg-primary-400 text-primary-900 font-medium text-lg sm:text-xl tracking-wide py-4 rounded-xl transition-colors select-none text-center"
-          style={{ width: 'calc(50% - 8px)' }}
+          className="inline-block bg-primary-500 hover:bg-primary-400 text-primary-900 font-medium text-lg sm:text-xl tracking-wide py-4 rounded-xl transition-colors select-none text-center w-4/5 sm:w-auto sm:px-20"
         >
           Log Meal
         </Link>

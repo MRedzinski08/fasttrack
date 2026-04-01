@@ -84,7 +84,7 @@ function AppLayout() {
       {/* Floating chat button */}
       <button
         onClick={() => setChatOpen(true)}
-        className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-30 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border-2 border-white/20 flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-20 right-4 sm:bottom-8 sm:right-8 z-30 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border-2 border-white/20 flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
         style={{
           background: 'rgba(255,255,255,0.02)',
           backdropFilter: 'blur(10px) saturate(1.2)',

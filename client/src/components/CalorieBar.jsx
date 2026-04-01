@@ -10,7 +10,7 @@ export default function CalorieBar({ current, goal }) {
   return (
     <div>
       <div className="flex justify-between items-baseline mb-1">
-        <span className="text-xl font-medium text-white">Calories Today</span>
+        <span className="text-base sm:text-xl font-medium text-white">Calories Today</span>
         <span className={`text-sm font-medium ${overGoal ? 'text-red-500' : 'text-white'}`}>
           {current} / {goal} kcal
         </span>

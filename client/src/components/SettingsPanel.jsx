@@ -19,11 +19,40 @@ const ACTIVITY_LEVELS = [
   { value: 'very_active', label: 'Very Active' },
 ];
 
+const TAB_ICONS = {
+  profile: (
+    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+    </svg>
+  ),
+  weight: (
+    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43 1.43 1.43 2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z" />
+    </svg>
+  ),
+  nutrition: (
+    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M8.1 13.34l2.83-2.83L3.91 3.5a4.008 4.008 0 000 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z" />
+    </svg>
+  ),
+  fasting: (
+    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0012 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
+    </svg>
+  ),
+  subscription: (
+    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
+    </svg>
+  ),
+};
+
 const TABS = [
-  { id: 'profile', label: 'Profile', icon: '👤' },
-  { id: 'weight', label: 'Weight', icon: '⚖️' },
-  { id: 'nutrition', label: 'Nutrition', icon: '🍎' },
-  { id: 'fasting', label: 'Fasting', icon: '⏱️' },
+  { id: 'profile', label: 'Profile' },
+  { id: 'weight', label: 'Weight' },
+  { id: 'nutrition', label: 'Nutrition' },
+  { id: 'fasting', label: 'Fasting' },
+  { id: 'subscription', label: 'Pro' },
 ];
 
 export default function SettingsPanel({ isOpen, onClose }) {
@@ -45,6 +74,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
   const [customHours, setCustomHours] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [subData, setSubData] = useState({ tier: 'free', status: 'none', endDate: null });
+  const [subLoading, setSubLoading] = useState(false);
   const [error, setError] = useState('');
   const [recalcResult, setRecalcResult] = useState(null);
 
@@ -71,6 +102,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
         setCustomHours(u.fasting_hours?.toString() || '');
       }
     }).catch(console.error);
+    api.billing.status().then(setSubData).catch(console.error);
   }, [isOpen]);
 
   async function handleSave() {
@@ -134,8 +166,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
     }
   }
 
-  const inputClass = "bg-white/5 border-white/10 text-primary-50 placeholder:text-white/20 !h-14 !text-base";
-  const selectClass = "w-full border border-white/10 bg-white/5 text-primary-50 rounded-xl px-4 py-3.5 text-base focus:outline-none focus:ring-2 focus:ring-primary-400";
+  const inputClass = "bg-white/5 border-white/10 text-primary-50 placeholder:text-white/20 !h-11 !text-base sm:!h-14";
+  const selectClass = "w-full border border-white/10 bg-white/5 text-primary-50 rounded-xl px-4 py-2.5 text-sm sm:py-3.5 sm:text-base focus:outline-none focus:ring-2 focus:ring-primary-400";
   const labelClass = "text-base font-medium text-white/60 mb-2";
 
   return (
@@ -143,8 +175,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
       {isOpen && <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" onClick={onClose} />}
 
       <div
-        className={`fixed top-0 right-0 h-screen w-full sm:w-[35vw] sm:min-w-[380px] z-50 flex flex-col transition-transform duration-500 ease-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 h-screen w-full sm:w-[35vw] sm:min-w-[320px] z-50 flex flex-col transition-all duration-500 ease-out ${
+          isOpen ? 'translate-x-0 opacity-100' : 'translate-x-[30px] opacity-0 pointer-events-none'
         }`}
         style={{
           background: 'rgba(255, 255, 255, 0.02)',
@@ -162,31 +194,31 @@ export default function SettingsPanel({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Layout: sidebar tabs + content */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Vertical tabs */}
-          <div className="flex flex-col border-r border-white/10 w-[160px] shrink-0 py-3">
+        {/* Layout: tabs on top (mobile) or sidebar (desktop) + content */}
+        <div className="flex flex-col sm:flex-row flex-1 overflow-hidden">
+          {/* Tabs — horizontal on mobile, vertical sidebar on desktop */}
+          <div className="flex flex-row sm:flex-col overflow-x-auto border-b sm:border-b-0 sm:border-r border-white/10 shrink-0 sm:w-[160px] sm:py-3">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => { setTab(t.id); setError(''); }}
-                className={`flex items-center gap-3 px-5 py-4 text-base font-medium text-left transition-colors ${
+                className={`flex-1 sm:flex-none flex items-center justify-center sm:justify-start gap-2 sm:gap-3 px-3 py-2.5 text-xs sm:px-5 sm:py-4 sm:text-base font-medium text-center sm:text-left transition-colors ${
                   tab === t.id
-                    ? 'text-primary-500 bg-white/5 border-r-2 border-primary-500'
-                    : 'text-white/40 hover:text-white/70 hover:bg-white/3'
+                    ? 'text-primary-500 bg-white/5 border-b-2 sm:border-b-0 sm:border-r-2 border-primary-500'
+                    : 'text-white/40 hover:text-white/70'
                 }`}
               >
-                <span className="text-lg" style={{ filter: 'grayscale(1) brightness(1.5) sepia(1) hue-rotate(10deg) saturate(3)' }}>{t.icon}</span>
-                {t.label}
+                <span className="text-primary-500">{TAB_ICONS[t.id]}</span>
+                <span className="hidden sm:inline">{t.label}</span>
               </button>
             ))}
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-8 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
           {tab === 'profile' && (
             <>
-              <h3 className="text-2xl font-medium text-primary-500 mb-2">Profile</h3>
+              <h3 className="text-xl sm:text-2xl font-medium text-primary-500 mb-2">Profile</h3>
               <div>
                 <Label className={labelClass}>Display Name</Label>
                 <Input
@@ -196,7 +228,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                   className={inputClass}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label className={labelClass}>Age</Label>
                   <Input
@@ -223,7 +255,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
               </div>
               <div>
                 <Label className={labelClass}>Height</Label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="relative">
                     <Input
                       type="number"
@@ -255,8 +287,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {tab === 'weight' && (
             <>
-              <h3 className="text-2xl font-medium text-primary-500 mb-2">Weight Goals</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <h3 className="text-xl sm:text-2xl font-medium text-primary-500 mb-2">Weight Goals</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label className={labelClass}>Current Weight (lbs)</Label>
                   <Input
@@ -282,7 +314,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label className={labelClass}>Activity Level</Label>
                   <select
@@ -328,7 +360,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {tab === 'nutrition' && (
             <>
-              <h3 className="text-2xl font-medium text-primary-500 mb-2">Nutrition</h3>
+              <h3 className="text-xl sm:text-2xl font-medium text-primary-500 mb-2">Nutrition</h3>
               <p className="text-base text-white/60 mb-5">To re-calculate your estimated calorie goal, go to the Weight tab in Settings.</p>
               <div>
                 <Label className={labelClass}>Daily Calorie Goal</Label>
@@ -346,9 +378,9 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {tab === 'fasting' && (
             <>
-              <h3 className="text-2xl font-medium text-primary-500 mb-2">Fasting Protocol</h3>
+              <h3 className="text-xl sm:text-2xl font-medium text-primary-500 mb-2">Fasting Protocol</h3>
               <p className="text-base text-white/60 mb-5">Select the time interval that best works for your schedule and dieting goals.</p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {IF_PROTOCOLS.map((p) => (
                   <Button
                     key={p.label}
@@ -357,8 +389,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
                     onClick={() => selectProtocol(p)}
                     className={
                       form.fastingProtocol === p.label
-                        ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-5 !text-xl !h-auto'
-                        : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-primary-50 font-medium !py-5 !text-xl !h-auto'
+                        ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-3 !text-base sm:!py-5 sm:!text-xl !h-auto'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-primary-50 font-medium !py-3 !text-base sm:!py-5 sm:!text-xl !h-auto'
                     }
                   >
                     {p.label}
@@ -381,11 +413,93 @@ export default function SettingsPanel({ isOpen, onClose }) {
               )}
             </>
           )}
+
+          {tab === 'subscription' && (
+            <>
+              <h3 className="text-xl sm:text-2xl font-medium text-primary-500 mb-2">FastTrack Pro</h3>
+              {subData.tier === 'pro' ? (
+                <div className="space-y-6">
+                  <div className="bg-primary-500/10 border border-primary-500/20 rounded-xl p-5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-2xl">⭐</span>
+                      <div>
+                        <p className="text-lg font-medium text-primary-500">Pro Member</p>
+                        <p className="text-sm text-white/50">
+                          {subData.status === 'canceling' ? 'Cancels' : 'Renews'} {subData.endDate ? new Date(subData.endDate).toLocaleDateString() : ''}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-base text-white/70">Your Pro features:</p>
+                    <ul className="space-y-1.5 text-sm text-white/50">
+                      <li className="flex items-center gap-2"><span className="text-primary-500">✓</span> Meal photo logging</li>
+                      <li className="flex items-center gap-2"><span className="text-primary-500">✓</span> QR code food scanning</li>
+                      <li className="flex items-center gap-2"><span className="text-primary-500">✓</span> Meal prep scheduling</li>
+                      <li className="flex items-center gap-2"><span className="text-primary-500">✓</span> Extended AI coaching</li>
+                    </ul>
+                  </div>
+                  {subData.status !== 'canceling' && (
+                    <button
+                      onClick={async () => {
+                        setSubLoading(true);
+                        try {
+                          const result = await api.billing.cancel();
+                          setSubData((prev) => ({ ...prev, status: result.status, endDate: result.endDate }));
+                        } catch (err) { console.error(err); }
+                        finally { setSubLoading(false); }
+                      }}
+                      disabled={subLoading}
+                      className="text-sm text-red-400 hover:text-red-300 underline"
+                    >
+                      {subLoading ? 'Processing...' : 'Cancel subscription'}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <p className="text-base text-white/60">Unlock premium features to supercharge your fasting journey.</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-white/70">
+                      <span className="text-primary-500 text-lg">✦</span>
+                      <span>Meal photo logging — snap a photo, AI identifies your food</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white/70">
+                      <span className="text-primary-500 text-lg">✦</span>
+                      <span>QR code food scanning</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white/70">
+                      <span className="text-primary-500 text-lg">✦</span>
+                      <span>Meal prep — schedule your meals for the week</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white/70">
+                      <span className="text-primary-500 text-lg">✦</span>
+                      <span>Extended AI coaching with deeper insights</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      setSubLoading(true);
+                      try {
+                        const { url } = await api.billing.checkout();
+                        window.location.href = url;
+                      } catch (err) { console.error(err); }
+                      finally { setSubLoading(false); }
+                    }}
+                    disabled={subLoading}
+                    className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-4 !text-lg rounded-xl transition-colors"
+                  >
+                    {subLoading ? 'Loading...' : 'Upgrade to Pro — $4.99/mo'}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-5 border-t border-white/10 space-y-3">
+        <div className="px-4 py-3 sm:px-8 sm:py-5 border-t border-white/10 space-y-3">
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-300 text-base rounded-xl px-4 py-3">{error}</div>
           )}
@@ -397,7 +511,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-4 !text-lg !h-auto"
+            className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-3 !text-base sm:!py-4 sm:!text-lg !h-auto"
           >
             {saving ? 'Saving...' : 'Save Settings'}
           </Button>

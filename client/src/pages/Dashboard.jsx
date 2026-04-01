@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { api } from '../services/api.js';
 import FastingTimer from '../components/FastingTimer.jsx';
@@ -8,6 +8,10 @@ import MacroBar from '../components/MacroBar.jsx';
 import MealCard from '../components/MealCard.jsx';
 import StreakBadge from '../components/StreakBadge.jsx';
 import AISummaryCard from '../components/AISummaryCard.jsx';
+import ProGate from '../components/ProGate.jsx';
+import MealPrepCard from '../components/MealPrepCard.jsx';
+import PhotoLogCard from '../components/PhotoLogCard.jsx';
+import QRScanCard from '../components/QRScanCard.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useScrollScale } from '../hooks/useScrollScale.js';
 import { Button } from '@/components/ui/button';
@@ -18,17 +22,20 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [calorieTrend, setCalorieTrend] = useState([]);
   const [chartRange, setChartRange] = useState(7);
+  const [exerciseData, setExerciseData] = useState([]);
 
   const scrollRef = useScrollScale(0.92, 500);
 
   const load = useCallback(async () => {
     try {
-      const [summary, trend] = await Promise.all([
+      const [summary, trend, exercises] = await Promise.all([
         api.dashboard.summary(),
         api.history.calories(chartRange),
+        api.exercise.today(),
       ]);
       setData(summary);
       setCalorieTrend(trend.trend || []);
+      setExerciseData(exercises.exercises || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,7 +43,15 @@ export default function Dashboard() {
     }
   }, [chartRange]);
 
-  useEffect(() => { load(); }, [load]);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    load();
+    // Handle Stripe checkout return
+    if (searchParams.get('upgraded') === 'true') {
+      api.billing.status().catch(console.error);
+    }
+  }, [load, searchParams]);
 
   async function handleDeleteMeal(id) {
     try {
@@ -54,6 +69,15 @@ export default function Dashboard() {
           },
         };
       });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleDeleteExercise(id) {
+    try {
+      await api.exercise.delete(id);
+      setExerciseData((prev) => prev.filter((e) => e.id !== id));
     } catch (err) {
       console.error(err);
     }
@@ -83,14 +107,14 @@ export default function Dashboard() {
       <div data-scroll-scale>
         <div className="inline-block">
           <div className="flex items-center gap-3">
-            <span className="text-4xl sm:text-[64px] font-medium text-primary-50">Hey,</span>
+            <span className="text-4xl sm:text-4xl lg:text-[64px] font-medium text-primary-50">Hey,</span>
             <StreakBadge streak={data?.streak || 0} />
           </div>
-          <div className="text-4xl sm:text-[64px] sm:leading-tight font-light text-primary-50">
+          <div className="text-4xl sm:text-4xl lg:text-[64px] sm:leading-tight font-light text-primary-50">
             {(data?.user?.displayName || 'there').split(' ')[0]}!
           </div>
         </div>
-        <p className="text-[#B8A860] text-lg sm:text-2xl mt-2">
+        <p className="text-[#B8A860] text-lg sm:text-lg lg:text-2xl mt-2">
           {(data?.streak || 0) <= 1
             ? "Let's get right back on track!"
             : `You've been locked in for ${data?.streak} days. Keep going!`}
@@ -106,32 +130,42 @@ export default function Dashboard() {
       </div>
 
       {/* Calorie stat cards */}
-      <div data-scroll-scale className="grid gap-4" style={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
+      <div data-scroll-scale className="grid grid-cols-3 gap-2 sm:grid-cols-[1fr_2fr_1fr] sm:gap-4">
         {(() => {
           const goal = data?.user?.dailyCalorieGoal || 2000;
           const intake = data?.calorieTotal || 0;
-          const net = goal - intake;
+          const burned = exerciseData.reduce((s, e) => s + (e.calories_burned || 0), 0);
+          const net = goal - intake + burned;
           const isOver = net < 0;
           return (
             <>
               <Card className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-                <CardContent className="text-center py-6">
-                  <p className="text-5xl font-medium text-primary-500">{goal.toLocaleString()}</p>
-                  <p className="text-lg text-white/50 mt-2">Calorie Goal</p>
+                <CardContent className="text-center py-2 sm:py-6">
+                  <p className="text-3xl sm:text-5xl font-medium text-primary-500">{goal.toLocaleString()}</p>
+                  <p className="text-sm sm:text-lg text-white/50 mt-1 sm:mt-2">Calorie Goal</p>
                 </CardContent>
               </Card>
               <Card className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-                <CardContent className="text-center py-6">
-                  <p className="text-5xl font-medium text-white">{intake.toLocaleString()}</p>
-                  <p className="text-lg text-white/50 mt-2">Today's Intake</p>
+                <CardContent className="py-2 sm:py-6">
+                  <div className="flex items-center justify-center gap-16 sm:gap-32">
+                    <div className="text-center">
+                      <p className="text-3xl sm:text-5xl font-medium text-white">{intake.toLocaleString()}</p>
+                      <p className="text-sm sm:text-lg text-white/50 mt-1 sm:mt-2">Consumed</p>
+                    </div>
+                    <div className="w-px h-10 sm:h-14 bg-white/10" />
+                    <div className="text-center">
+                      <p className="text-3xl sm:text-5xl font-medium text-orange-400">{burned.toLocaleString()}</p>
+                      <p className="text-sm sm:text-lg text-white/50 mt-1 sm:mt-2">Burned</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
               <Card className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-                <CardContent className="text-center py-6">
-                  <p className={`text-5xl font-medium ${isOver ? 'text-red-500' : 'text-green-500'}`}>
+                <CardContent className="text-center py-2 sm:py-6">
+                  <p className={`text-3xl sm:text-5xl font-medium ${isOver ? 'text-red-500' : 'text-green-500'}`}>
                     {isOver ? '+' : ''}{Math.abs(net).toLocaleString()}
                   </p>
-                  <p className="text-lg text-white/50 mt-2">{isOver ? 'Over' : 'Remaining'}</p>
+                  <p className="text-sm sm:text-lg text-white/50 mt-1 sm:mt-2">{isOver ? 'Over' : 'Remaining'}</p>
                 </CardContent>
               </Card>
             </>
@@ -178,6 +212,67 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
+      {/* Today's Exercise */}
+      <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <CardTitle className="text-xl font-medium text-primary-50">Today's Exercise</CardTitle>
+            <Button variant="link" asChild className="text-primary-500 hover:text-primary-400 p-0 h-auto text-sm font-medium">
+              <Link to="/log-meal">+ Log Exercise</Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {exerciseData.length > 0 ? (
+            <>
+              {exerciseData.map((exercise) => (
+                <div key={exercise.id} className="flex items-center justify-between flex-wrap sm:flex-nowrap gap-1 py-3 border-b border-[#2E2B20] last:border-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-primary-50 truncate capitalize">{exercise.exercise_name}</p>
+                    <p className="text-xs text-[#5A5228] mt-0.5">{exercise.duration_min}min &middot; {exercise.calories_burned} kcal burned</p>
+                  </div>
+                  <div className="flex items-center gap-3 ml-3 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => handleDeleteExercise(exercise.id)}
+                      className="text-primary-500 hover:text-red-500 hover:bg-transparent"
+                      title="Remove"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              <div className="pt-3 mt-1 border-t border-[#2E2B20]">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-white/50">Total burned</span>
+                  <span className="text-sm font-medium text-[#B8A860]">
+                    {exerciseData.reduce((s, e) => s + (e.calories_burned || 0), 0)} kcal
+                  </span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-[#5A5228] text-center py-6">
+              No exercises logged today.{' '}
+              <Link to="/log-meal" className="text-primary-500 hover:underline">Log an exercise</Link>
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Meal Prep — Pro feature */}
+      <ProGate feature="Meal Prep"><div data-scroll-scale><MealPrepCard /></div></ProGate>
+
+      {/* Photo Logging & QR Scanner — Pro features */}
+      <div data-scroll-scale className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <ProGate feature="Photo Logging"><PhotoLogCard /></ProGate>
+        <ProGate feature="QR Code Scanner"><QRScanCard /></ProGate>
+      </div>
+
       {/* Calorie Trend */}
       <Card data-scroll-scale className="border-2 border-white/20 rounded-2xl !py-4" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
         <CardHeader className="!pb-0 !pt-0">
@@ -207,7 +302,7 @@ export default function Dashboard() {
           ) : (
             <p className="text-center text-[#5A5228] text-sm py-8">No calorie data yet. Start logging meals!</p>
           )}
-          <div className="flex gap-3 mt-2 px-4">
+          <div className="flex flex-wrap gap-3 mt-2 px-4">
             {[{ label: '1W', days: 7 }, { label: '1M', days: 30 }, { label: '1Y', days: 365 }, { label: 'YTD', days: Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 1)) / 86400000) }].map((r) => (
               <Button
                 key={r.label}
@@ -216,8 +311,8 @@ export default function Dashboard() {
                 onClick={() => setChartRange(r.days)}
                 className={
                   chartRange === r.days
-                    ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-full px-5 py-2 text-base'
-                    : 'border-[#2E2B20] bg-transparent text-[#B8A860] hover:bg-[#2E2B20] hover:text-primary-50 rounded-full px-5 py-2 text-base'
+                    ? 'bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-full px-3 py-1.5 text-sm sm:px-5 sm:py-2 sm:text-base'
+                    : 'border-[#2E2B20] bg-transparent text-[#B8A860] hover:bg-[#2E2B20] hover:text-primary-50 rounded-full px-3 py-1.5 text-sm sm:px-5 sm:py-2 sm:text-base'
                 }
               >
                 {r.label}

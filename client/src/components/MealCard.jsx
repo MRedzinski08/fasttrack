@@ -4,9 +4,9 @@ export default function MealCard({ meal, onDelete }) {
   const time = new Date(meal.eaten_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div className="flex items-center justify-between py-3 border-b border-[#2E2B20] last:border-0">
+    <div className="flex items-center justify-between flex-wrap sm:flex-nowrap gap-1 py-3 border-b border-[#2E2B20] last:border-0">
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-primary-50 truncate capitalize">{meal.food_name}</p>
+        <p className="text-xs sm:text-sm font-medium text-primary-50 truncate capitalize">{meal.food_name}</p>
         <p className="text-xs text-[#5A5228] mt-0.5">
           {time} · P: {meal.protein_g}g · C: {meal.carbs_g}g · F: {meal.fat_g}g
         </p>

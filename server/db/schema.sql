@@ -48,8 +48,21 @@ CREATE TABLE IF NOT EXISTS fasting_sessions (
   created_at     TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS exercise_logs (
+  id              SERIAL PRIMARY KEY,
+  user_id         INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  exercise_name   VARCHAR(255) NOT NULL,
+  met_value       DECIMAL(4,1) NOT NULL,
+  duration_min    INTEGER NOT NULL,
+  calories_burned INTEGER NOT NULL,
+  logged_at       TIMESTAMP DEFAULT NOW(),
+  created_at      TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_meal_logs_user_id ON meal_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_meal_logs_eaten_at ON meal_logs(eaten_at);
 CREATE INDEX IF NOT EXISTS idx_fasting_sessions_user_id ON fasting_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_fasting_sessions_fast_end ON fasting_sessions(fast_end);
+CREATE INDEX IF NOT EXISTS idx_exercise_logs_user_id ON exercise_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_exercise_logs_logged_at ON exercise_logs(logged_at);

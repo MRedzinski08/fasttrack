@@ -284,23 +284,23 @@ export default function Login() {
             style={{ background: 'rgba(255,170,0,0.08)', filter: 'blur(4px)' }}
           />
           <Card
-            className="relative border-2 border-white/20 rounded-2xl p-10 sm:p-14 !flex !flex-col !justify-center"
+            className="relative border-2 border-white/20 rounded-2xl p-5 sm:p-10 lg:p-14 w-full !flex !flex-col !justify-center"
             style={{
               background: 'rgba(255,255,255,0.02)',
               backdropFilter: 'blur(10px) saturate(1.2)',
               WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)',
-              width: '38.5vw',
-              minWidth: '490px',
+              width: 'min(90vw, 38.5vw)',
+              minWidth: '320px',
               maxWidth: '770px',
-              minHeight: '72vh',
+              minHeight: '0',
             }}
           >
             <CardHeader className="!flex !flex-col !items-center text-center pb-6">
-              <CardTitle className="text-5xl sm:text-6xl font-medium text-primary-500 tracking-tight">
+              <CardTitle className="text-3xl sm:text-5xl lg:text-6xl font-medium text-primary-500 tracking-tight">
                 FastTrack
               </CardTitle>
-              <CardDescription className="text-white text-xl whitespace-nowrap">
+              <CardDescription className="text-white text-xl max-sm:text-base whitespace-nowrap">
                 Your Intermittent Fasting Coach
               </CardDescription>
             </CardHeader>
@@ -309,7 +309,7 @@ export default function Login() {
               {/* Google Sign-In */}
               <Button
                 variant="outline"
-                className="w-full gap-3 border-2 border-white/20 text-white hover:text-primary-50 h-[5.5rem] text-xl"
+                className="w-full gap-2 sm:gap-3 border-2 border-white/20 text-white hover:text-primary-50 h-12 sm:h-[5.5rem] text-sm sm:text-xl"
                 style={{
                   background: 'rgba(255,255,255,0.03)',
                   backdropFilter: 'blur(20px) saturate(1.4)',
@@ -339,7 +339,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => { setMode('signin'); setError(''); }}
-                  className={`flex-1 py-5 rounded-md text-lg font-medium transition-colors ${
+                  className={`flex-1 py-3 sm:py-5 rounded-md text-base sm:text-lg font-medium transition-colors ${
                     mode === 'signin' ? 'bg-white/10 shadow text-primary-500' : 'text-white/50'
                   }`}
                 >
@@ -348,7 +348,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => { setMode('signup'); setError(''); }}
-                  className={`flex-1 py-5 rounded-md text-lg font-medium transition-colors ${
+                  className={`flex-1 py-3 sm:py-5 rounded-md text-base sm:text-lg font-medium transition-colors ${
                     mode === 'signup' ? 'bg-white/10 shadow text-primary-500' : 'text-white/50'
                   }`}
                 >
@@ -359,36 +359,36 @@ export default function Login() {
               <form onSubmit={handleSubmit} className="space-y-8">
                 {mode === 'signup' && (
                   <div className="space-y-2">
-                    <Label className="text-white text-lg">Display Name</Label>
+                    <Label className="text-white text-base sm:text-lg">Display Name</Label>
                     <Input
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Your name"
-                      className="bg-white/5 border-white/10 text-primary-50 placeholder:text-[#5A5228] h-[4.5rem] text-lg"
+                      className="bg-white/5 border-white/10 text-primary-50 placeholder:text-[#5A5228] h-12 sm:h-16 text-base sm:text-lg"
                     />
                   </div>
                 )}
                 <div className="space-y-1">
-                  <Label className="text-white text-lg">Email</Label>
+                  <Label className="text-white text-base sm:text-lg">Email</Label>
                   <Input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="bg-white/5 border-white/10 text-primary-50 placeholder:text-[#5A5228] h-[4.5rem] text-lg"
+                    className="bg-white/5 border-white/10 text-primary-50 placeholder:text-[#5A5228] h-12 sm:h-16 text-base sm:text-lg"
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-white text-lg">Password</Label>
+                  <Label className="text-white text-base sm:text-lg">Password</Label>
                   <Input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
-                    className="bg-white/5 border-white/10 text-primary-50 placeholder:text-[#5A5228] h-[4.5rem] text-lg"
+                    className="bg-white/5 border-white/10 text-primary-50 placeholder:text-[#5A5228] h-12 sm:h-16 text-base sm:text-lg"
                   />
                 </div>
 
@@ -398,11 +398,11 @@ export default function Login() {
                   </div>
                 )}
 
-                <div className="!mt-16">
+                <div className="!mt-8 sm:!mt-16">
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium h-[5.5rem] text-xl"
+                    className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium h-12 sm:h-[5.5rem] text-sm sm:text-xl"
                   >
                     {loading ? 'Please wait…' : mode === 'signup' ? 'Create Account' : 'Sign In'}
                   </Button>

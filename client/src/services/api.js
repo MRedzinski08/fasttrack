@@ -61,6 +61,30 @@ export const api = {
     summary: () => request('/api/ai/summary'),
     // chat uses streaming — handled separately in ChatPanel
   },
+  billing: {
+    checkout: () => request('/api/billing/checkout', { method: 'POST' }),
+    status: () => request('/api/billing/status'),
+    checkoutSuccess: (sessionId) => request('/api/billing/checkout-success', { method: 'POST', body: JSON.stringify({ sessionId }) }),
+    cancel: () => request('/api/billing/cancel', { method: 'POST' }),
+  },
+  photo: {
+    analyze: (imageBase64) => request('/api/photo/analyze', { method: 'POST', body: JSON.stringify({ imageBase64 }) }),
+  },
+  barcode: {
+    lookup: (code) => request(`/api/barcode/lookup?code=${encodeURIComponent(code)}`),
+  },
+  mealPrep: {
+    get: () => request('/api/meal-prep'),
+    add: (data) => request('/api/meal-prep', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id) => request(`/api/meal-prep/${id}`, { method: 'DELETE' }),
+    log: (id) => request(`/api/meal-prep/${id}/log`, { method: 'POST' }),
+  },
+  exercise: {
+    list: (q, category) => request(`/api/exercise/list?${q ? `q=${encodeURIComponent(q)}` : ''}${category ? `&category=${category}` : ''}`),
+    log: (data) => request('/api/exercise', { method: 'POST', body: JSON.stringify(data) }),
+    today: () => request('/api/exercise/today'),
+    delete: (id) => request(`/api/exercise/${id}`, { method: 'DELETE' }),
+  },
   history: {
     calories: (days) => request(`/api/history/calories?days=${days || 7}`),
     fasting: (days) => request(`/api/history/fasting?days=${days || 30}`),

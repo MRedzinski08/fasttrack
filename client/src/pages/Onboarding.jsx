@@ -119,10 +119,10 @@ export default function Onboarding() {
   }
 
   // Shared dark-theme styles
-  const input = 'w-full border rounded-xl px-5 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-primary-400' + ' bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder-[#5A5228]';
-  const label = 'block text-lg font-medium text-white/70 mb-2';
-  const btnBack = 'flex-1 border border-[#2E2B20] text-white/70 font-medium py-4 text-lg rounded-xl hover:bg-[#2E2B20] transition-colors';
-  const btnPrimary = 'flex-1 bg-primary-500 hover:bg-primary-600 disabled:opacity-40 text-gray-900 font-medium py-4 text-lg rounded-xl transition-colors';
+  const input = 'w-full border rounded-xl px-4 py-4 text-lg sm:px-5 sm:py-4 sm:text-lg focus:outline-none focus:ring-2 focus:ring-primary-400' + ' bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder-[#5A5228]';
+  const label = 'block text-lg sm:text-lg font-medium text-white/70 mb-2';
+  const btnBack = 'flex-1 border border-[#2E2B20] text-white/70 font-medium py-4 text-lg sm:py-5 sm:text-lg rounded-xl hover:bg-[#2E2B20] transition-colors';
+  const btnPrimary = 'flex-1 bg-primary-500 hover:bg-primary-600 disabled:opacity-40 text-gray-900 font-medium py-4 text-lg sm:py-5 sm:text-lg rounded-xl transition-colors';
 
   const firstName = firebaseUser?.displayName?.split(' ')[0] || 'there';
 
@@ -130,11 +130,11 @@ export default function Onboarding() {
     // Step 0: Welcome intro
     () => (
       <>
-        <h2 className="text-4xl font-medium text-primary-50 mb-4">{firstName}, welcome to FastTrack!</h2>
-        <p className="text-white/60 text-lg mb-8 leading-relaxed">We have a few questions for you to optimize your intermittent fasting experience. In less than a minute, you'll be on your way!</p>
+        <h2 className="text-3xl sm:text-4xl font-medium text-primary-50 mb-4">{firstName}, welcome to FastTrack!</h2>
+        <p className="text-white/60 text-base sm:text-lg mb-8 leading-relaxed">We have a few questions for you to optimize your intermittent fasting experience. In less than a minute, you'll be on your way!</p>
         <button
           onClick={next}
-          className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium py-5 text-lg rounded-xl transition-colors"
+          className="w-full mt-auto bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium py-4 text-lg sm:py-5 sm:text-lg rounded-xl transition-colors"
         >
           Continue
         </button>
@@ -144,15 +144,15 @@ export default function Onboarding() {
     // Step 1: Sex selection
     () => (
       <>
-        <h2 className="text-4xl font-medium text-primary-50 mb-6">Let's get started!</h2>
-        <label className="block text-lg font-medium text-white/70 mb-3">What's your biological sex?</label>
+        <h2 className="text-3xl sm:text-4xl font-medium text-primary-50 mb-6">Let's get started!</h2>
+        <label className="block text-base sm:text-lg font-medium text-white/70 mb-3">What's your biological sex?</label>
         <div className="grid grid-cols-2 gap-3">
           {['male', 'female'].map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => update({ sex: s })}
-              className={`py-5 rounded-xl text-lg font-medium border transition-colors capitalize ${
+              className={`py-4 sm:py-5 rounded-xl text-lg sm:text-lg font-medium border transition-colors capitalize ${
                 form.sex === s
                   ? 'bg-primary-500 text-gray-900 border-primary-500'
                   : 'bg-[#22201A] text-white/70 border-[#2E2B20] hover:border-primary-400'
@@ -166,7 +166,7 @@ export default function Onboarding() {
         <button
           onClick={next}
           disabled={!form.sex}
-          className="w-full mt-6 bg-primary-500 hover:bg-primary-600 disabled:opacity-40 text-gray-900 font-medium py-5 text-lg rounded-xl transition-colors"
+          className="w-full mt-auto pt-6 bg-primary-500 hover:bg-primary-600 disabled:opacity-40 text-gray-900 font-medium py-4 text-lg sm:py-5 sm:text-lg rounded-xl transition-colors"
         >
           Continue
         </button>
@@ -176,7 +176,7 @@ export default function Onboarding() {
     // Step 1: Age + Height
     () => (
       <>
-        <h2 className="text-3xl font-medium text-primary-50 mb-4">About You</h2>
+        <h2 className="text-2xl sm:text-3xl font-medium text-primary-50 mb-4">About You</h2>
         <div className="space-y-6">
           <div>
             <label className={label}>Age</label>
@@ -199,7 +199,7 @@ export default function Onboarding() {
             </div>
           </div>
         </div>
-        <div className="flex gap-4 mt-10">
+        <div className="flex gap-4 mt-auto pt-8">
           <button onClick={back} className={btnBack}>Back</button>
           <button onClick={next} disabled={!form.age || !form.heightFeet} className={btnPrimary}>Continue</button>
         </div>
@@ -209,7 +209,7 @@ export default function Onboarding() {
     // Step 2: Weight
     () => (
       <>
-        <h2 className="text-3xl font-medium text-primary-50 mb-4">Your Weight Goals</h2>
+        <h2 className="text-2xl sm:text-3xl font-medium text-primary-50 mb-4">Your Weight Goals</h2>
         <div className="space-y-6">
           <div>
             <label className={label}>Current Weight (lbs)</label>
@@ -222,7 +222,7 @@ export default function Onboarding() {
               onChange={(e) => update({ goalWeight: e.target.value })} placeholder="e.g. 165" className={input} />
           </div>
         </div>
-        <div className="flex gap-4 mt-10">
+        <div className="flex gap-4 mt-auto pt-8">
           <button onClick={back} className={btnBack}>Back</button>
           <button onClick={next} disabled={!form.currentWeight || !form.goalWeight} className={btnPrimary}>Continue</button>
         </div>
@@ -232,10 +232,10 @@ export default function Onboarding() {
     // Step 3: Activity Level + Loss Rate
     () => (
       <>
-        <h2 className="text-3xl font-medium text-primary-50 mb-4">Activity & Goals</h2>
+        <h2 className="text-2xl sm:text-3xl font-medium text-primary-50 mb-4">Activity & Goals</h2>
         <div className="space-y-8">
           <div>
-            <label className="block text-lg font-medium text-white/70 mb-2">Activity Level</label>
+            <label className="block text-base sm:text-lg font-medium text-white/70 mb-2">Activity Level</label>
             <div className="space-y-2">
               {ACTIVITY_LEVELS.map((a) => (
                 <button
@@ -248,14 +248,14 @@ export default function Onboarding() {
                       : 'border-[#2E2B20] hover:border-primary-400'
                   }`}
                 >
-                  <span className="text-2xl font-medium text-primary-50">{a.label}</span>
-                  <span className="block text-base text-white/50">{a.desc}</span>
+                  <span className="text-lg sm:text-2xl font-medium text-primary-50">{a.label}</span>
+                  <span className="block text-sm sm:text-base text-white/50">{a.desc}</span>
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="block text-lg font-medium text-white/70 mb-2">Weight Loss Goal</label>
+            <label className="block text-base sm:text-lg font-medium text-white/70 mb-2">Weight Loss Goal</label>
             <div className="grid grid-cols-2 gap-2">
               {LOSS_RATES.map((r) => (
                 <button
@@ -268,16 +268,16 @@ export default function Onboarding() {
                       : 'border-[#2E2B20] hover:border-primary-400'
                   }`}
                 >
-                  <span className="text-2xl font-medium text-primary-50">{r.label}</span>
-                  <span className="block text-base text-white/50">{r.desc}</span>
+                  <span className="text-lg sm:text-2xl font-medium text-primary-50">{r.label}</span>
+                  <span className="block text-sm sm:text-base text-white/50">{r.desc}</span>
                 </button>
               ))}
             </div>
           </div>
         </div>
-        <div className="flex gap-4 mt-10">
+        <div className="flex gap-4 mt-auto pt-8">
           <button onClick={back} className={btnBack}>Back</button>
-          <button onClick={calculateCalories} className={btnPrimary}>Calculate My Plan</button>
+          <button onClick={calculateCalories} className={btnPrimary + ' !text-base sm:!text-lg'}>Calculate My Plan</button>
         </div>
       </>
     ),
@@ -285,13 +285,13 @@ export default function Onboarding() {
     // Step 4: Calorie Recommendation
     () => (
       <>
-        <h2 className="text-3xl font-medium text-primary-50 mb-2">Your Recommended Plan</h2>
-        <p className="text-white/50 text-lg mb-8">Based on your stats, here's what we recommend:</p>
+        <h2 className="text-2xl sm:text-3xl font-medium text-primary-50 mb-2">Your Recommended Plan</h2>
+        <p className="text-white/50 text-base sm:text-lg mb-8">Based on your stats, here's what we recommend:</p>
 
         {recommended && (
           <div className="bg-primary-500/10 border border-primary-500/30 rounded-xl p-5 mb-5 space-y-3">
             <div className="text-center">
-              <p className="text-6xl font-medium text-primary-400">{recommended.recommended}</p>
+              <p className="text-4xl sm:text-6xl font-medium text-primary-400">{recommended.recommended}</p>
               <p className="text-sm text-primary-300 font-medium">calories per day</p>
             </div>
             <div className="grid grid-cols-2 gap-3 text-center text-base text-white/50">
@@ -314,7 +314,7 @@ export default function Onboarding() {
           <p className="text-base text-white/60 mt-1">You can adjust this anytime in Settings.</p>
         </div>
 
-        <div className="flex gap-4 mt-10">
+        <div className="flex gap-4 mt-auto pt-8">
           <button onClick={back} className={btnBack}>Back</button>
           <button onClick={next} className={btnPrimary}>Continue</button>
         </div>
@@ -324,8 +324,8 @@ export default function Onboarding() {
     // Step 5: Fasting Protocol
     () => (
       <>
-        <h2 className="text-3xl font-medium text-primary-50 mb-2">Choose Your Fasting Schedule</h2>
-        <p className="text-white/50 text-lg mb-8">Select an intermittent fasting protocol:</p>
+        <h2 className="text-2xl sm:text-3xl font-medium text-primary-50 mb-2">Choose Your Fasting Schedule</h2>
+        <p className="text-white/50 text-base sm:text-lg mb-8">Select an intermittent fasting protocol:</p>
         <div className="space-y-2">
           {IF_PROTOCOLS.map((p) => (
             <button
@@ -338,8 +338,8 @@ export default function Onboarding() {
                   : 'border-[#2E2B20] hover:border-primary-400'
               }`}
             >
-              <span className="text-2xl font-medium text-primary-50">{p.label}</span>
-              <span className="block text-base text-white/50 mt-0.5">{p.desc}</span>
+              <span className="text-lg sm:text-2xl font-medium text-primary-50">{p.label}</span>
+              <span className="block text-sm sm:text-base text-white/50 mt-0.5">{p.desc}</span>
             </button>
           ))}
         </div>
@@ -350,7 +350,7 @@ export default function Onboarding() {
           </div>
         )}
 
-        <div className="flex gap-4 mt-10">
+        <div className="flex gap-4 mt-auto pt-8">
           <button onClick={back} className={btnBack}>Back</button>
           <button onClick={finish} disabled={saving}
             className="flex-1 bg-primary-500 hover:bg-primary-600 disabled:opacity-60 text-gray-900 font-medium py-2.5 rounded-lg transition-colors">
@@ -365,17 +365,17 @@ export default function Onboarding() {
       return (
         <>
           <div className="text-center py-4">
-            <div className="text-7xl mb-6">&#127881;</div>
-            <h2 className="text-4xl font-medium text-primary-50 mb-3">
+            <div className="text-5xl sm:text-7xl mb-6">&#127881;</div>
+            <h2 className="text-3xl sm:text-4xl font-medium text-primary-50 mb-3">
               You're already on the right Track to better eating habits.
             </h2>
-            <p className="text-3xl text-primary-400 font-medium mb-8">
+            <p className="text-xl sm:text-3xl text-primary-400 font-medium mb-8">
               You've got this, {firstName}!
             </p>
-            <p className="text-sm text-white/50 mb-8">Your personalized plan is ready. Let's get started.</p>
+            <p className="text-base text-white/50 mb-8">Your personalized plan is ready.<br />Let's get started.</p>
             <button
               onClick={() => navigate('/dashboard')}
-              className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium py-5 rounded-xl transition-colors text-lg"
+              className="w-full mt-auto bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium py-4 sm:py-5 rounded-xl transition-colors text-lg sm:text-lg"
             >
               Go to Dashboard
             </button>
@@ -409,7 +409,7 @@ export default function Onboarding() {
         {steps.map((_, i) => (
           <div
             key={i}
-            className={`w-4 h-4 rounded-full transition-all duration-500 ${
+            className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-500 ${
               i === step ? 'bg-primary-500 scale-125' : i < step ? 'bg-primary-700' : 'opacity-30 bg-primary-600'
             }`}
           />
@@ -417,7 +417,7 @@ export default function Onboarding() {
       </div>
       {/* The entire card slides */}
       <div
-        className={`rounded-2xl border-2 border-white/20 p-10 sm:p-16 w-full max-w-4xl ${slideTransition} ${slideClass}`}
+        className={`rounded-2xl border-2 border-white/20 p-6 sm:p-10 lg:p-16 w-full max-w-full sm:max-w-4xl min-h-[70vh] sm:min-h-0 flex flex-col justify-center ${slideTransition} ${slideClass}`}
         style={{
           background: 'rgba(255,255,255,0.02)',
           backdropFilter: 'blur(10px) saturate(1.2)',
