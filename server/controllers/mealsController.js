@@ -136,13 +136,15 @@ export async function logMeal(req, res) {
         fastingSession = active;
       }
     } else {
-      // No active session — start one from now
+      // No active session — start an eating window first, then fasting begins after
       const newSession = await client.query(
-        `INSERT INTO fasting_sessions (user_id, fast_start, target_hours)
-         VALUES ($1, $2, $3) RETURNING *`,
-        [user.id, now, user.fasting_hours]
+        `INSERT INTO fasting_sessions (user_id, fast_start, target_hours, eating_window_start, eating_window_hours)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [user.id, now, user.fasting_hours, now, user.eating_hours]
       );
       fastingSession = newSession.rows[0];
+      eatingWindowActive = true;
+      eatingWindowRemaining = user.eating_hours * 3600;
     }
 
     await client.query('COMMIT');
