@@ -28,7 +28,9 @@ export async function searchFood(req, res) {
     const response = await fetch(url);
 
     if (!response.ok) {
-      console.error('USDA API error:', response.status);
+      const errText = await response.text().catch(() => '');
+      console.error('USDA API error:', response.status, errText);
+      console.error('USDA API key present:', !!process.env.USDA_API_KEY, 'Query:', q);
       return res.status(502).json({ error: 'Food lookup failed', foods: [] });
     }
 
