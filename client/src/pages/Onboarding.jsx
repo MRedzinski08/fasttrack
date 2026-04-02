@@ -119,8 +119,8 @@ export default function Onboarding() {
 
   const inputClass = 'w-full bg-transparent border-b border-white/[0.1] text-white py-3 text-sm focus:border-primary-500 outline-none transition-all placeholder:text-white/20';
   const labelClass = 'block text-xs uppercase tracking-[0.15em] text-white/60 mb-2';
-  const btnBack = 'flex-1 border border-white/[0.08] text-white/60 py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300 hover:border-white/20 hover:text-white';
-  const btnPrimary = 'flex-1 bg-primary-500 hover:bg-primary-400 disabled:opacity-40 text-black py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300 font-medium';
+  const btnBack = 'flex-1 border border-white/[0.08] text-white/60 py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300 hover:border-white/20 hover:text-white max-h-12';
+  const btnPrimary = 'flex-1 bg-primary-500 hover:bg-primary-400 disabled:opacity-40 text-black py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300 font-medium max-h-12';
   const selectionBtn = (active) => `w-full text-left px-5 py-4 border transition-all duration-300 ${active ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-white/[0.08] text-white/60 hover:border-white/20'}`;
 
   const firstName = firebaseUser?.displayName?.split(' ')[0] || 'there';
@@ -129,10 +129,10 @@ export default function Onboarding() {
   const steps = [
     // Step 0: Welcome
     () => (
-      <div className="flex flex-col min-h-[50vh] justify-center">
+      <div className="flex flex-col justify-center">
         <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-4">{firstName}, welcome to FastTrack!</h2>
         <p className="text-sm text-white/60 mb-10 leading-relaxed">We have a few questions for you to optimize your intermittent fasting experience. In less than a minute, you'll be on your way!</p>
-        <button onClick={next} className={`w-full ${btnPrimary}`}>
+        <button onClick={next} className="bg-primary-500 hover:bg-primary-400 disabled:opacity-40 text-black py-3 px-12 text-xs uppercase tracking-[0.15em] transition-all duration-300 font-medium mt-6">
           Continue
         </button>
       </div>
@@ -140,7 +140,7 @@ export default function Onboarding() {
 
     // Step 1: Sex
     () => (
-      <div className="flex flex-col min-h-[50vh] justify-center">
+      <div className="flex flex-col justify-center">
         <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-6">Let's get started!</h2>
         <label className={labelClass}>What's your biological sex?</label>
         <div className="grid grid-cols-2 gap-3 mb-3">
@@ -168,7 +168,7 @@ export default function Onboarding() {
 
     // Step 2: Age + Height
     () => (
-      <div className="flex flex-col min-h-[50vh] justify-center">
+      <div className="flex flex-col justify-center">
         <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-6">About You</h2>
         <div className="space-y-6 mb-8">
           <div>
@@ -201,7 +201,7 @@ export default function Onboarding() {
 
     // Step 3: Weight
     () => (
-      <div className="flex flex-col min-h-[50vh] justify-center">
+      <div className="flex flex-col justify-center">
         <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-6">Your Weight Goals</h2>
         <div className="space-y-6 mb-8">
           <div>
@@ -261,7 +261,7 @@ export default function Onboarding() {
 
     // Step 5: Calorie Recommendation
     () => (
-      <div className="flex flex-col min-h-[50vh] justify-center">
+      <div className="flex flex-col justify-center">
         <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-2">Your Recommended Plan</h2>
         <p className="text-sm text-white/60 mb-8">Based on your stats, here's what we recommend:</p>
 
@@ -306,7 +306,7 @@ export default function Onboarding() {
 
     // Step 6: Fasting Protocol
     () => (
-      <div className="flex flex-col min-h-[50vh] justify-center">
+      <div className="flex flex-col justify-center">
         <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-2">Choose Your Fasting Schedule</h2>
         <p className="text-sm text-white/60 mb-8">Select an intermittent fasting protocol:</p>
         <div className="space-y-2 mb-8">
