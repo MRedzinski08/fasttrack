@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  updateProfile,
   GoogleAuthProvider,
 } from 'firebase/auth';
 import { auth } from '../services/firebase.js';
@@ -43,6 +44,10 @@ export default function Login() {
     try {
       if (mode === 'signup') {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
+        // Set display name on the Firebase user object so onboarding can read it
+        if (displayName) {
+          await updateProfile(cred.user, { displayName });
+        }
         await registerAndNavigate(cred.user, displayName);
       } else {
         const cred = await signInWithEmailAndPassword(auth, email, password);
