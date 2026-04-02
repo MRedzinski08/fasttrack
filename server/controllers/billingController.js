@@ -50,13 +50,12 @@ export async function getSubscriptionStatus(req, res) {
     const user = await getUser(req.user.uid);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    // If user has a subscription, verify with Stripe
+    // If user already has a known subscription, verify with Stripe
     if (user.stripe_subscription_id) {
       try {
         const subscription = await stripe.subscriptions.retrieve(user.stripe_subscription_id);
         const isActive = ['active', 'trialing'].includes(subscription.status);
 
-        // Update local DB to match Stripe's truth
         await pool.query(
           `UPDATE user_profiles SET
             subscription_tier = $1,
@@ -77,11 +76,78 @@ export async function getSubscriptionStatus(req, res) {
           endDate: new Date(subscription.current_period_end * 1000),
         });
       } catch {
-        // Subscription not found in Stripe, reset locally
         await pool.query(
           `UPDATE user_profiles SET subscription_tier = 'free', subscription_status = 'none' WHERE id = $1`,
           [user.id]
         );
+      }
+    }
+
+    // No subscription ID stored — check if the user has a Stripe customer with an active subscription
+    // This handles the case where checkout completed but we never stored the subscription ID (no webhook)
+    if (user.stripe_customer_id && !user.stripe_subscription_id) {
+      try {
+        const subscriptions = await stripe.subscriptions.list({
+          customer: user.stripe_customer_id,
+          status: 'active',
+          limit: 1,
+        });
+
+        if (subscriptions.data.length > 0) {
+          const sub = subscriptions.data[0];
+          await pool.query(
+            `UPDATE user_profiles SET
+              subscription_tier = 'pro',
+              stripe_subscription_id = $1,
+              subscription_status = $2,
+              subscription_end_date = $3
+             WHERE id = $4`,
+            [sub.id, sub.status, new Date(sub.current_period_end * 1000), user.id]
+          );
+
+          return res.json({
+            tier: 'pro',
+            status: sub.status,
+            endDate: new Date(sub.current_period_end * 1000),
+          });
+        }
+      } catch (err) {
+        console.error('Stripe subscription check error:', err.message);
+      }
+    }
+
+    // Also check for recently completed checkout sessions if we have a customer ID
+    if (user.stripe_customer_id && user.subscription_tier !== 'pro') {
+      try {
+        const sessions = await stripe.checkout.sessions.list({
+          customer: user.stripe_customer_id,
+          limit: 1,
+        });
+
+        if (sessions.data.length > 0 && sessions.data[0].payment_status === 'paid' && sessions.data[0].subscription) {
+          const subId = typeof sessions.data[0].subscription === 'string'
+            ? sessions.data[0].subscription
+            : sessions.data[0].subscription.id;
+          const sub = await stripe.subscriptions.retrieve(subId);
+
+          await pool.query(
+            `UPDATE user_profiles SET
+              subscription_tier = 'pro',
+              stripe_subscription_id = $1,
+              subscription_status = $2,
+              subscription_end_date = $3
+             WHERE id = $4`,
+            [sub.id, sub.status, new Date(sub.current_period_end * 1000), user.id]
+          );
+
+          return res.json({
+            tier: 'pro',
+            status: sub.status,
+            endDate: new Date(sub.current_period_end * 1000),
+          });
+        }
+      } catch (err) {
+        console.error('Stripe session check error:', err.message);
       }
     }
 
