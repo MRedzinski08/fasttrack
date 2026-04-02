@@ -3,6 +3,13 @@ import pool from '../db/index.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+function safeDate(epochSeconds) {
+  if (!epochSeconds) return new Date();
+  const ms = typeof epochSeconds === 'number' ? epochSeconds * 1000 : Date.parse(epochSeconds);
+  const d = new Date(ms);
+  return isNaN(d.getTime()) ? new Date() : d;
+}
+
 async function getUser(firebaseUid) {
   const result = await pool.query(
     'SELECT * FROM user_profiles WHERE firebase_uid = $1',
@@ -65,7 +72,7 @@ export async function getSubscriptionStatus(req, res) {
           [
             isActive ? 'pro' : 'free',
             subscription.status,
-            new Date(subscription.current_period_end * 1000),
+            safeDate(subscription.current_period_end),
             user.id,
           ]
         );
@@ -73,7 +80,7 @@ export async function getSubscriptionStatus(req, res) {
         return res.json({
           tier: isActive ? 'pro' : 'free',
           status: subscription.status,
-          endDate: new Date(subscription.current_period_end * 1000),
+          endDate: safeDate(subscription.current_period_end),
         });
       } catch {
         await pool.query(
@@ -102,13 +109,13 @@ export async function getSubscriptionStatus(req, res) {
               subscription_status = $2,
               subscription_end_date = $3
              WHERE id = $4`,
-            [sub.id, sub.status, new Date(sub.current_period_end * 1000), user.id]
+            [sub.id, sub.status, safeDate(sub.current_period_end), user.id]
           );
 
           return res.json({
             tier: 'pro',
             status: sub.status,
-            endDate: new Date(sub.current_period_end * 1000),
+            endDate: safeDate(sub.current_period_end),
           });
         }
       } catch (err) {
@@ -137,13 +144,13 @@ export async function getSubscriptionStatus(req, res) {
               subscription_status = $2,
               subscription_end_date = $3
              WHERE id = $4`,
-            [sub.id, sub.status, new Date(sub.current_period_end * 1000), user.id]
+            [sub.id, sub.status, safeDate(sub.current_period_end), user.id]
           );
 
           return res.json({
             tier: 'pro',
             status: sub.status,
-            endDate: new Date(sub.current_period_end * 1000),
+            endDate: safeDate(sub.current_period_end),
           });
         }
       } catch (err) {
@@ -189,7 +196,7 @@ export async function handleCheckoutSuccess(req, res) {
         [
           sub.id,
           sub.status,
-          new Date(sub.current_period_end * 1000),
+          safeDate(sub.current_period_end),
           user.id,
         ]
       );
@@ -225,7 +232,7 @@ export async function cancelSubscription(req, res) {
 
     res.json({
       status: 'canceling',
-      endDate: new Date(subscription.current_period_end * 1000),
+      endDate: safeDate(subscription.current_period_end),
     });
   } catch (err) {
     console.error('cancelSubscription error:', err);
