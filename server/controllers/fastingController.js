@@ -25,12 +25,45 @@ export async function getCurrentFast(req, res) {
     }
 
     const session = result.rows[0];
+    const now = Date.now();
     const fastStartMs = new Date(session.fast_start).getTime();
     const targetMs = session.target_hours * 60 * 60 * 1000;
-    const elapsedMs = Date.now() - fastStartMs;
-    const timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
+    const elapsedMs = now - fastStartMs;
+    const fastComplete = elapsedMs >= targetMs;
 
-    res.json({ session, timeRemainingSeconds });
+    // Check if we're in an eating window
+    if (session.eating_window_start) {
+      const ewStart = new Date(session.eating_window_start).getTime();
+      const ewHours = session.eating_window_hours || 8;
+      const ewTargetMs = ewHours * 60 * 60 * 1000;
+      const ewElapsed = now - ewStart;
+
+      if (ewElapsed < ewTargetMs) {
+        // Still in eating window
+        const ewRemaining = Math.max(0, Math.round((ewTargetMs - ewElapsed) / 1000));
+        return res.json({ session, timeRemainingSeconds: ewRemaining, eatingWindowActive: true });
+      } else {
+        // Eating window expired — close this session and start new fast
+        const ewEnd = new Date(ewStart + ewTargetMs);
+        await pool.query(
+          `UPDATE fasting_sessions SET fast_end = $1, completed = TRUE WHERE id = $2`,
+          [ewEnd, session.id]
+        );
+        const newSession = await pool.query(
+          `INSERT INTO fasting_sessions (user_id, fast_start, target_hours)
+           VALUES ($1, $2, $3) RETURNING *`,
+          [user.id, ewEnd, user.fasting_hours]
+        );
+        const ns = newSession.rows[0];
+        const nsElapsed = now - new Date(ns.fast_start).getTime();
+        const nsRemaining = Math.max(0, Math.round((ns.target_hours * 3600000 - nsElapsed) / 1000));
+        return res.json({ session: ns, timeRemainingSeconds: nsRemaining, eatingWindowActive: false });
+      }
+    }
+
+    // Not in eating window — regular fasting countdown
+    const timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
+    res.json({ session, timeRemainingSeconds, eatingWindowActive: false, fastComplete });
   } catch (err) {
     console.error('getCurrentFast error:', err);
     res.status(500).json({ error: 'Failed to fetch fasting session' });

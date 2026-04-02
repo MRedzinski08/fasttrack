@@ -1,27 +1,23 @@
-import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress';
-
 export default function CalorieBar({ current, goal }) {
   const pct = goal > 0 ? Math.min((current / goal) * 100, 100) : 0;
   const overGoal = current > goal;
-  const nearGoal = pct >= 80;
-
-  const indicatorColor = overGoal ? 'bg-red-500' : nearGoal ? 'bg-amber-500' : 'bg-primary-500';
 
   return (
     <div>
-      <div className="flex justify-between items-baseline mb-1">
-        <span className="text-base sm:text-xl font-medium text-white">Calories Today</span>
-        <span className={`text-sm font-medium ${overGoal ? 'text-red-500' : 'text-white'}`}>
-          {current} / {goal} kcal
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs uppercase tracking-[0.2em] text-primary-500">CALORIES</span>
+        <span className="text-sm tabular-nums font-light text-white">
+          {current.toLocaleString()} / {goal.toLocaleString()}
         </span>
       </div>
-      <Progress value={pct} className="gap-0">
-        <ProgressTrack className="bg-[#2E2B20] h-3 rounded-full">
-          <ProgressIndicator className={`${indicatorColor} rounded-full transition-all duration-500`} />
-        </ProgressTrack>
-      </Progress>
+      <div className="w-full h-[3px] bg-white/[0.08]">
+        <div
+          className={`h-full transition-all duration-700 ease-out ${overGoal ? 'bg-red-400' : 'bg-[#FFAA00]'}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
       {overGoal && (
-        <p className="text-xs text-red-500 mt-1">{current - goal} kcal over goal</p>
+        <p className="text-[10px] text-red-400/70 mt-1.5 tracking-wide">{current - goal} kcal over goal</p>
       )}
     </div>
   );

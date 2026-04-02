@@ -32,12 +32,46 @@ export async function getDashboardSummary(req, res) {
        ORDER BY fast_start DESC LIMIT 1`,
       [user.id]
     );
-    const activeFast = fastResult.rows[0] || null;
+    let activeFast = fastResult.rows[0] || null;
     let timeRemainingSeconds = 0;
+    let eatingWindowActive = false;
+
     if (activeFast) {
-      const targetMs = activeFast.target_hours * 60 * 60 * 1000;
-      const elapsedMs = Date.now() - new Date(activeFast.fast_start).getTime();
-      timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
+      const now = Date.now();
+
+      if (activeFast.eating_window_start) {
+        // In eating window mode
+        const ewStart = new Date(activeFast.eating_window_start).getTime();
+        const ewHours = activeFast.eating_window_hours || user.eating_hours || 8;
+        const ewTargetMs = ewHours * 60 * 60 * 1000;
+        const ewElapsed = now - ewStart;
+
+        if (ewElapsed < ewTargetMs) {
+          // Still in eating window
+          eatingWindowActive = true;
+          timeRemainingSeconds = Math.max(0, Math.round((ewTargetMs - ewElapsed) / 1000));
+        } else {
+          // Eating window expired — close and start new fast
+          const ewEnd = new Date(ewStart + ewTargetMs);
+          await pool.query(
+            `UPDATE fasting_sessions SET fast_end = $1, completed = TRUE WHERE id = $2`,
+            [ewEnd, activeFast.id]
+          );
+          const newSession = await pool.query(
+            `INSERT INTO fasting_sessions (user_id, fast_start, target_hours)
+             VALUES ($1, $2, $3) RETURNING *`,
+            [user.id, ewEnd, user.fasting_hours]
+          );
+          activeFast = newSession.rows[0];
+          const nsElapsed = now - new Date(activeFast.fast_start).getTime();
+          timeRemainingSeconds = Math.max(0, Math.round((activeFast.target_hours * 3600000 - nsElapsed) / 1000));
+        }
+      } else {
+        // Regular fasting
+        const targetMs = activeFast.target_hours * 60 * 60 * 1000;
+        const elapsedMs = now - new Date(activeFast.fast_start).getTime();
+        timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
+      }
     }
 
     // Streak
@@ -72,6 +106,7 @@ export async function getDashboardSummary(req, res) {
       },
       activeFast,
       timeRemainingSeconds,
+      eatingWindowActive,
       streak,
       aiSummary,
     });

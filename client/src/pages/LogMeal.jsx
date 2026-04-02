@@ -1,11 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import FoodSearchBar from '../components/FoodSearchBar.jsx';
 import { api } from '../services/api.js';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
+const ease = [0.16, 1, 0.3, 1];
+
+const sectionReveal = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.6, ease },
+};
 
 export default function LogMeal() {
   const [selected, setSelected] = useState([]);
@@ -140,35 +146,46 @@ export default function LogMeal() {
   const totalCarbs = selected.reduce((s, f) => s + Math.round(f.carbs * f.qty * 10) / 10, 0);
   const totalFat = selected.reduce((s, f) => s + Math.round(f.fat * f.qty * 10) / 10, 0);
 
-  const inputClass = "bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder:text-[#5A5228] h-11 text-base sm:h-14 sm:text-lg";
+  const inputClass = 'w-full bg-transparent border-b border-white/[0.1] text-white py-3 text-sm focus:border-primary-500 outline-none transition-all placeholder:text-white/20';
 
   return (
-    <div className="max-w-[96rem] mx-auto px-4 py-6">
-      <h2 className="text-xl sm:text-3xl font-medium text-primary-50 mb-8">Log</h2>
+    <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-20 md:pt-20 pb-24 md:pb-16">
 
-      {/* Food Section Header */}
-      <h3 className="text-lg sm:text-2xl font-medium text-white mb-4">Log Food</h3>
+      {/* Header */}
+      <motion.h1
+        className="text-4xl sm:text-6xl font-display font-bold text-white mb-12"
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease }}
+      >
+        LOG
+      </motion.h1>
 
-      {/* Search */}
-      <Card className="border-2 border-white/20 rounded-2xl mb-4" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-        <CardContent>
-          <h3 className="font-medium text-[#B8A860] mb-4 text-base sm:text-xl">Search Food</h3>
+      {/* ===== LOG FOOD SECTION ===== */}
+      <motion.section {...sectionReveal}>
+        <div className="flex items-center gap-3 mb-6">
+          <motion.div className="w-4 h-[2px] bg-primary-500" initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }} />
+          <span className="text-xs uppercase tracking-[0.2em] text-primary-500">LOG FOOD</span>
+        </div>
+
+        {/* Search card */}
+        <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 mb-6">
           <FoodSearchBar onSelect={handleFoodSelect} />
-          <div className="mt-3">
-            <Button
-              variant="link"
+
+          <div className="mt-4">
+            <button
               onClick={() => setShowManual((v) => !v)}
-              className="text-base text-primary-500 hover:text-primary-400 p-0 h-auto"
+              className="text-xs uppercase tracking-[0.15em] text-primary-500/60 hover:text-primary-500 transition-colors duration-300"
             >
               {showManual ? 'Hide' : '+ Add'} manual entry
-            </Button>
+            </button>
           </div>
 
           {showManual && (
-            <form onSubmit={addManualToList} className="mt-4 space-y-3 pt-4 border-t border-white/10">
+            <form onSubmit={addManualToList} className="mt-6 pt-6 border-t border-white/[0.06] space-y-4">
               <div>
-                <Label className="text-[#B8A860] mb-2 text-base">Food Name</Label>
-                <Input
+                <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Food Name</label>
+                <input
                   required
                   placeholder="Food name"
                   value={manual.foodName}
@@ -176,163 +193,149 @@ export default function LogMeal() {
                   className={inputClass}
                 />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
-                  <Label className="text-[#B8A860] mb-2 text-base">Calories</Label>
-                  <Input
-                    required
-                    type="number"
-                    placeholder="kcal"
-                    value={manual.calories}
-                    onChange={(e) => setManual({ ...manual, calories: e.target.value })}
-                    className={inputClass}
-                  />
+                  <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Calories</label>
+                  <input required type="number" placeholder="kcal" value={manual.calories}
+                    onChange={(e) => setManual({ ...manual, calories: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <Label className="text-[#B8A860] mb-2 text-base">Protein</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="g"
-                    value={manual.protein}
-                    onChange={(e) => setManual({ ...manual, protein: e.target.value })}
-                    className={inputClass}
-                  />
+                  <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Protein</label>
+                  <input type="number" step="0.1" placeholder="g" value={manual.protein}
+                    onChange={(e) => setManual({ ...manual, protein: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <Label className="text-[#B8A860] mb-2 text-base">Carbs</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="g"
-                    value={manual.carbs}
-                    onChange={(e) => setManual({ ...manual, carbs: e.target.value })}
-                    className={inputClass}
-                  />
+                  <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Carbs</label>
+                  <input type="number" step="0.1" placeholder="g" value={manual.carbs}
+                    onChange={(e) => setManual({ ...manual, carbs: e.target.value })} className={inputClass} />
                 </div>
                 <div>
-                  <Label className="text-[#B8A860] mb-2 text-base">Fat</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="g"
-                    value={manual.fat}
-                    onChange={(e) => setManual({ ...manual, fat: e.target.value })}
-                    className={inputClass}
-                  />
+                  <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Fat</label>
+                  <input type="number" step="0.1" placeholder="g" value={manual.fat}
+                    onChange={(e) => setManual({ ...manual, fat: e.target.value })} className={inputClass} />
                 </div>
               </div>
-              <Button
+              <button
                 type="submit"
-                className="bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium text-base !py-3 !h-auto"
+                className="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black px-5 py-2 text-xs uppercase tracking-[0.15em] transition-all duration-300"
               >
                 Add to Meal
-              </Button>
+              </button>
             </form>
           )}
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Selected foods list */}
-      {selected.length > 0 && (
-        <Card className="border-2 border-white/20 rounded-2xl mb-4" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-          <CardContent>
-            <h3 className="font-medium text-[#B8A860] mb-4 text-base sm:text-xl">Your Meal</h3>
-            <div className="space-y-2 mb-4">
+        {/* Selected foods list */}
+        {selected.length > 0 && (
+          <motion.div
+            className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <motion.div className="w-4 h-[2px] bg-primary-500" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.5 }} />
+              <span className="text-xs uppercase tracking-[0.2em] text-primary-500">YOUR MEAL</span>
+            </div>
+
+            <div className="space-y-0">
               {selected.map((food, i) => (
-                <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/5 rounded-xl px-5 py-4 gap-2 sm:gap-0">
-                  <div className="flex-1 min-w-0 mr-4">
-                    <p className="text-base font-medium text-primary-50 capitalize truncate">{food.name}</p>
-                    <p className="text-sm text-white/40">{food.servingQty} {food.servingUnit} per serving</p>
-                  </div>
-                  <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                    {/* Quantity control */}
-                    <div className="flex items-center gap-1">
+                <motion.div
+                  key={i}
+                  className="group"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.3 }}
+                >
+                  <div className="w-full h-[2px] bg-primary-500/30 mb-3" />
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 gap-2">
+                    <div className="flex-1 min-w-0 mr-4">
+                      <p className="text-sm font-display text-white capitalize truncate">{food.name}</p>
+                      <p className="text-xs text-white/40">{food.servingQty} {food.servingUnit} per serving</p>
+                    </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => updateQty(i, food.qty - (food.qty > 1 ? 1 : 0.25))}
+                          className="w-8 h-8 border border-white/[0.08] text-white/40 hover:border-primary-500 hover:text-primary-500 flex items-center justify-center text-sm transition-all duration-300"
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min="0.25"
+                          step="0.25"
+                          value={food.qty}
+                          onChange={(e) => updateQty(i, e.target.value)}
+                          className="w-14 text-center bg-transparent text-white text-sm border-none outline-none"
+                        />
+                        <button
+                          onClick={() => updateQty(i, food.qty + 1)}
+                          className="w-8 h-8 border border-white/[0.08] text-white/40 hover:border-primary-500 hover:text-primary-500 flex items-center justify-center text-sm transition-all duration-300"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="text-sm font-display text-primary-500 w-20 text-right tabular-nums">
+                        {Math.round(food.calories * food.qty)} kcal
+                      </span>
                       <button
-                        onClick={() => updateQty(i, food.qty - (food.qty > 1 ? 1 : 0.25))}
-                        className="w-9 h-9 rounded-lg bg-white/10 text-white/60 hover:bg-white/20 flex items-center justify-center text-base"
+                        onClick={() => removeSelected(i)}
+                        className="text-white/20 hover:text-red-400 transition-colors duration-300 ml-2"
                       >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        min="0.25"
-                        step="0.25"
-                        value={food.qty}
-                        onChange={(e) => updateQty(i, e.target.value)}
-                        className="w-14 text-center bg-transparent text-primary-50 text-base border-none outline-none"
-                      />
-                      <button
-                        onClick={() => updateQty(i, food.qty + 1)}
-                        className="w-7 h-7 rounded-md bg-white/10 text-white/60 hover:bg-white/20 flex items-center justify-center text-sm"
-                      >
-                        +
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                       </button>
                     </div>
-                    <span className="text-base font-medium text-[#B8A860] w-20 text-right">
-                      {Math.round(food.calories * food.qty)} kcal
-                    </span>
-                    <button
-                      onClick={() => removeSelected(i)}
-                      className="text-primary-500 hover:text-red-500 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             {/* Totals */}
-            <div className="pt-4 border-t border-white/10 mb-5">
-              <div className="flex justify-between text-lg mb-2">
-                <span className="text-white/50">Total</span>
-                <span className="font-medium text-primary-50">{totalCal} kcal</span>
+            <div className="pt-4 border-t border-white/[0.06]">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs uppercase tracking-[0.2em] text-white/40">Total</span>
+                <span className="text-lg font-display text-white tabular-nums">{totalCal} kcal</span>
               </div>
-              <div className="flex gap-4 text-sm text-white/40">
+              <div className="flex gap-4 text-xs text-white/30 justify-end">
                 <span>P: {totalProtein.toFixed(1)}g</span>
                 <span>C: {totalCarbs.toFixed(1)}g</span>
                 <span>F: {totalFat.toFixed(1)}g</span>
               </div>
             </div>
 
-            <Button
+            <button
               onClick={handleLogMeal}
               disabled={saving}
-              className="w-full bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-4 !text-lg !h-auto"
+              className="w-full bg-primary-500 text-black py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300 hover:bg-primary-400 disabled:opacity-40 mt-6 font-medium"
             >
               {saving ? 'Logging...' : `Log Meal (${selected.length} item${selected.length !== 1 ? 's' : ''})`}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+            </button>
+          </motion.div>
+        )}
 
-      {error && (
-        <div className="bg-red-900/20 border border-red-500/30 text-red-300 text-base rounded-xl px-4 py-3 mb-4">
-          {error}
-        </div>
-      )}
+        {error && (
+          <p className="text-red-400 text-sm mb-4">{error}</p>
+        )}
+      </motion.section>
 
       {/* Outside eating window popup */}
       {showOutsidePopup && (
         <>
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
+          <div className="fixed inset-0 bg-black/70 z-40" />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-              className="w-full max-w-lg rounded-2xl border-2 border-white/20 p-8 sm:p-10"
-              style={{
-                background: 'rgba(255,255,255,0.02)',
-                backdropFilter: 'blur(10px) saturate(1.2)',
-                WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)',
-              }}
+            <motion.div
+              className="w-full max-w-lg bg-[#080808] border border-white/[0.06] rounded-xl p-8 sm:p-10"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, ease }}
             >
-              <h2 className="text-2xl font-medium text-primary-500 mb-4">
+              <h2 className="text-2xl font-display font-bold text-primary-500 mb-4">
                 You logged a meal outside of your eating window.
               </h2>
-              <p className="text-white/70 text-base leading-relaxed mb-8">
+              <p className="text-sm text-white/60 leading-relaxed mb-8">
                 It's hard to manage a day's worth of food in a short window, and nobody is perfect. Sometimes, you'll need to make a few exceptions — the consistency is what matters. Tomorrow is a brand new day to get right back on Track!
               </p>
               <button
@@ -340,27 +343,34 @@ export default function LogMeal() {
                   setShowOutsidePopup(false);
                   navigate('/dashboard');
                 }}
-                className="w-full bg-primary-500 hover:bg-primary-400 text-primary-900 font-medium text-lg py-4 rounded-xl transition-colors"
+                className="w-full border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300"
               >
                 Close
               </button>
-            </div>
+            </motion.div>
           </div>
         </>
       )}
 
-      {/* Exercise Section Header */}
-      <div className="mt-16 sm:mt-24 mb-4">
-        <h3 className="text-lg sm:text-2xl font-medium text-white">Log Exercise</h3>
-      </div>
+      {/* Animated divider */}
+      <motion.div
+        className="h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-16"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.2 }}
+      />
 
-      {/* Exercise Logging */}
-      <Card className="border-2 border-white/20 rounded-2xl mb-4 mt-8" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-        <CardContent>
-          <h3 className="font-medium text-[#B8A860] mb-4 text-base sm:text-xl">Search Exercise</h3>
+      {/* ===== LOG EXERCISE SECTION ===== */}
+      <motion.section {...sectionReveal}>
+        <div className="flex items-center gap-3 mb-6">
+          <motion.div className="w-4 h-[2px] bg-primary-500" initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }} />
+          <span className="text-xs uppercase tracking-[0.2em] text-primary-500">LOG EXERCISE</span>
+        </div>
 
+        <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6">
           {/* Exercise search input */}
-          <Input
+          <input
             placeholder="Search exercises (e.g. running, cycling, yoga)"
             value={exerciseQuery}
             onChange={(e) => setExerciseQuery(e.target.value)}
@@ -369,11 +379,11 @@ export default function LogMeal() {
 
           {/* Exercise search results */}
           {exerciseSearching && (
-            <p className="text-sm text-[#5A5228] mt-3">Searching...</p>
+            <p className="text-xs text-white/30 mt-3">Searching...</p>
           )}
 
           {exerciseResults.length > 0 && (
-            <div className="mt-3 max-h-60 overflow-y-auto space-y-2">
+            <div className="mt-4 max-h-60 overflow-y-auto space-y-2">
               {Object.entries(
                 exerciseResults.reduce((groups, ex) => {
                   const cat = ex.category || 'General';
@@ -383,16 +393,16 @@ export default function LogMeal() {
                 }, {})
               ).map(([category, exercises]) => (
                 <div key={category}>
-                  <p className="text-xs text-[#5A5228] uppercase tracking-wide mb-1 mt-2">{category}</p>
+                  <p className="text-xs uppercase tracking-[0.15em] text-white/30 mb-1 mt-2">{category}</p>
                   <div className="flex flex-wrap gap-2">
                     {exercises.map((ex, idx) => (
                       <button
                         key={idx}
                         onClick={() => handleSelectExercise(ex)}
-                        className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-primary-50 transition-colors text-left"
+                        className="px-3 py-2 border border-white/[0.06] hover:border-primary-500 text-sm text-white transition-all duration-300"
                       >
                         <span className="capitalize">{ex.name}</span>
-                        <span className="text-[#5A5228] ml-2 text-xs">MET {ex.met}</span>
+                        <span className="text-white/30 ml-2 text-xs">MET {ex.met}</span>
                       </button>
                     ))}
                   </div>
@@ -403,27 +413,33 @@ export default function LogMeal() {
 
           {/* Selected exercise with duration */}
           {selectedExercise && (
-            <div className="mt-4 pt-4 border-t border-white/10">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/5 rounded-xl px-5 py-4 gap-3">
+            <motion.div
+              className="mt-6 pt-6 border-t border-white/[0.06]"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="w-full h-[2px] bg-primary-500/30 mb-4" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-base font-medium text-primary-50 capitalize">{selectedExercise.name}</p>
-                  <p className="text-sm text-[#5A5228]">MET: {selectedExercise.met}</p>
+                  <p className="text-sm font-display text-white capitalize">{selectedExercise.name}</p>
+                  <p className="text-xs text-white/30">MET: {selectedExercise.met}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <Label className="text-[#B8A860] text-sm whitespace-nowrap">Duration</Label>
-                    <Input
+                    <label className="text-xs uppercase tracking-[0.15em] text-white/60 whitespace-nowrap">Duration</label>
+                    <input
                       type="number"
                       min="1"
                       value={exerciseDuration}
                       onChange={(e) => setExerciseDuration(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="bg-[#22201A] border-[#2E2B20] text-primary-50 h-10 w-20 text-base text-center"
+                      className="w-20 bg-transparent border-b border-white/[0.1] text-white py-1 text-sm text-center focus:border-primary-500 outline-none transition-all"
                     />
-                    <span className="text-sm text-[#5A5228]">min</span>
+                    <span className="text-xs text-white/30">min</span>
                   </div>
                   <button
                     onClick={() => setSelectedExercise(null)}
-                    className="text-primary-500 hover:text-red-500 transition-colors"
+                    className="text-white/20 hover:text-red-400 transition-colors duration-300"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -433,28 +449,26 @@ export default function LogMeal() {
               </div>
 
               {/* Calorie estimate preview */}
-              <div className="mt-3 flex justify-between items-center px-2">
-                <span className="text-sm text-white/50">Estimated calories burned</span>
-                <span className="text-lg font-medium text-[#B8A860]">~{getCalorieEstimate()} kcal</span>
+              <div className="mt-4 flex justify-between items-center">
+                <span className="text-xs text-white/40">Estimated calories burned</span>
+                <span className="text-sm font-display text-primary-500 tabular-nums">~{getCalorieEstimate()} kcal</span>
               </div>
 
-              <Button
+              <button
                 onClick={handleLogExercise}
                 disabled={savingExercise}
-                className="w-full mt-4 bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium !py-4 !text-lg !h-auto"
+                className="w-full bg-primary-500 text-black py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300 hover:bg-primary-400 disabled:opacity-40 mt-6 font-medium"
               >
                 {savingExercise ? 'Logging...' : 'Log Exercise'}
-              </Button>
-            </div>
+              </button>
+            </motion.div>
           )}
 
           {exerciseError && (
-            <div className="bg-red-900/20 border border-red-500/30 text-red-300 text-sm rounded-xl px-4 py-3 mt-3">
-              {exerciseError}
-            </div>
+            <p className="text-red-400 text-sm mt-3">{exerciseError}</p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </motion.section>
     </div>
   );
 }

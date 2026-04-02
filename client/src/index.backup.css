@@ -3,8 +3,6 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/lexend";
-@import "@fontsource-variable/playfair-display";
-@import "@fontsource-variable/space-grotesk";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -83,10 +81,8 @@ body {
 }
 
 @theme inline {
-  --font-heading: 'Space Grotesk Variable', 'Lexend Variable', sans-serif;
+  --font-heading: 'Lexend Variable', sans-serif;
   --font-sans: 'Lexend Variable', sans-serif;
-  --font-display: 'Space Grotesk Variable', sans-serif;
-  --font-serif: 'Playfair Display Variable', Georgia, serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -335,145 +331,4 @@ body {
   0% { transform: rotate(210deg); }
   50% { transform: rotate(390deg); }
   100% { transform: rotate(570deg); }
-}
-
-@keyframes navDotPulse {
-  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
-  50% { opacity: 0.5; transform: translateX(-50%) scale(1.5); }
-}
-
-.nav-dot-pulse {
-  animation: navDotPulse 2.5s ease-in-out infinite;
-}
-
-.font-serif {
-  font-family: var(--font-serif);
-}
-
-.font-display {
-  font-family: var(--font-display);
-}
-
-/* Ambient glow behind key elements */
-.glow-amber {
-  box-shadow: 0 0 80px rgba(255,170,0,0.08), 0 0 160px rgba(255,170,0,0.04);
-}
-
-/* Noise texture overlay */
-.noise::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.015;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Horizontal scroll marquee */
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-/* Breathing glow on elements */
-@keyframes breathe {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
-
-.animate-breathe {
-  animation: breathe 4s ease-in-out infinite;
-}
-
-/* Gradient text */
-.text-gradient-amber {
-  background: linear-gradient(135deg, #FFAA00, #FF8800, #FFAA00);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Line scan animation */
-@keyframes lineScan {
-  0% { transform: translateY(-100%); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(100vh); opacity: 0; }
-}
-
-.line-scan {
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,170,0,0.3), transparent);
-  z-index: 100;
-  pointer-events: none;
-  animation: lineScan 8s ease-in-out infinite;
-}
-
-/* Stagger children animation helper */
-@keyframes staggerIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Orbiting dots */
-@keyframes orbit {
-  0% { transform: rotate(0deg) translateX(var(--orbit-radius)) rotate(0deg); }
-  100% { transform: rotate(360deg) translateX(var(--orbit-radius)) rotate(-360deg); }
-}
-
-/* Ticker tape scroll */
-@keyframes ticker {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Scan line animation (horizontal progress bar) */
-@keyframes scanLine {
-  0% { width: 0%; }
-  50% { width: 100%; }
-  51% { width: 100%; transform: translateX(0); }
-  100% { width: 0%; transform: translateX(100%); }
-}
-
-.animate-scan-line {
-  animation: scanLine 1.5s ease-in-out infinite;
-}
-
-/* Scan sweep animation (vertical line moving up and down) */
-@keyframes scanSweep {
-  0% { top: 0%; }
-  50% { top: calc(100% - 2px); }
-  100% { top: 0%; }
-}
-
-.animate-scan-sweep {
-  animation: scanSweep 2s ease-in-out infinite;
-}
-
-/* Thin scrollbar for dashboard lists */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 3px;
-}
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.12);
 }

@@ -1,16 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { api } from '../services/api.js';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
-const glassStyle = {
-  background: 'rgba(255,255,255,0.02)',
-  backdropFilter: 'blur(10px) saturate(1.2)',
-  WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)',
-};
-
-export default function PhotoLogCard() {
+export default function PhotoLogCard({ onMealLogged }) {
   const [cameraActive, setCameraActive] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [results, setResults] = useState(null);
@@ -111,6 +102,7 @@ export default function PhotoLogCard() {
       }
       setSaved(true);
       setResults(null);
+      if (onMealLogged) onMealLogged();
     } catch {
       setError('Failed to log foods.');
     } finally {
@@ -119,86 +111,115 @@ export default function PhotoLogCard() {
   }
 
   return (
-    <Card className="border-2 border-white/20 rounded-2xl" style={glassStyle}>
-      <CardContent className="py-6">
-        <h3 className="text-xl font-medium text-primary-50 mb-4">Photo Logging</h3>
+    <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
+      {/* Header */}
+      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-6">PHOTO LOG</span>
 
-        {!cameraActive && !analyzing && !results && !saved && (
-          <div className="text-center py-6">
-            <div className="w-16 h-16 rounded-full bg-primary-500/10 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
-              </svg>
-            </div>
-            <p className="text-sm text-white/50 mb-4">Snap a photo of your meal and let AI identify the food and estimate calories.</p>
-            <Button onClick={startCamera} className="bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium">
-              Take Photo
-            </Button>
+      {/* Idle state */}
+      {!cameraActive && !analyzing && !results && !saved && (
+        <div className="text-center py-8">
+          <div className="w-16 h-16 border border-white/[0.08] rounded-full p-4 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+            </svg>
           </div>
-        )}
+          <p className="text-sm text-white/40 mb-6">Snap a photo and let AI identify the food and estimate calories.</p>
+          <button
+            onClick={startCamera}
+            className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
+          >
+            CAPTURE
+          </button>
+        </div>
+      )}
 
-        {cameraActive && (
+      {/* Camera active */}
+      {cameraActive && (
+        <div className="space-y-4">
+          <div className="rounded-lg overflow-hidden bg-black">
+            <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full" />
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={captureAndAnalyze}
+              className="flex-1 text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2.5 hover:bg-primary-500 hover:text-black transition-all duration-300"
+            >
+              ANALYZE
+            </button>
+            <button
+              onClick={stopCamera}
+              className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 px-4 py-2.5 transition-colors duration-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Analyzing */}
+      {analyzing && (
+        <div className="py-8">
+          <div className="w-full h-px bg-white/[0.04] overflow-hidden mb-4">
+            <div className="h-full bg-primary-500 animate-scan-line" />
+          </div>
+          <p className="text-xs text-white/30 text-center">Processing...</p>
+        </div>
+      )}
+
+      {/* Results */}
+      {results && (
+        <div className="space-y-4">
+          <p className="text-xs text-white/40">{results.length} item{results.length !== 1 ? 's' : ''} identified</p>
           <div className="space-y-3">
-            <div className="relative rounded-xl overflow-hidden bg-black">
-              <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full rounded-xl" />
-            </div>
-            <div className="flex gap-3">
-              <Button onClick={captureAndAnalyze} className="flex-1 bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium">
-                Capture & Analyze
-              </Button>
-              <Button onClick={stopCamera} variant="outline" className="border-white/10 text-white/60 hover:bg-white/10">
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {analyzing && (
-          <div className="text-center py-8">
-            <div className="w-8 h-8 border-[3px] border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm text-white/50">Analyzing your meal...</p>
-          </div>
-        )}
-
-        {results && (
-          <div className="space-y-3">
-            <p className="text-sm text-white/50">AI identified {results.length} item{results.length !== 1 ? 's' : ''}:</p>
-            <div className="space-y-2">
-              {results.map((food, i) => (
-                <div key={i} className="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3">
+            {results.map((food, i) => (
+              <div key={i} className="group">
+                <div className="w-full h-[2px] bg-primary-500/40 mb-2" />
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-primary-50 capitalize">{food.name}</p>
-                    <p className="text-xs text-white/40">{food.serving} · P:{food.protein}g C:{food.carbs}g F:{food.fat}g</p>
+                    <p className="text-sm text-white/60 capitalize">{food.name}</p>
+                    <p className="text-[10px] text-white/30 tracking-wide mt-1">{food.serving} · P:{food.protein}g C:{food.carbs}g F:{food.fat}g</p>
                   </div>
-                  <span className="text-sm font-medium text-[#B8A860]">{food.calories} kcal</span>
+                  <span className="text-xs text-primary-500 tabular-nums">{food.calories} kcal</span>
                 </div>
-              ))}
-            </div>
-            <div className="flex gap-3 mt-4">
-              <Button onClick={logResults} disabled={saving} className="flex-1 bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium">
-                {saving ? 'Logging...' : 'Log All'}
-              </Button>
-              <Button onClick={() => { setResults(null); startCamera(); }} variant="outline" className="border-white/10 text-white/60 hover:bg-white/10">
-                Retake
-              </Button>
-            </div>
+              </div>
+            ))}
           </div>
-        )}
-
-        {saved && (
-          <div className="text-center py-6">
-            <p className="text-lg text-green-500 font-medium mb-2">Meal logged!</p>
-            <Button onClick={() => setSaved(false)} variant="outline" className="border-white/10 text-white/60 hover:bg-white/10">
-              Take Another Photo
-            </Button>
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={logResults}
+              disabled={saving}
+              className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-40"
+            >
+              {saving ? 'Logging...' : 'LOG ALL'}
+            </button>
+            <button
+              onClick={() => { setResults(null); startCamera(); }}
+              className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 px-4 py-2 transition-colors duration-300"
+            >
+              Retake
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {error && (
-          <div className="bg-red-900/20 border border-red-500/30 text-red-300 text-sm rounded-lg px-3 py-2 mt-3">{error}</div>
-        )}
-      </CardContent>
-    </Card>
+      {/* Saved */}
+      {saved && (
+        <div className="text-center py-8">
+          <p className="text-primary-500 text-sm font-display mb-4">&#10003; Logged</p>
+          <button
+            onClick={() => setSaved(false)}
+            className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 transition-colors duration-300"
+          >
+            Take Another Photo
+          </button>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="border border-red-500/20 text-red-400 text-sm px-4 py-3 mt-4">{error}</div>
+      )}
+    </div>
   );
 }

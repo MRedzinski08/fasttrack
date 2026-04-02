@@ -1,18 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../services/api.js';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAY_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-const glassStyle = {
-  background: 'rgba(255,255,255,0.02)',
-  backdropFilter: 'blur(10px) saturate(1.2)',
-  WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)',
-};
 
 export default function MealPrepCard() {
   const today = new Date().getDay(); // 0 = Sunday
@@ -138,198 +128,199 @@ export default function MealPrepCard() {
   };
 
   return (
-    <Card className="border-2 border-white/20 rounded-2xl" style={glassStyle}>
-      <CardHeader>
-        <CardTitle className="text-xl font-medium text-primary-50">Meal Prep</CardTitle>
-        <p className="text-sm text-[#B8A860]">{DAYS[today]}</p>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Day tabs */}
-        <div className="flex gap-1 overflow-x-auto pb-1">
-          {DAY_ABBR.map((day, i) => (
-            <button
-              key={day}
-              onClick={() => setSelectedDay(i)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shrink-0 ${
-                selectedDay === i
-                  ? i === today
-                    ? 'bg-primary-500 text-gray-900'
-                    : 'bg-white/10 text-primary-50'
-                  : i === today
-                    ? 'bg-primary-500/20 text-primary-500'
-                    : 'text-white/50 hover:text-white/70 hover:bg-white/5'
-              }`}
-            >
-              {day}
-            </button>
-          ))}
-        </div>
+    <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
+      {/* Header */}
+      <div className="flex items-baseline gap-3 mb-6">
+        <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display">MEAL PREP</span>
+        <span className="text-[11px] uppercase tracking-[0.15em] text-primary-500 font-display">{DAYS[today]}</span>
+      </div>
 
-        {/* Meals for selected day */}
-        {loading ? (
-          <div className="flex justify-center py-4">
-            <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : mealsForDay.length > 0 ? (
-          <div className="space-y-2 max-h-60 overflow-y-auto">
-            {mealsForDay.map((meal) => (
-              <div key={meal.id} className="bg-white/5 rounded-xl px-4 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-primary-50 capitalize truncate">{meal.meal_name || meal.mealName}</p>
-                    <p className="text-xs text-[#5A5228]">{totalCalForMeal(meal)} kcal</p>
-                    {(meal.food_items || meal.foodItems || []).length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {(meal.food_items || meal.foodItems || []).map((f, idx) => (
-                          <span key={idx} className="text-xs text-white/40 capitalize">
-                            {f.name}{idx < (meal.food_items || meal.foodItems || []).length - 1 ? ',' : ''}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 ml-3 shrink-0">
-                    {selectedDay === today && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleLog(meal.id)}
-                        disabled={logging === meal.id}
-                        className="bg-primary-500 hover:bg-primary-600 text-gray-900 text-xs px-2 py-1 h-auto"
-                      >
-                        {logging === meal.id ? '...' : 'Log This Meal'}
-                      </Button>
-                    )}
+      {/* Day tabs */}
+      <div className="flex gap-4 overflow-x-auto pb-3 mb-6">
+        {DAY_ABBR.map((day, i) => (
+          <button
+            key={day}
+            onClick={() => setSelectedDay(i)}
+            className={`text-[11px] uppercase tracking-[0.15em] pb-2 border-b-2 transition-all duration-300 shrink-0 ${
+              selectedDay === i
+                ? 'text-primary-500 border-primary-500'
+                : 'text-white/20 border-transparent hover:text-white/40'
+            }`}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
+
+      {/* Meals for selected day */}
+      {loading ? (
+        <div className="flex justify-center py-6">
+          <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : mealsForDay.length > 0 ? (
+        <div className="space-y-4 max-h-60 overflow-y-auto">
+          {mealsForDay.map((meal) => (
+            <div key={meal.id} className="py-3 border-b border-white/[0.04] last:border-0">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white/60 capitalize truncate">{meal.meal_name || meal.mealName}</p>
+                  <p className="text-xs text-white/30 mt-1">{totalCalForMeal(meal)} kcal</p>
+                  {(meal.food_items || meal.foodItems || []).length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {(meal.food_items || meal.foodItems || []).map((f, idx) => (
+                        <span key={idx} className="text-xs text-white/30 capitalize">
+                          {f.name}{idx < (meal.food_items || meal.foodItems || []).length - 1 ? ',' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 ml-3 shrink-0">
+                  {selectedDay === today && (
                     <button
-                      onClick={() => handleDelete(meal.id)}
-                      className="text-primary-500 hover:text-red-500 transition-colors"
-                      title="Delete"
+                      onClick={() => handleLog(meal.id)}
+                      disabled={logging === meal.id}
+                      className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-4 py-1.5 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-40"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      {logging === meal.id ? '...' : 'Log This Meal'}
                     </button>
-                  </div>
+                  )}
+                  <button
+                    onClick={() => handleDelete(meal.id)}
+                    className="text-white/10 hover:text-red-400 transition-colors duration-300"
+                    title="Delete"
+                  >
+                    <span className="text-lg leading-none">&times;</span>
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-[#5A5228] text-center py-4">
-            No meals prepped for {DAYS[selectedDay]}.
-          </p>
-        )}
-
-        {/* Toggle form button */}
-        {!showForm ? (
-          <Button
-            variant="link"
-            onClick={() => { setShowForm(true); setFormDay(selectedDay); }}
-            className="text-primary-500 hover:text-primary-400 p-0 h-auto text-sm font-medium"
-          >
-            + Plan Meal
-          </Button>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-3 pt-3 border-t border-white/10">
-            <div className="flex gap-3">
-              <select
-                value={formDay}
-                onChange={(e) => setFormDay(Number(e.target.value))}
-                className="bg-[#22201A] border border-[#2E2B20] text-primary-50 rounded-lg px-3 py-2 text-sm"
-              >
-                {DAYS.map((d, i) => (
-                  <option key={d} value={i}>{d}</option>
-                ))}
-              </select>
-              <Input
-                placeholder="Meal name (e.g. Breakfast)"
-                value={mealName}
-                onChange={(e) => setMealName(e.target.value)}
-                className="bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder:text-[#5A5228] h-10 text-sm flex-1"
-              />
             </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-white/30 text-center py-6">
+          No meals prepped for {DAYS[selectedDay]}.
+        </p>
+      )}
 
-            {/* Food search */}
+      {/* Toggle form button */}
+      {!showForm ? (
+        <button
+          onClick={() => { setShowForm(true); setFormDay(selectedDay); }}
+          className="text-[11px] text-primary-500 hover:text-primary-400 uppercase tracking-[0.15em] mt-6 transition-colors duration-300"
+        >
+          + Plan Meal
+        </button>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-5 pt-6 mt-6 border-t border-white/[0.06]">
+          {/* Day select */}
+          <div>
+            <label className="text-[10px] uppercase tracking-[0.15em] text-white/25 block mb-2">Day</label>
+            <select
+              value={formDay}
+              onChange={(e) => setFormDay(Number(e.target.value))}
+              className="bg-transparent border-b border-white/[0.08] text-white/70 py-2 text-sm w-full outline-none focus:border-primary-500 transition-colors"
+            >
+              {DAYS.map((d, i) => (
+                <option key={d} value={i} className="bg-[#080808]">{d}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Meal name */}
+          <div>
+            <label className="text-[10px] uppercase tracking-[0.15em] text-white/25 block mb-2">Meal Name</label>
+            <input
+              type="text"
+              placeholder="e.g. Breakfast"
+              value={mealName}
+              onChange={(e) => setMealName(e.target.value)}
+              className="bg-transparent border-b border-white/[0.08] text-white/70 py-2 text-sm w-full outline-none placeholder:text-white/15 focus:border-primary-500 transition-colors"
+            />
+          </div>
+
+          {/* Food search */}
+          <div>
+            <label className="text-[10px] uppercase tracking-[0.15em] text-white/25 block mb-2">Search Foods</label>
             <div className="relative">
-              <Input
+              <input
+                type="text"
                 placeholder="Search foods to add..."
                 value={foodQuery}
                 onChange={(e) => setFoodQuery(e.target.value)}
-                className="bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder:text-[#5A5228] h-10 text-sm pr-10"
+                className="bg-transparent border-b border-white/[0.08] text-white/70 py-2 text-sm w-full outline-none placeholder:text-white/15 focus:border-primary-500 transition-colors"
               />
               {foodSearching && (
-                <div className="absolute right-3 top-3 w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                <div className="absolute right-0 top-2 w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
               )}
             </div>
+          </div>
 
-            {/* Food search results */}
-            {foodResults.length > 0 && (
-              <div className="border border-[#2E2B20] rounded-xl overflow-hidden max-h-40 overflow-y-auto">
-                {foodResults.map((food, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleAddFood(food)}
-                    className="w-full text-left px-3 py-2 hover:bg-[#2E2B20] border-b border-[#2E2B20] last:border-0 flex justify-between items-center"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-primary-50 capitalize">{food.name}</p>
-                      <p className="text-xs text-[#706530]">{food.servingQty} {food.servingUnit}</p>
-                    </div>
-                    <span className="text-xs font-medium text-[#B8A860] ml-2">{food.calories} kcal</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Selected food items */}
-            {foodItems.length > 0 && (
-              <div className="space-y-1 max-h-40 overflow-y-auto">
-                {foodItems.map((food, i) => (
-                  <div key={i} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
-                    <span className="text-sm text-primary-50 capitalize truncate flex-1">{food.name}</span>
-                    <div className="flex items-center gap-2 ml-2 shrink-0">
-                      <button type="button" onClick={() => updateFoodQty(i, food.qty - (food.qty > 1 ? 1 : 0.25))} className="w-6 h-6 rounded bg-white/10 text-white/60 hover:bg-white/20 flex items-center justify-center text-xs">-</button>
-                      <input
-                        type="number"
-                        min="0.25"
-                        step="0.25"
-                        value={food.qty}
-                        onChange={(e) => updateFoodQty(i, e.target.value)}
-                        className="w-10 text-center bg-transparent text-primary-50 text-sm border-none outline-none"
-                      />
-                      <button type="button" onClick={() => updateFoodQty(i, food.qty + 1)} className="w-6 h-6 rounded bg-white/10 text-white/60 hover:bg-white/20 flex items-center justify-center text-xs">+</button>
-                      <span className="text-xs text-[#B8A860] w-14 text-right">{Math.round(food.calories * food.qty)}</span>
-                      <button type="button" onClick={() => removeFoodItem(i)} className="text-primary-500 hover:text-red-500 transition-colors">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
+          {/* Food search results */}
+          {foodResults.length > 0 && (
+            <div className="border border-white/[0.06] overflow-hidden max-h-40 overflow-y-auto">
+              {foodResults.map((food, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleAddFood(food)}
+                  className="w-full text-left px-4 py-3 hover:bg-white/[0.03] border-b border-white/[0.04] last:border-0 flex justify-between items-center transition-colors"
+                >
+                  <div>
+                    <p className="text-sm text-white/60 capitalize">{food.name}</p>
+                    <p className="text-xs text-white/25">{food.servingQty} {food.servingUnit}</p>
                   </div>
-                ))}
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                disabled={saving || !mealName.trim() || foodItems.length === 0}
-                className="bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium text-sm h-9"
-              >
-                {saving ? 'Saving...' : 'Save Meal'}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => { setShowForm(false); setMealName(''); setFoodItems([]); setFoodQuery(''); setFoodResults([]); }}
-                className="text-white/50 hover:text-white/70 text-sm h-9"
-              >
-                Cancel
-              </Button>
+                  <span className="text-xs text-primary-500 ml-2">{food.calories} kcal</span>
+                </button>
+              ))}
             </div>
-          </form>
-        )}
-      </CardContent>
-    </Card>
+          )}
+
+          {/* Selected food items */}
+          {foodItems.length > 0 && (
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {foodItems.map((food, i) => (
+                <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.04]">
+                  <span className="text-sm text-white/60 capitalize truncate flex-1">{food.name}</span>
+                  <div className="flex items-center gap-2 ml-2 shrink-0">
+                    <button type="button" onClick={() => updateFoodQty(i, food.qty - (food.qty > 1 ? 1 : 0.25))} className="w-6 h-6 border border-white/[0.08] text-white/40 hover:text-white/60 flex items-center justify-center text-xs transition-colors">-</button>
+                    <input
+                      type="number"
+                      min="0.25"
+                      step="0.25"
+                      value={food.qty}
+                      onChange={(e) => updateFoodQty(i, e.target.value)}
+                      className="w-10 text-center bg-transparent text-white/70 text-sm border-none outline-none"
+                    />
+                    <button type="button" onClick={() => updateFoodQty(i, food.qty + 1)} className="w-6 h-6 border border-white/[0.08] text-white/40 hover:text-white/60 flex items-center justify-center text-xs transition-colors">+</button>
+                    <span className="text-xs text-primary-500 w-14 text-right">{Math.round(food.calories * food.qty)}</span>
+                    <button type="button" onClick={() => removeFoodItem(i)} className="text-white/10 hover:text-red-400 transition-colors">
+                      <span className="text-sm leading-none">&times;</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="submit"
+              disabled={saving || !mealName.trim() || foodItems.length === 0}
+              className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-30"
+            >
+              {saving ? 'Saving...' : 'Save Meal'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowForm(false); setMealName(''); setFoodItems([]); setFoodQuery(''); setFoodResults([]); }}
+              className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 transition-colors duration-300 px-4 py-2"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }

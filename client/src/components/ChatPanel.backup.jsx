@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { streamChat } from '../services/api.js';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function ChatPanel({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
@@ -56,69 +57,61 @@ export default function ChatPanel({ isOpen, onClose }) {
       <SheetContent
         side="right"
         showCloseButton={false}
-        className="bg-[#050505] border-white/[0.06] p-0 flex flex-col w-full sm:max-w-sm"
+        className="bg-[#1A1810] border-[#2E2B20] p-0 flex flex-col w-full sm:max-w-sm"
       >
-        {/* Header */}
-        <SheetHeader className="px-5 py-4 border-b border-white/[0.06] gap-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <motion.div className="w-4 h-[2px] bg-primary-500" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.5 }} />
-              <SheetTitle className="text-xs uppercase tracking-[0.2em] text-primary-500 font-normal">AI Coach</SheetTitle>
+        <SheetHeader className="px-4 py-3 border-b border-primary-300 bg-primary-500 rounded-none gap-0">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🤖</span>
+            <div>
+              <SheetTitle className="font-medium text-sm text-gray-900">AI Coach</SheetTitle>
+              <SheetDescription className="text-xs text-primary-800">FastTrack Assistant</SheetDescription>
             </div>
-            <SheetDescription className="sr-only">FastTrack AI Coach chat panel</SheetDescription>
           </div>
         </SheetHeader>
 
-        {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {messages.map((msg, i) => (
-            <motion.div
-              key={i}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
+            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className={`max-w-[85%] px-4 py-3 text-sm leading-relaxed ${
+                className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? 'bg-primary-500/10 text-white'
-                    : 'bg-white/[0.03] text-white'
+                    ? 'bg-primary-500 text-gray-900 rounded-br-sm'
+                    : 'bg-[#22201A] text-primary-50 rounded-bl-sm'
                 }`}
               >
                 {msg.content || (streaming && i === messages.length - 1 ? (
-                  <span className="inline-flex gap-1 items-center">
-                    <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-bounce" />
-                    <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-bounce [animation-delay:0.1s]" />
-                    <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <span className="inline-flex gap-1">
+                    <span className="w-1.5 h-1.5 bg-[#5A5228] rounded-full animate-bounce" />
+                    <span className="w-1.5 h-1.5 bg-[#5A5228] rounded-full animate-bounce [animation-delay:0.1s]" />
+                    <span className="w-1.5 h-1.5 bg-[#5A5228] rounded-full animate-bounce [animation-delay:0.2s]" />
                   </span>
                 ) : '')}
               </div>
-            </motion.div>
+            </div>
           ))}
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
-        <form onSubmit={sendMessage} className="p-4 border-t border-white/[0.06]">
-          <div className="flex gap-3 items-end">
-            <input
+        <form onSubmit={sendMessage} className="p-3 border-t border-[#2E2B20]">
+          <div className="flex gap-2">
+            <Input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask your coach..."
               disabled={streaming}
-              className="flex-1 bg-transparent border-b border-white/[0.1] text-white py-2 text-sm focus:border-primary-500 outline-none transition-all placeholder:text-white/20"
+              className="flex-1 bg-[#22201A] border-[#2E2B20] text-primary-50 placeholder:text-[#5A5228] h-9 rounded-full px-4"
             />
-            <button
+            <Button
               type="submit"
               disabled={!input.trim() || streaming}
-              className="text-primary-500 hover:text-primary-400 disabled:text-white/10 transition-colors duration-300 shrink-0 pb-2"
+              size="icon"
+              className="bg-primary-500 hover:bg-primary-600 text-gray-900 rounded-full shrink-0"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
-            </button>
+            </Button>
           </div>
         </form>
       </SheetContent>

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { api } from '../services/api.js';
-import { Card, CardContent } from '@/components/ui/card';
 
 export default function AISummaryCard({ initialSummary }) {
   const [summary, setSummary] = useState(initialSummary || '');
   const [loading, setLoading] = useState(!initialSummary);
-  const [phase, setPhase] = useState(initialSummary ? 'done' : 'loading'); // loading | exiting | showing | done
+  const [phase, setPhase] = useState(initialSummary ? 'done' : 'loading');
 
   useEffect(() => {
     if (initialSummary) {
@@ -35,27 +35,42 @@ export default function AISummaryCard({ initialSummary }) {
   if (!loading && !summary && phase === 'done') return null;
 
   return (
-    <Card className="border-2 border-white/20 rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px) saturate(1.2)', WebkitBackdropFilter: 'blur(10px) saturate(1.2)', boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)' }}>
-      <CardContent>
-        <h3 className="text-xl font-medium text-primary-500 mb-4">Daily Analysis</h3>
+    <div>
+      {/* Header: horizontal line with "AI" pill sitting on it */}
+      <div className="relative mb-6">
+        <div className="w-full h-px bg-white/[0.08]" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 bg-black px-3 text-[10px] uppercase tracking-[0.2em] text-primary-500">
+          AI
+        </span>
+      </div>
 
-        {(phase === 'loading' || phase === 'exiting') && (
-          <div className={`flex flex-col items-center py-10 ${phase === 'exiting' ? 'slide-out-right' : ''}`}>
-            <div className="trinity-spinner mb-4">
-              <svg className="ring-1" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFAA00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
-              <svg className="ring-2" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFAA00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
-              <svg className="ring-3" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="15" fill="none" stroke="#FFAA00" strokeWidth="4" strokeDasharray="31.4 62.8" strokeLinecap="butt" /></svg>
-            </div>
-            <span className="text-2xl font-semibold text-shimmer">Thinking...</span>
+      {/* Loading state */}
+      {(phase === 'loading' || phase === 'exiting') && (
+        <motion.div
+          className={`py-6 ${phase === 'exiting' ? 'opacity-0' : 'opacity-100'}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: phase === 'exiting' ? 0 : 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-primary-500 animate-breathe" />
+            <p className="text-xs text-white/60">Analyzing</p>
           </div>
-        )}
+        </motion.div>
+      )}
 
-        {(phase === 'showing' || phase === 'done') && (
-          <p className={`text-base text-[#B8A860] leading-relaxed ${phase === 'showing' ? 'slide-in-left' : ''}`}>
+      {/* Summary text */}
+      {(phase === 'showing' || phase === 'done') && (
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <p className="text-sm text-white leading-loose max-w-2xl">
             {summary}
           </p>
-        )}
-      </CardContent>
-    </Card>
+        </motion.div>
+      )}
+    </div>
   );
 }

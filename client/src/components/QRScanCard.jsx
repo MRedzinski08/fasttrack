@@ -1,16 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { api } from '../services/api.js';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
-const glassStyle = {
-  background: 'rgba(255,255,255,0.02)',
-  backdropFilter: 'blur(10px) saturate(1.2)',
-  WebkitBackdropFilter: 'blur(10px) saturate(1.2)',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 4px rgba(255,170,0,0.05), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.3)',
-};
-
-export default function QRScanCard() {
+export default function QRScanCard({ onMealLogged }) {
   const [scanning, setScanning] = useState(false);
   const [looking, setLooking] = useState(false);
   const [result, setResult] = useState(null);
@@ -142,6 +133,7 @@ export default function QRScanCard() {
       });
       setSaved(true);
       setResult(null);
+      if (onMealLogged) onMealLogged();
     } catch {
       setError('Failed to log food.');
     } finally {
@@ -159,93 +151,117 @@ export default function QRScanCard() {
   }, []);
 
   return (
-    <Card className="border-2 border-white/20 rounded-2xl" style={glassStyle}>
-      <CardContent className="py-6">
-        <h3 className="text-xl font-medium text-primary-50 mb-4">Barcode Scanner</h3>
+    <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
+      {/* Header */}
+      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-6">BARCODE SCAN</span>
 
-        {!scanning && !looking && !result && !saved && (
-          <div className="text-center py-6">
-            <div className="w-16 h-16 rounded-full bg-primary-500/10 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
-              </svg>
-            </div>
-            <p className="text-sm text-white/50 mb-4">Scan a barcode on food packaging to instantly log nutritional info.</p>
-            <Button onClick={startScanner} className="bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium">
-              Scan Code
-            </Button>
+      {/* Idle state */}
+      {!scanning && !looking && !result && !saved && (
+        <div className="text-center py-8">
+          <div className="w-16 h-16 border border-white/[0.08] rounded-full p-4 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+            </svg>
           </div>
-        )}
+          <p className="text-sm text-white/40 mb-6">Scan a barcode on food packaging to instantly log nutritional info.</p>
+          <button
+            onClick={startScanner}
+            className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
+          >
+            SCAN
+          </button>
+        </div>
+      )}
 
-        {scanning && (
-          <div className="space-y-3">
-            <div className="relative rounded-xl overflow-hidden bg-black">
-              <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full h-full object-cover rounded-xl" style={{ minHeight: '250px' }} />
-              {/* Scan overlay */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-48 h-48 border-2 border-primary-500/50 rounded-lg" />
+      {/* Scanning */}
+      {scanning && (
+        <div className="space-y-4">
+          <div className="relative rounded-lg overflow-hidden bg-black">
+            <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full object-cover" style={{ minHeight: '250px' }} />
+            {/* Scanning line overlay */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute left-4 right-4 h-[2px] bg-primary-500/80 animate-scan-sweep shadow-[0_0_8px_rgba(255,170,0,0.4)]" />
+            </div>
+            <p className="absolute bottom-3 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/40">Point camera at a barcode</p>
+          </div>
+          <button
+            onClick={stopCamera}
+            className="w-full text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 py-2 transition-colors duration-300"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* Looking up */}
+      {looking && (
+        <div className="py-8">
+          <div className="w-full h-px bg-white/[0.04] overflow-hidden mb-4">
+            <div className="h-full bg-primary-500 animate-scan-line" />
+          </div>
+          <p className="text-xs text-white/30 text-center">Looking up product...</p>
+        </div>
+      )}
+
+      {/* Product found */}
+      {result && (
+        <div className="space-y-4">
+          <div className="py-4">
+            <div className="w-full h-[2px] bg-primary-500/40 mb-4" />
+            <div className="flex items-start gap-4">
+              {result.imageUrl && (
+                <img src={result.imageUrl} alt={result.name} className="w-16 h-16 rounded-lg object-cover" />
+              )}
+              <div className="flex-1">
+                <p className="text-sm text-white/70">{result.name}</p>
+                {result.brand && <p className="text-xs text-white/30 mt-1">{result.brand}</p>}
+                <p className="text-[10px] text-white/20 tracking-wide mt-1">Per {result.servingSize}</p>
               </div>
-              <p className="absolute bottom-3 left-0 right-0 text-center text-xs text-white/60">Point camera at a barcode</p>
+              <span className="text-sm text-primary-500 font-display tabular-nums">{result.calories} kcal</span>
             </div>
-            <Button onClick={stopCamera} variant="outline" className="w-full border-white/10 text-white/60 hover:bg-white/10">
-              Cancel
-            </Button>
-          </div>
-        )}
-
-        {looking && (
-          <div className="text-center py-8">
-            <div className="w-8 h-8 border-[3px] border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm text-white/50">Looking up product...</p>
-          </div>
-        )}
-
-        {result && (
-          <div className="space-y-3">
-            <div className="bg-white/5 rounded-xl p-4">
-              <div className="flex items-start gap-4">
-                {result.imageUrl && (
-                  <img src={result.imageUrl} alt={result.name} className="w-16 h-16 rounded-lg object-cover" />
-                )}
-                <div className="flex-1">
-                  <p className="text-base font-medium text-primary-50">{result.name}</p>
-                  {result.brand && <p className="text-sm text-white/40">{result.brand}</p>}
-                  <p className="text-xs text-white/30 mt-1">Per {result.servingSize}</p>
-                </div>
-                <span className="text-lg font-medium text-[#B8A860]">{result.calories} kcal</span>
-              </div>
-              <div className="flex gap-4 mt-3 text-sm text-white/50">
-                <span>P: {result.protein}g</span>
-                <span>C: {result.carbs}g</span>
-                <span>F: {result.fat}g</span>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button onClick={logResult} disabled={saving} className="flex-1 bg-primary-500 hover:bg-primary-600 text-gray-900 font-medium">
-                {saving ? 'Logging...' : 'Log This'}
-              </Button>
-              <Button onClick={() => { setResult(null); startScanner(); }} variant="outline" className="border-white/10 text-white/60 hover:bg-white/10">
-                Scan Again
-              </Button>
+            <div className="flex gap-4 mt-3 text-xs text-white/30">
+              <span>P: {result.protein}g</span>
+              <span>C: {result.carbs}g</span>
+              <span>F: {result.fat}g</span>
             </div>
           </div>
-        )}
-
-        {saved && (
-          <div className="text-center py-6">
-            <p className="text-lg text-green-500 font-medium mb-2">Food logged!</p>
-            <Button onClick={() => setSaved(false)} variant="outline" className="border-white/10 text-white/60 hover:bg-white/10">
-              Scan Another
-            </Button>
+          <div className="flex gap-3">
+            <button
+              onClick={logResult}
+              disabled={saving}
+              className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-40"
+            >
+              {saving ? 'Logging...' : 'LOG'}
+            </button>
+            <button
+              onClick={() => { setResult(null); startScanner(); }}
+              className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 px-4 py-2 transition-colors duration-300"
+            >
+              Scan Again
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {error && (
-          <div className="bg-red-900/20 border border-red-500/30 text-red-300 text-sm rounded-lg px-3 py-2 mt-3">{error}</div>
-        )}
-      </CardContent>
-    </Card>
+      {/* Saved */}
+      {saved && (
+        <div className="text-center py-8">
+          <p className="text-primary-500 text-sm font-display mb-4">&#10003; Logged</p>
+          <button
+            onClick={() => setSaved(false)}
+            className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 transition-colors duration-300"
+          >
+            Scan Another
+          </button>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="border border-red-500/20 text-red-400 text-sm px-4 py-3 mt-4">{error}</div>
+      )}
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -23,15 +22,6 @@ const navLinks = [
 export default function NavBar({ onSettingsOpen }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 50);
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   async function handleLogout() {
     await logout();
@@ -40,19 +30,19 @@ export default function NavBar({ onSettingsOpen }) {
 
   return (
     <>
-      {/* Desktop navbar -- transparent, floats over content, blurs on scroll */}
+      {/* Desktop navbar */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-40 hidden md:block h-14 transition-all duration-500 ${
-          scrolled
-            ? 'bg-black/80 backdrop-blur-md'
-            : 'bg-transparent'
-        }`}
+        className="sticky top-0 z-40 hidden md:block border-b border-white/[0.06]"
+        style={{
+          background: 'rgba(15,14,8,0.6)',
+          backdropFilter: 'blur(24px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+        }}
       >
-        <div className="max-w-[1600px] mx-auto px-16 h-full flex items-center justify-between">
+        <div className="max-w-[96rem] mx-auto px-8 h-14 flex items-center justify-between">
           {/* Logo */}
-          <span className="text-sm font-display tracking-[0.3em] uppercase select-none">
-            <span className="text-white/80">FAST</span>
-            <span className="text-primary-500">TRACK</span>
+          <span className="text-lg font-light text-white/90 tracking-[0.25em] uppercase select-none">
+            Fast<span className="text-primary-500">Track</span>
           </span>
 
           {/* Center nav links */}
@@ -62,14 +52,21 @@ export default function NavBar({ onSettingsOpen }) {
                 key={l.to}
                 to={l.to}
                 className={({ isActive }) =>
-                  `text-[11px] uppercase tracking-[0.15em] transition-colors duration-300 ${
+                  `relative py-1 text-[13px] tracking-[0.08em] uppercase transition-colors duration-300 ${
                     isActive
-                      ? 'text-primary-500'
-                      : 'text-white/35 hover:text-white/70'
+                      ? 'text-white/90'
+                      : 'text-white/30 hover:text-white/60'
                   }`
                 }
               >
-                {l.label}
+                {({ isActive }) => (
+                  <>
+                    {l.label}
+                    {isActive && (
+                      <span className="absolute -bottom-[7px] left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary-500 nav-dot-pulse" />
+                    )}
+                  </>
+                )}
               </NavLink>
             ))}
           </div>
@@ -78,10 +75,10 @@ export default function NavBar({ onSettingsOpen }) {
           <div className="flex items-center gap-5">
             <button
               onClick={onSettingsOpen}
-              className="w-8 h-8 rounded-full border border-white/[0.06] flex items-center justify-center text-white/30 hover:text-white/60 transition-colors duration-300"
+              className="text-white/25 hover:text-white/60 transition-colors duration-300"
               title="Settings"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                   d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -89,41 +86,57 @@ export default function NavBar({ onSettingsOpen }) {
             </button>
             <button
               onClick={handleLogout}
-              className="text-[11px] text-white/30 hover:text-white/50 transition-colors duration-300"
+              className="text-[13px] tracking-[0.05em] text-white/25 hover:text-white/60 transition-colors duration-300"
             >
-              Exit
+              Sign Out
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Mobile bottom tab bar -- icon-only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-black border-t border-white/[0.04]">
-        <div className="flex items-center justify-around px-2 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+      {/* Mobile bottom tab bar */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-white/[0.06]"
+        style={{
+          background: 'rgba(15,14,8,0.85)',
+          backdropFilter: 'blur(24px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+        }}
+      >
+        <div className="flex items-center justify-around px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           {navLinks.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `flex items-center justify-center p-2 transition-colors duration-300 ${
+                `flex flex-col items-center gap-1 px-4 py-1.5 rounded-2xl transition-colors duration-300 ${
                   isActive
                     ? 'text-primary-500'
-                    : 'text-white/20'
+                    : 'text-white/25'
                 }`
               }
             >
-              {l.icon}
+              {({ isActive }) => (
+                <>
+                  {l.icon}
+                  <span className="text-[10px] tracking-wider uppercase">{l.label}</span>
+                  {isActive && (
+                    <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary-500 nav-dot-pulse" />
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
           <button
             onClick={onSettingsOpen}
-            className="flex items-center justify-center p-2 text-white/20 transition-colors duration-300"
+            className="flex flex-col items-center gap-1 px-4 py-1.5 text-white/25 transition-colors duration-300"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
+            <span className="text-[10px] tracking-wider uppercase">Settings</span>
           </button>
         </div>
       </nav>

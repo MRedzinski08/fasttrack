@@ -71,7 +71,7 @@ export async function logMeal(req, res) {
     );
     const meal = mealResult.rows[0];
 
-    // Fasting logic: only reset timer when eating window is open
+    // Fasting logic with eating window support
     const activeResult = await client.query(
       `SELECT * FROM fasting_sessions
        WHERE user_id = $1 AND fast_end IS NULL
@@ -81,32 +81,57 @@ export async function logMeal(req, res) {
 
     let fastingSession;
     let outsideEatingWindow = false;
+    let eatingWindowActive = false;
+    let eatingWindowRemaining = 0;
 
     if (activeResult.rows[0]) {
       const active = activeResult.rows[0];
       const elapsedMs = now - new Date(active.fast_start);
       const targetMs = active.target_hours * 60 * 60 * 1000;
-      const eatingWindowOpen = elapsedMs >= targetMs;
+      const fastingComplete = elapsedMs >= targetMs;
 
-      if (eatingWindowOpen) {
-        // Eating window is open — this meal resets the fast
-        const elapsedHours = elapsedMs / (1000 * 60 * 60);
-        const completed = elapsedHours >= active.target_hours;
+      if (active.eating_window_start) {
+        // Already in eating window — check if it's still open
+        const ewElapsed = now - new Date(active.eating_window_start);
+        const ewTarget = (active.eating_window_hours || user.eating_hours) * 60 * 60 * 1000;
+
+        if (ewElapsed < ewTarget) {
+          // Still in eating window — meal is fine, no changes to session
+          fastingSession = active;
+          eatingWindowActive = true;
+          eatingWindowRemaining = Math.max(0, Math.round((ewTarget - ewElapsed) / 1000));
+        } else {
+          // Eating window has expired — close this session, start new fast
+          await client.query(
+            `UPDATE fasting_sessions SET fast_end = $1, completed = TRUE
+             WHERE id = $2`,
+            [new Date(active.eating_window_start.getTime ? active.eating_window_start.getTime() + ewTarget : now), active.id]
+          );
+
+          // New fast starts from when eating window ended
+          const fastStart = new Date(new Date(active.eating_window_start).getTime() + ewTarget);
+          const newSession = await client.query(
+            `INSERT INTO fasting_sessions (user_id, fast_start, target_hours)
+             VALUES ($1, $2, $3) RETURNING *`,
+            [user.id, fastStart, user.fasting_hours]
+          );
+          fastingSession = newSession.rows[0];
+          // This meal is outside the eating window of the NEW session
+          outsideEatingWindow = true;
+        }
+      } else if (fastingComplete) {
+        // Fast is done, no eating window started yet — this is the FIRST meal
+        // Start the eating window now
         await client.query(
-          `UPDATE fasting_sessions SET fast_end = $1, completed = $2, broken_early = $3
-           WHERE id = $4`,
-          [now, completed, !completed, active.id]
+          `UPDATE fasting_sessions SET eating_window_start = $1, eating_window_hours = $2
+           WHERE id = $3`,
+          [now, user.eating_hours, active.id]
         );
-
-        // Start new fasting session from this meal
-        const newSession = await client.query(
-          `INSERT INTO fasting_sessions (user_id, fast_start, target_hours)
-           VALUES ($1, $2, $3) RETURNING *`,
-          [user.id, now, user.fasting_hours]
-        );
-        fastingSession = newSession.rows[0];
+        fastingSession = { ...active, eating_window_start: now, eating_window_hours: user.eating_hours };
+        eatingWindowActive = true;
+        eatingWindowRemaining = user.eating_hours * 3600;
       } else {
-        // Still fasting — meal is outside eating window, do NOT reset timer
+        // Still fasting — meal is outside eating window
         outsideEatingWindow = true;
         fastingSession = active;
       }
@@ -122,11 +147,17 @@ export async function logMeal(req, res) {
 
     await client.query('COMMIT');
 
-    const targetMs = fastingSession.target_hours * 60 * 60 * 1000;
-    const elapsedMs = now - new Date(fastingSession.fast_start);
-    const timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
+    // Calculate time remaining
+    let timeRemainingSeconds;
+    if (eatingWindowActive) {
+      timeRemainingSeconds = eatingWindowRemaining;
+    } else {
+      const targetMs = fastingSession.target_hours * 60 * 60 * 1000;
+      const elapsedMs = now - new Date(fastingSession.fast_start);
+      timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
+    }
 
-    res.status(201).json({ meal, fastingSession, timeRemainingSeconds, outsideEatingWindow });
+    res.status(201).json({ meal, fastingSession, timeRemainingSeconds, outsideEatingWindow, eatingWindowActive });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('logMeal error:', err);
