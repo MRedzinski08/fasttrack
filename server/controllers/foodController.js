@@ -25,11 +25,20 @@ export async function searchFood(req, res) {
   try {
     const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(q)}&api_key=${process.env.USDA_API_KEY}&pageSize=12&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation,Branded`;
 
-    const response = await fetch(url);
+    // Try up to 3 times with a short delay between attempts
+    let response;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      response = await fetch(url);
+      if (response.ok) break;
+      if (attempt < 2) {
+        console.log(`USDA attempt ${attempt + 1} failed (${response.status}), retrying...`);
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
 
     if (!response.ok) {
       const errText = await response.text().catch(() => '');
-      console.error('USDA API error:', response.status, errText);
+      console.error('USDA API error after 3 attempts:', response.status, errText);
       console.error('USDA API key present:', !!process.env.USDA_API_KEY, 'Query:', q);
       return res.status(502).json({ error: 'Food lookup failed', foods: [] });
     }
