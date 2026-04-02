@@ -84,7 +84,7 @@ export async function getSubscriptionStatus(req, res) {
     }
 
     // No subscription ID stored — check if the user has a Stripe customer with an active subscription
-    // This handles the case where checkout completed but we never stored the subscription ID (no webhook)
+    console.log('Billing status check:', { customerId: user.stripe_customer_id, subId: user.stripe_subscription_id, tier: user.subscription_tier });
     if (user.stripe_customer_id && !user.stripe_subscription_id) {
       try {
         const subscriptions = await stripe.subscriptions.list({
