@@ -49,9 +49,9 @@
   --ft-border: rgba(0,0,0,0.08);
   --ft-border-strong: rgba(0,0,0,0.15);
   --ft-surface-hover: rgba(0,0,0,0.03);
-  --color-primary-500: #B87700;
-  --color-primary-400: #CC8500;
-  --color-primary-600: #9A6300;
+  --color-primary-500: #C44B2C;
+  --color-primary-400: #D45A3A;
+  --color-primary-600: #A83D22;
 }
 
 .theme-bg { background-color: var(--ft-bg); }
@@ -577,17 +577,17 @@ body {
 [data-theme="light"] .bg-white\/10 { background-color: rgba(0,0,0,0.05) !important; }
 
 /* Light mode primary — darker amber for readability on eggshell */
-[data-theme="light"] .text-primary-500 { color: #B87700 !important; }
-[data-theme="light"] .text-primary-400 { color: #CC8500 !important; }
-[data-theme="light"] .text-primary-600 { color: #9A6300 !important; }
-[data-theme="light"] .border-primary-500 { border-color: #B87700 !important; }
-[data-theme="light"] .bg-primary-500 { background-color: #B87700 !important; }
-[data-theme="light"] .hover\:bg-primary-500:hover { background-color: #B87700 !important; }
-[data-theme="light"] .hover\:bg-primary-400:hover { background-color: #CC8500 !important; }
-[data-theme="light"] .hover\:text-primary-500:hover { color: #B87700 !important; }
-[data-theme="light"] .hover\:text-primary-400:hover { color: #CC8500 !important; }
-[data-theme="light"] .bg-primary-500\/10 { background-color: rgba(184,119,0,0.1) !important; }
-[data-theme="light"] .bg-primary-500\/15 { background-color: rgba(184,119,0,0.12) !important; }
+[data-theme="light"] .text-primary-500 { color: #C44B2C !important; }
+[data-theme="light"] .text-primary-400 { color: #D45A3A !important; }
+[data-theme="light"] .text-primary-600 { color: #A83D22 !important; }
+[data-theme="light"] .border-primary-500 { border-color: #C44B2C !important; }
+[data-theme="light"] .bg-primary-500 { background-color: #C44B2C !important; }
+[data-theme="light"] .hover\:bg-primary-500:hover { background-color: #C44B2C !important; }
+[data-theme="light"] .hover\:bg-primary-400:hover { background-color: #D45A3A !important; }
+[data-theme="light"] .hover\:text-primary-500:hover { color: #C44B2C !important; }
+[data-theme="light"] .hover\:text-primary-400:hover { color: #D45A3A !important; }
+[data-theme="light"] .bg-primary-500\/10 { background-color: rgba(196,75,44,0.1) !important; }
+[data-theme="light"] .bg-primary-500\/15 { background-color: rgba(196,75,44,0.12) !important; }
 
 /* Light mode scrollbar */
 [data-theme="light"] .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
