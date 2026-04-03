@@ -291,52 +291,52 @@ const COMMON_PREPS = {
   turkey: ['turkey breast', 'turkey ground', 'turkey deli'],
 };
 
-// Compound dish words — these get demoted when the query is a simple food
-const COMPOUND_WORDS = ['burrito', 'quesadilla', 'taquito', 'congee', 'sushi', 'casserole', 'lasagna', 'noodle', 'bagel', 'bread', 'cake', 'muffin', 'cookie', 'pie', 'sandwich'];
-
 function relevanceScore(name, query) {
-  const nameLower = name.toLowerCase();
-  const queryLower = query.toLowerCase();
-  const queryWords = queryLower.split(/\s+/);
+  const n = name.toLowerCase();
+  const q = query.toLowerCase().trim();
+  const qWords = q.split(/\s+/);
 
-  // Exact match
-  if (nameLower === queryLower) return 100;
+  // Normalize: strip commas, extra spaces for comparison
+  const nClean = n.replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+  const nWords = nClean.split(' ');
 
-  // Name starts with the query word(s) — strongest signal
-  if (nameLower.startsWith(queryLower + ',') || nameLower.startsWith(queryLower + ' ') || nameLower === queryLower) return 95;
-  if (nameLower.startsWith(queryLower)) return 93;
+  // ── Tier 1 (100): The food IS the query ──
+  // "egg" → "Egg, Whole, Raw" or "Eggs, Grade A, Large, Egg Whole"
+  // Check if after removing filler words, the name is basically just the food + a preparation
+  const FILLER = ['grade', 'a', 'large', 'medium', 'small', 'raw', 'fresh', 'plain', 'regular', 'ns', 'as', 'to', 'fat', 'type', 'with', 'made', 'no', 'added'];
+  const PREPS = ['whole', 'white', 'yolk', 'scrambled', 'fried', 'poached', 'boiled', 'hard-boiled', 'soft-boiled', 'baked', 'grilled', 'roasted', 'steamed', 'raw', 'cooked', 'dried', 'canned', 'frozen', 'smoked', 'braised', 'sauteed', 'broiled', 'mashed', 'sliced', 'chopped', 'shredded', 'ground', 'diced', 'omelet', 'omelette'];
 
-  // First word of name is the query (singular/plural)
-  const nameWords = nameLower.split(/[\s,(-]+/).filter(Boolean);
-  const firstWord = nameWords[0];
-  if (firstWord === queryLower || firstWord === queryLower + 's' || firstWord === queryLower + 'es') {
-    // Check if it's a common prep or a compound dish
-    const preps = COMMON_PREPS[queryLower];
-    if (preps && preps.some((p) => nameLower.includes(p))) return 90;
-    // Penalize compound dishes (e.g. "egg burrito" when searching "egg")
-    const isCompound = COMPOUND_WORDS.some((w) => nameLower.includes(w) && !queryLower.includes(w));
-    return isCompound ? 55 : 88;
+  // Get the "core" words of the name: remove fillers and preps
+  const coreWords = nWords.filter(w => !FILLER.includes(w) && !PREPS.includes(w));
+  // Check if all core words relate to the query
+  const queryStem = q.replace(/s$/, ''); // egg from eggs
+  const coreIsQuery = coreWords.length > 0 && coreWords.every(w => {
+    const wStem = w.replace(/s$/, '');
+    return wStem === queryStem || queryStem.includes(wStem) || wStem.includes(queryStem);
+  });
+
+  if (coreIsQuery) {
+    // It's THE food — now rank by simplicity (fewer words = more basic)
+    return 100 - Math.min(nWords.length, 15);
   }
 
-  // Common preparation of the searched food
-  const preps = COMMON_PREPS[queryLower];
-  if (preps && preps.some((p) => nameLower.includes(p))) return 85;
+  // ── Tier 2 (80): Common preparation of the food ──
+  const preps = COMMON_PREPS[q];
+  if (preps && preps.some(p => n.includes(p))) {
+    return 80 - Math.min(nWords.length * 0.5, 10);
+  }
 
-  // All query words in name but not at start — decent match
-  const allMatch = queryWords.every((w) => nameLower.includes(w));
+  // ── Tier 3 (60): All query words are in the name ──
+  const allMatch = qWords.every(w => n.includes(w));
   if (allMatch) {
-    // Shorter names = more likely base food
-    const lengthPenalty = Math.max(0, (nameLower.length - 35) * 0.5);
-    const isCompound = COMPOUND_WORDS.some((w) => nameLower.includes(w) && !queryLower.includes(w));
-    return Math.round((isCompound ? 50 : 70) - lengthPenalty);
+    // Penalize long names (compound dishes)
+    return 60 - Math.min(n.length * 0.3, 25);
   }
 
-  // First word of name matches a query word
-  if (queryWords.includes(firstWord)) return 45;
+  // ── Tier 4 (30): Query word appears somewhere ──
+  const someMatch = qWords.some(w => n.includes(w));
+  if (someMatch) return 30 - Math.min(n.length * 0.2, 20);
 
-  // Partial match
-  const someMatch = queryWords.some((w) => nameLower.includes(w));
-  if (someMatch) return 20;
   return 0;
 }
 
