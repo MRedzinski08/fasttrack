@@ -39,9 +39,9 @@
 }
 
 [data-theme="light"] {
-  --ft-bg: #D9D0C1;
-  --ft-bg-card: #E0D8C9;
-  --ft-bg-elevated: #D4CBBB;
+  --ft-bg: #E8E0C8;
+  --ft-bg-card: #EFE8D2;
+  --ft-bg-elevated: #E3DBBC;
   --ft-text: #1A1A1A;
   --ft-text-secondary: rgba(0,0,0,0.55);
   --ft-text-muted: rgba(0,0,0,0.35);
@@ -553,11 +553,11 @@ body {
 [data-theme="light"] .text-white\/10 { color: rgba(0,0,0,0.1) !important; }
 
 /* Light mode backgrounds */
-[data-theme="light"] .bg-black { background-color: #D9D0C1 !important; }
-[data-theme="light"] .bg-\[\#080808\] { background-color: #E0D8C9 !important; }
-[data-theme="light"] .bg-\[\#0A0A0A\] { background-color: #E0D8C9 !important; }
-[data-theme="light"] .bg-\[\#050505\] { background-color: #D9D0C1 !important; }
-[data-theme="light"] .bg-\[\#111111\] { background-color: #D4CBBB !important; }
+[data-theme="light"] .bg-black { background-color: #E8E0C8 !important; }
+[data-theme="light"] .bg-\[\#080808\] { background-color: #EFE8D2 !important; }
+[data-theme="light"] .bg-\[\#0A0A0A\] { background-color: #EFE8D2 !important; }
+[data-theme="light"] .bg-\[\#050505\] { background-color: #E8E0C8 !important; }
+[data-theme="light"] .bg-\[\#111111\] { background-color: #E3DBBC !important; }
 
 /* Light mode borders */
 [data-theme="light"] .border-white\/\[0\.06\] { border-color: rgba(0,0,0,0.08) !important; }
@@ -585,7 +585,7 @@ body {
 [data-theme="light"] .recharts-tooltip-wrapper .recharts-default-tooltip { background-color: #FFFFFF !important; border-color: rgba(0,0,0,0.1) !important; }
 
 /* Navbar in light mode */
-[data-theme="light"] nav { background-color: rgba(217,208,193,0.9) !important; backdrop-filter: blur(12px) !important; }
+[data-theme="light"] nav { background-color: rgba(232,224,200,0.9) !important; backdrop-filter: blur(12px) !important; }
 
 /* Line scan in light mode */
 [data-theme="light"] .line-scan { background: linear-gradient(90deg, transparent, rgba(255,170,0,0.15), transparent) !important; }
