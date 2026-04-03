@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion, useInView } from 'framer-motion';
 import { api } from '../services/api.js';
+import { useTheme } from '../context/ThemeContext';
 import FastingTimer from '../components/FastingTimer.jsx';
 import CalorieBar from '../components/CalorieBar.jsx';
 import MacroBar from '../components/MacroBar.jsx';
@@ -52,14 +53,14 @@ function useCountUp(target, duration = 1200) {
 /* ------------------------------------------------------------------ */
 /*  Stat cell for the static metrics grid                             */
 /* ------------------------------------------------------------------ */
-function StatCell({ target, label, colorClass }) {
+function StatCell({ target, label, color }) {
   const { value, ref } = useCountUp(target);
   return (
     <div ref={ref} className="text-center">
-      <p className={`text-3xl sm:text-5xl font-display font-extralight tabular-nums ${colorClass}`}>
+      <p className="text-3xl sm:text-5xl font-display font-extralight tabular-nums" style={{ color }}>
         {value.toLocaleString()}
       </p>
-      <p className="text-[11px] uppercase tracking-[0.2em] text-white mt-2">{label}</p>
+      <p className="text-[11px] uppercase tracking-[0.2em] mt-2" style={{ color: 'var(--ft-text)' }}>{label}</p>
     </div>
   );
 }
@@ -161,12 +162,17 @@ export default function Dashboard() {
 
   const firstName = (data?.user?.displayName || 'there').split(' ')[0];
 
-  // Metrics for the ticker
+  // Theme-aware metric colors
+  const { isDark, info: themeInfo } = useTheme();
+  const metricColors = isDark
+    ? { goal: '#FFAA00', consumed: '#ffffff', burned: '#fb923c', remaining: '#4ade80', over: '#f87171' }
+    : { goal: themeInfo.accent, consumed: '#111111', burned: '#C2410C', remaining: '#15803D', over: '#B91C1C' };
+
   const metrics = [
-    { value: goal, label: 'GOAL', color: 'text-primary-500' },
-    { value: intake, label: 'CONSUMED', color: 'text-white' },
-    { value: burned, label: 'BURNED', color: 'text-orange-400' },
-    { value: Math.abs(net), label: isOver ? 'OVER' : 'REMAINING', color: isOver ? 'text-red-400' : 'text-green-400' },
+    { value: goal, label: 'GOAL', color: metricColors.goal },
+    { value: intake, label: 'CONSUMED', color: metricColors.consumed },
+    { value: burned, label: 'BURNED', color: metricColors.burned },
+    { value: Math.abs(net), label: isOver ? 'OVER' : 'REMAINING', color: isOver ? metricColors.over : metricColors.remaining },
   ];
 
   return (
@@ -230,13 +236,13 @@ export default function Dashboard() {
             {Array.from({ length: 6 }).map((_, rep) =>
               metrics.map((m, i) => (
                 <span key={`${rep}-${i}`} className="inline-flex items-baseline gap-3 mx-6">
-                  <span className={`text-4xl font-display font-light tabular-nums ${m.color}`}>
+                  <span className="text-4xl font-display font-light tabular-nums" style={{ color: m.color }}>
                     {m.value.toLocaleString()}
                   </span>
-                  <span className="text-[11px] uppercase tracking-[0.2em] text-white">
+                  <span className="text-[11px] uppercase tracking-[0.2em]" style={{ color: 'var(--ft-text)' }}>
                     {m.label}
                   </span>
-                  <span className="text-white/10 mx-4">&middot;</span>
+                  <span className="mx-4" style={{ color: 'var(--ft-text-muted)' }}>&middot;</span>
                 </span>
               ))
             )}
@@ -245,13 +251,13 @@ export default function Dashboard() {
 
         {/* Static grid for readability */}
         <div className="grid grid-cols-4 gap-4">
-          <StatCell target={goal} label="Goal" colorClass="text-primary-500" />
-          <StatCell target={intake} label="Consumed" colorClass="text-white" />
-          <StatCell target={burned} label="Burned" colorClass="text-orange-400" />
+          <StatCell target={goal} label="Goal" color={metricColors.goal} />
+          <StatCell target={intake} label="Consumed" color={metricColors.consumed} />
+          <StatCell target={burned} label="Burned" color={metricColors.burned} />
           <StatCell
             target={Math.abs(net)}
             label={isOver ? 'Over' : 'Remaining'}
-            colorClass={isOver ? 'text-red-400' : 'text-green-400'}
+            color={isOver ? metricColors.over : metricColors.remaining}
           />
         </div>
       </motion.section>

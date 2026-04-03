@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 
 function formatTime(seconds) {
   if (seconds <= 0) return '00:00:00';
@@ -63,11 +64,10 @@ export default function FastingTimer({ session, initialSeconds, eatingWindowActi
     return () => clearInterval(interval);
   }, [session]);
 
-  // Colors
-  const colorClass = isEatingWindow ? 'text-primary-500' : fastComplete ? 'text-primary-500' : isWarning ? 'text-amber-500' : 'text-green-400';
-  const extrudeColor = isEatingWindow ? '#664400' : fastComplete ? '#664400' : isWarning ? '#5C3D06' : '#1A5C32';
-  const barColor = isEatingWindow ? 'bg-primary-500' : fastComplete ? 'bg-primary-500' : isWarning ? 'bg-amber-500' : 'bg-green-400';
-  const glowColor = isEatingWindow ? '255,170,0' : fastComplete ? '255,170,0' : isWarning ? '245,158,11' : '74,222,128';
+  // Theme-aware timer colors
+  const { info: themeInfo } = useTheme();
+  const timerState = isEatingWindow || fastComplete ? 'eating' : isWarning ? 'warning' : 'fasting';
+  const { color: timerColor, extrude: extrudeColor, glow: glowColor } = themeInfo.timer[timerState];
   const statusLabel = isEatingWindow ? 'EATING WINDOW' : fastComplete ? 'FAST COMPLETE — LOG A MEAL' : isWarning ? 'ALMOST THERE' : 'FASTING';
   const marqueeWord = isEatingWindow ? 'EAT' : fastComplete ? 'EAT' : 'FASTING';
 
@@ -103,7 +103,8 @@ export default function FastingTimer({ session, initialSeconds, eatingWindowActi
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <motion.span
-            className={`text-[70px] sm:text-[130px] lg:text-[180px] font-display font-bold tracking-tighter tabular-nums ${colorClass} block text-center leading-none`}
+            className="text-[70px] sm:text-[130px] lg:text-[180px] font-display font-bold tracking-tighter tabular-nums block text-center leading-none"
+            style={{ color: timerColor }}
             animate={{
               textShadow: isInView ? hardShadow : 'none',
             }}
@@ -118,14 +119,18 @@ export default function FastingTimer({ session, initialSeconds, eatingWindowActi
       <div className="relative w-full mt-10">
         <div className="w-full h-[2px] bg-white/[0.06]">
           <motion.div
-            className={`h-full ${barColor} relative`}
+            className="h-full relative"
+            style={{ backgroundColor: timerColor }}
             initial={{ width: 0 }}
             animate={{ width: `${progress * 100}%` }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <motion.div
-              className={`absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${barColor}`}
-              style={{ boxShadow: `0 0 14px rgba(${glowColor},0.7), 0 0 40px rgba(${glowColor},0.3)` }}
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
+              style={{
+                backgroundColor: timerColor,
+                boxShadow: `0 0 14px rgba(${glowColor},0.7), 0 0 40px rgba(${glowColor},0.3)`,
+              }}
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             />
@@ -137,7 +142,8 @@ export default function FastingTimer({ session, initialSeconds, eatingWindowActi
       <div className="flex items-center justify-between mt-6 px-2">
         <div className="flex items-center gap-2">
           <motion.div
-            className={`w-2 h-2 rounded-full ${barColor}`}
+            className="w-2 h-2 rounded-full"
+            style={{ backgroundColor: timerColor }}
             animate={{ scale: [1, 1.5, 1], opacity: [1, 0.4, 1] }}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
