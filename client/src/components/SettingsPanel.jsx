@@ -295,15 +295,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                 <div>
                   <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Password</label>
                   <div className="flex items-center justify-between py-3 border-b border-white/[0.06]">
-                    <p className="text-sm text-white font-mono">
-                      {showPassword ? '(Firebase managed)' : '••••••••••'}
-                    </p>
-                    <button
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-xs text-primary-500/60 hover:text-primary-500 transition-colors"
-                    >
-                      {showPassword ? 'HIDE' : 'SHOW'}
-                    </button>
+                    <p className="text-sm text-white font-mono tracking-wider">••••••••••</p>
                   </div>
                 </div>
 
