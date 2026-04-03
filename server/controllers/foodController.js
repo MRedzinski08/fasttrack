@@ -179,7 +179,7 @@ async function searchOpenFoodFacts(query) {
         if (!queryWords.some((w) => nameLower.includes(w))) return false;
         // Only include popular products (scanned by real users)
         const scans = p.unique_scans_n || 0;
-        if (scans < 15) return false;
+        if (scans < 100) return false;
         return true;
       })
       .map((p) => {
