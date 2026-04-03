@@ -1,4 +1,6 @@
 // Dual food search: OpenFoodFacts (branded/grocery) + USDA FoodData Central (generic)
+// OFF is great for packaged brands, USDA is great for whole/generic foods.
+// Results are scored by name relevance + serving data quality, then merged.
 
 const USDA_BASE = 'https://api.nal.usda.gov/fdc/v1';
 const OFF_SEARCH = 'https://world.openfoodfacts.net/cgi/search.pl';
@@ -15,9 +17,38 @@ function getNutrient(foodNutrients, id) {
   return match ? Math.round(match.value * 10) / 10 : 0;
 }
 
+// Score how well a result name matches the search query (0-100)
+function relevanceScore(name, query) {
+  const nameLower = name.toLowerCase();
+  const queryLower = query.toLowerCase();
+  const queryWords = queryLower.split(/\s+/);
+
+  // Exact match or starts with query
+  if (nameLower === queryLower) return 100;
+  if (nameLower.startsWith(queryLower)) return 90;
+
+  // First word of name matches query
+  const firstName = nameLower.split(/[\s,(-]/)[0];
+  if (firstName === queryLower) return 85;
+
+  // All query words appear in name
+  const allMatch = queryWords.every((w) => nameLower.includes(w));
+  if (allMatch) {
+    // Bonus if query words are at the start
+    const startsWithFirst = nameLower.startsWith(queryWords[0]);
+    return startsWithFirst ? 75 : 60;
+  }
+
+  // At least one query word in name
+  const someMatch = queryWords.some((w) => nameLower.includes(w));
+  if (someMatch) return 30;
+
+  return 0;
+}
+
 async function searchOpenFoodFacts(query) {
   try {
-    const url = `${OFF_SEARCH}?search_terms=${encodeURIComponent(query)}&json=1&page_size=10&search_simple=1&action=process&fields=product_name,brands,nutriments,serving_size,serving_quantity`;
+    const url = `${OFF_SEARCH}?search_terms=${encodeURIComponent(query)}&json=1&page_size=15&search_simple=1&action=process&fields=product_name,brands,nutriments,serving_size,serving_quantity`;
     const response = await fetch(url);
     if (!response.ok) return [];
 
@@ -25,13 +56,18 @@ async function searchOpenFoodFacts(query) {
     if (!data.products?.length) return [];
 
     return data.products
-      .filter((p) => p.product_name && p.nutriments)
+      .filter((p) => {
+        if (!p.product_name || !p.nutriments) return false;
+        // Only keep results where the query appears in the product name
+        const nameLower = p.product_name.toLowerCase();
+        const queryWords = query.toLowerCase().split(/\s+/);
+        return queryWords.some((w) => nameLower.includes(w));
+      })
       .map((p) => {
         const n = p.nutriments;
         const servingG = parseFloat(p.serving_quantity) || 0;
         const hasServing = servingG > 0 && n['energy-kcal_serving'] != null;
 
-        // Prefer per-serving data when available, otherwise scale from 100g
         const calories = Math.round(
           hasServing ? (n['energy-kcal_serving'] || 0)
                      : servingG > 0 ? (n['energy-kcal_100g'] || 0) * servingG / 100
@@ -42,20 +78,14 @@ async function searchOpenFoodFacts(query) {
         const fat = Math.round((hasServing ? (n.fat_serving || 0) : servingG > 0 ? (n.fat_100g || 0) * servingG / 100 : (n.fat_100g || 0)) * 10) / 10;
 
         const brand = p.brands ? p.brands.split(',')[0].trim() : '';
-        const name = brand
-          ? `${p.product_name} (${brand})`
-          : p.product_name;
-
+        const name = brand ? `${p.product_name} (${brand})` : p.product_name;
         const servingUnit = p.serving_size || (servingG > 0 ? `${servingG}g` : '100g');
 
         return {
-          name,
-          calories,
-          protein,
-          carbs,
-          fat,
+          name, calories, protein, carbs, fat,
           servingQty: servingG || 100,
           servingUnit,
+          hasServing: hasServing || servingG > 0,
           source: 'openfoodfacts',
         };
       })
@@ -68,7 +98,7 @@ async function searchOpenFoodFacts(query) {
 
 async function searchUSDA(query) {
   try {
-    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(query)}&api_key=${process.env.USDA_API_KEY}&pageSize=8&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation,Branded`;
+    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(query)}&api_key=${process.env.USDA_API_KEY}&pageSize=12&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation,Branded`;
 
     let response;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -84,7 +114,6 @@ async function searchUSDA(query) {
 
     return data.foods.map((f) => {
       const nutrients = f.foodNutrients || [];
-      // USDA nutrients are per 100g; scale to serving size if available
       const cal100  = getNutrient(nutrients, NUTRIENT.calories);
       const pro100  = getNutrient(nutrients, NUTRIENT.protein);
       const carb100 = getNutrient(nutrients, NUTRIENT.carbs);
@@ -105,7 +134,12 @@ async function searchUSDA(query) {
       const servingQty  = servingG || 100;
       const servingUnit = f.servingSizeUnit || 'g';
 
-      return { name, calories, protein, carbs, fat, servingQty, servingUnit, source: 'usda' };
+      return {
+        name, calories, protein, carbs, fat,
+        servingQty, servingUnit,
+        hasServing: servingG > 0,
+        source: 'usda',
+      };
     }).filter((f) => f.calories > 0);
   } catch (err) {
     console.error('USDA search error:', err.message);
@@ -120,23 +154,33 @@ export async function searchFood(req, res) {
   }
 
   try {
-    // Search both sources in parallel
     const [offResults, usdaResults] = await Promise.all([
       searchOpenFoodFacts(q),
       searchUSDA(q),
     ]);
 
-    // Deduplicate: if OFF has good results, show those first, then USDA generics
-    // Remove USDA items that are similar to OFF results
-    const offNames = new Set(offResults.map((f) => f.name.toLowerCase().split('(')[0].trim()));
-    const filteredUSDA = usdaResults.filter((f) => {
-      const simpleName = f.name.toLowerCase().split(',')[0].trim();
-      return !offNames.has(simpleName);
+    // Score and sort all results by relevance to the query
+    const all = [...offResults, ...usdaResults].map((f) => ({
+      ...f,
+      _score: relevanceScore(f.name, q) + (f.hasServing ? 10 : 0),
+    }));
+
+    // Sort: highest relevance first, then prefer items with serving data
+    all.sort((a, b) => b._score - a._score);
+
+    // Deduplicate by similar name
+    const seen = new Set();
+    const deduped = all.filter((f) => {
+      const key = f.name.toLowerCase().replace(/\(.*\)/, '').trim().slice(0, 25);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
     });
 
-    const combined = [...offResults, ...filteredUSDA].slice(0, 15);
+    // Strip internal fields before sending
+    const foods = deduped.slice(0, 15).map(({ _score, hasServing, source, ...rest }) => rest);
 
-    res.json({ foods: combined });
+    res.json({ foods });
   } catch (err) {
     console.error('searchFood error:', err);
     res.status(500).json({ error: 'Food search failed', foods: [] });
