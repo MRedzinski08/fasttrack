@@ -2,7 +2,7 @@ import pool from '../db/index.js';
 
 async function getUser(firebaseUid) {
   const result = await pool.query(
-    'SELECT id, fasting_hours FROM user_profiles WHERE firebase_uid = $1',
+    'SELECT id, fasting_hours, eating_hours FROM user_profiles WHERE firebase_uid = $1',
     [firebaseUid]
   );
   return result.rows[0];
