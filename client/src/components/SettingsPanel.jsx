@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { auth } from '../services/firebase.js';
 import { api } from '../services/api.js';
 
 const ease = [0.16, 1, 0.3, 1];
@@ -45,9 +47,21 @@ const TAB_ICONS = {
       <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
     </svg>
   ),
+  general: (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+    </svg>
+  ),
+  account: (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+    </svg>
+  ),
 };
 
 const TABS = [
+  { id: 'general', label: 'General' },
+  { id: 'account', label: 'Account' },
   { id: 'profile', label: 'Profile' },
   { id: 'weight', label: 'Weight' },
   { id: 'nutrition', label: 'Nutrition' },
@@ -56,7 +70,14 @@ const TABS = [
 ];
 
 export default function SettingsPanel({ isOpen, onClose }) {
-  const [tab, setTab] = useState('profile');
+  const [tab, setTab] = useState('general');
+  const [lightMode, setLightMode] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [form, setForm] = useState({
     displayName: '',
     dailyCalorieGoal: 2000,
@@ -222,6 +243,178 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+            {tab === 'general' && (
+              <motion.div
+                className="space-y-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-sm uppercase tracking-[0.15em] text-primary-500 mb-4">General</h3>
+
+                {/* Light Mode Toggle */}
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <p className="text-sm text-white">Light Mode</p>
+                    <p className="text-xs text-white/40 mt-1">Switch to a light color theme</p>
+                  </div>
+                  <button
+                    onClick={() => setLightMode(!lightMode)}
+                    className={`relative w-12 h-6 rounded-full transition-all duration-300 ${lightMode ? 'bg-primary-500' : 'bg-white/[0.08]'}`}
+                  >
+                    <div
+                      className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-300 ${lightMode ? 'left-7 bg-black' : 'left-1 bg-white/40'}`}
+                    />
+                  </button>
+                </div>
+
+                {lightMode && (
+                  <p className="text-xs text-primary-500/60">Light mode coming soon!</p>
+                )}
+              </motion.div>
+            )}
+
+            {tab === 'account' && (
+              <motion.div
+                className="space-y-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-sm uppercase tracking-[0.15em] text-primary-500 mb-4">Account</h3>
+
+                {/* Email */}
+                <div>
+                  <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Email</label>
+                  <p className="text-sm text-white py-3 border-b border-white/[0.06]">
+                    {auth.currentUser?.email || 'Not available'}
+                  </p>
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Password</label>
+                  <div className="flex items-center justify-between py-3 border-b border-white/[0.06]">
+                    <p className="text-sm text-white font-mono">
+                      {showPassword ? '(Firebase managed)' : '••••••••••'}
+                    </p>
+                    <button
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-xs text-primary-500/60 hover:text-primary-500 transition-colors"
+                    >
+                      {showPassword ? 'HIDE' : 'SHOW'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Change Password */}
+                {!showChangePassword ? (
+                  <button
+                    onClick={() => setShowChangePassword(true)}
+                    className="text-xs uppercase tracking-[0.15em] text-primary-500/60 hover:text-primary-500 transition-colors"
+                  >
+                    Change Password
+                  </button>
+                ) : (
+                  <div className="space-y-4 pt-2">
+                    <div>
+                      <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Current Password</label>
+                      <input
+                        type="password"
+                        value={passwordForm.current}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
+                        className="w-full bg-transparent border-b border-white/[0.1] text-white py-3 text-sm focus:border-primary-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">New Password</label>
+                      <input
+                        type="password"
+                        value={passwordForm.newPass}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPass: e.target.value })}
+                        placeholder="At least 6 characters"
+                        className="w-full bg-transparent border-b border-white/[0.1] text-white py-3 text-sm focus:border-primary-500 outline-none transition-all placeholder:text-white/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Confirm New Password</label>
+                      <input
+                        type="password"
+                        value={passwordForm.confirm}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
+                        className="w-full bg-transparent border-b border-white/[0.1] text-white py-3 text-sm focus:border-primary-500 outline-none transition-all"
+                      />
+                    </div>
+
+                    {passwordError && <p className="text-red-400 text-xs">{passwordError}</p>}
+                    {passwordSuccess && <p className="text-green-400 text-xs">{passwordSuccess}</p>}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setShowChangePassword(false);
+                          setPasswordForm({ current: '', newPass: '', confirm: '' });
+                          setPasswordError('');
+                          setPasswordSuccess('');
+                        }}
+                        className="border border-white/[0.08] text-white/60 py-2 px-5 text-xs uppercase tracking-[0.15em] transition-all duration-300 hover:border-white/20"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        disabled={changingPassword}
+                        onClick={async () => {
+                          setPasswordError('');
+                          setPasswordSuccess('');
+
+                          if (passwordForm.newPass.length < 6) {
+                            setPasswordError('Password must be at least 6 characters');
+                            return;
+                          }
+                          if (passwordForm.newPass !== passwordForm.confirm) {
+                            setPasswordError('Passwords do not match');
+                            return;
+                          }
+
+                          setChangingPassword(true);
+                          try {
+                            const user = auth.currentUser;
+                            const credential = EmailAuthProvider.credential(user.email, passwordForm.current);
+                            await reauthenticateWithCredential(user, credential);
+                            await updatePassword(user, passwordForm.newPass);
+                            setPasswordSuccess('Password updated successfully');
+                            setPasswordForm({ current: '', newPass: '', confirm: '' });
+                            setTimeout(() => {
+                              setShowChangePassword(false);
+                              setPasswordSuccess('');
+                            }, 2000);
+                          } catch (err) {
+                            if (err.code === 'auth/wrong-password') {
+                              setPasswordError('Current password is incorrect');
+                            } else if (err.code === 'auth/requires-recent-login') {
+                              setPasswordError('Please sign out and sign back in, then try again');
+                            } else {
+                              setPasswordError(err.message || 'Failed to update password');
+                            }
+                          } finally {
+                            setChangingPassword(false);
+                          }
+                        }}
+                        className="bg-primary-500 hover:bg-primary-400 disabled:opacity-40 text-black py-2 px-5 text-xs uppercase tracking-[0.15em] transition-all duration-300 font-medium"
+                      >
+                        {changingPassword ? 'Updating...' : 'Update Password'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Auth Provider Info */}
+                {auth.currentUser?.providerData?.[0]?.providerId === 'google.com' && (
+                  <p className="text-xs text-white/30 mt-4">Signed in with Google — password is managed by Google</p>
+                )}
+              </motion.div>
+            )}
+
             {tab === 'profile' && (
               <motion.div
                 className="space-y-5"
