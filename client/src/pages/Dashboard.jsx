@@ -250,13 +250,13 @@ export default function Dashboard() {
         </div>
 
         {/* Static grid for readability */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4">
           <StatCell target={goal} label="Goal" color={metricColors.goal} />
-          <StatCell target={intake} label="Consumed" color={metricColors.consumed} />
+          <StatCell target={intake} label="Eaten" color={metricColors.consumed} />
           <StatCell target={burned} label="Burned" color={metricColors.burned} />
           <StatCell
             target={Math.abs(net)}
-            label={isOver ? 'Over' : 'Remaining'}
+            label={isOver ? 'Over' : 'Left'}
             color={isOver ? metricColors.over : metricColors.remaining}
           />
         </div>
