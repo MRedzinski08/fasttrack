@@ -14,6 +14,7 @@ import billingRoutes from './routes/billing.js';
 import mealPrepRoutes from './routes/mealPrep.js';
 import photoRoutes from './routes/photo.js';
 import barcodeRoutes from './routes/barcode.js';
+import adminRoutes from './routes/admin.js';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/meal-prep', mealPrepRoutes);
 app.use('/api/photo', photoRoutes);
 app.use('/api/barcode', barcodeRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
