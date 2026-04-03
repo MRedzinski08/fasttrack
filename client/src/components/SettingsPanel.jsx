@@ -48,9 +48,9 @@ const TAB_ICONS = {
       <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
     </svg>
   ),
-  general: (
+  themes: (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
     </svg>
   ),
   account: (
@@ -61,7 +61,7 @@ const TAB_ICONS = {
 };
 
 const TABS = [
-  { id: 'general', label: 'General' },
+  { id: 'themes', label: 'Themes' },
   { id: 'account', label: 'Account' },
   { id: 'profile', label: 'Profile' },
   { id: 'weight', label: 'Weight' },
@@ -71,8 +71,8 @@ const TABS = [
 ];
 
 export default function SettingsPanel({ isOpen, onClose }) {
-  const { theme, toggleTheme, isDark } = useTheme();
-  const [tab, setTab] = useState('general');
+  const { theme, setTheme, isDark, themes } = useTheme();
+  const [tab, setTab] = useState('themes');
   const [showPassword, setShowPassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [passwordError, setPasswordError] = useState('');
@@ -244,29 +244,55 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
-            {tab === 'general' && (
+            {tab === 'themes' && (
               <motion.div
                 className="space-y-6"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <h3 className="text-sm uppercase tracking-[0.15em] text-primary-500 mb-4">General</h3>
+                <h3 className="text-sm uppercase tracking-[0.15em] text-primary-500 mb-4">Themes</h3>
 
-                {/* Light Mode Toggle */}
-                <div className="flex items-center justify-between py-2">
-                  <div>
-                    <p className="text-sm text-white">Light Mode</p>
-                    <p className="text-xs text-white/40 mt-1">Switch to a light color theme</p>
+                {/* Dark Themes */}
+                <div>
+                  <p className="text-xs uppercase tracking-[0.15em] text-white/60 mb-3">Dark</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(themes).filter(([, t]) => t.type === 'dark').map(([key, t]) => (
+                      <button
+                        key={key}
+                        onClick={() => setTheme(key)}
+                        className={`flex items-center gap-3 px-4 py-3 text-left transition-all duration-300 border ${
+                          theme === key
+                            ? 'border-primary-500'
+                            : 'border-white/[0.06] hover:border-white/[0.12]'
+                        }`}
+                      >
+                        <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: t.accent }} />
+                        <span className="text-xs text-white">{t.label}</span>
+                      </button>
+                    ))}
                   </div>
-                  <button
-                    onClick={toggleTheme}
-                    className={`relative w-12 h-6 rounded-full transition-all duration-300 ${!isDark ? 'bg-primary-500' : 'bg-white/[0.08]'}`}
-                  >
-                    <div
-                      className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-300 ${!isDark ? 'left-7 bg-black' : 'left-1 bg-white/40'}`}
-                    />
-                  </button>
+                </div>
+
+                {/* Light Themes */}
+                <div>
+                  <p className="text-xs uppercase tracking-[0.15em] text-white/60 mb-3">Light</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(themes).filter(([, t]) => t.type === 'light').map(([key, t]) => (
+                      <button
+                        key={key}
+                        onClick={() => setTheme(key)}
+                        className={`flex items-center gap-3 px-4 py-3 text-left transition-all duration-300 border ${
+                          theme === key
+                            ? 'border-primary-500'
+                            : 'border-white/[0.06] hover:border-white/[0.12]'
+                        }`}
+                      >
+                        <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: t.accent }} />
+                        <span className="text-xs text-white">{t.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
