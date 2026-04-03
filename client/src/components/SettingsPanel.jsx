@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { auth } from '../services/firebase.js';
 import { api } from '../services/api.js';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 const ease = [0.16, 1, 0.3, 1];
 
@@ -70,8 +71,8 @@ const TABS = [
 ];
 
 export default function SettingsPanel({ isOpen, onClose }) {
+  const { theme, toggleTheme, isDark } = useTheme();
   const [tab, setTab] = useState('general');
-  const [lightMode, setLightMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [passwordError, setPasswordError] = useState('');
@@ -259,18 +260,14 @@ export default function SettingsPanel({ isOpen, onClose }) {
                     <p className="text-xs text-white/40 mt-1">Switch to a light color theme</p>
                   </div>
                   <button
-                    onClick={() => setLightMode(!lightMode)}
-                    className={`relative w-12 h-6 rounded-full transition-all duration-300 ${lightMode ? 'bg-primary-500' : 'bg-white/[0.08]'}`}
+                    onClick={toggleTheme}
+                    className={`relative w-12 h-6 rounded-full transition-all duration-300 ${!isDark ? 'bg-primary-500' : 'bg-white/[0.08]'}`}
                   >
                     <div
-                      className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-300 ${lightMode ? 'left-7 bg-black' : 'left-1 bg-white/40'}`}
+                      className={`absolute top-1 w-4 h-4 rounded-full transition-all duration-300 ${!isDark ? 'left-7 bg-black' : 'left-1 bg-white/40'}`}
                     />
                   </button>
                 </div>
-
-                {lightMode && (
-                  <p className="text-xs text-primary-500/60">Light mode coming soon!</p>
-                )}
               </motion.div>
             )}
 
