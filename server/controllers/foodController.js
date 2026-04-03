@@ -291,30 +291,52 @@ const COMMON_PREPS = {
   turkey: ['turkey breast', 'turkey ground', 'turkey deli'],
 };
 
+// Compound dish words — these get demoted when the query is a simple food
+const COMPOUND_WORDS = ['burrito', 'quesadilla', 'taquito', 'congee', 'sushi', 'casserole', 'lasagna', 'noodle', 'bagel', 'bread', 'cake', 'muffin', 'cookie', 'pie', 'sandwich'];
+
 function relevanceScore(name, query) {
   const nameLower = name.toLowerCase();
   const queryLower = query.toLowerCase();
   const queryWords = queryLower.split(/\s+/);
 
+  // Exact match
   if (nameLower === queryLower) return 100;
-  if (nameLower.startsWith(queryLower)) return 92;
 
+  // Name starts with the query word(s) — strongest signal
+  if (nameLower.startsWith(queryLower + ',') || nameLower.startsWith(queryLower + ' ') || nameLower === queryLower) return 95;
+  if (nameLower.startsWith(queryLower)) return 93;
+
+  // First word of name is the query (singular/plural)
   const nameWords = nameLower.split(/[\s,(-]+/).filter(Boolean);
-  if (nameWords[0] === queryLower || nameWords[0] === queryLower + 's' || nameWords[0] === queryLower + 'es') return 88;
+  const firstWord = nameWords[0];
+  if (firstWord === queryLower || firstWord === queryLower + 's' || firstWord === queryLower + 'es') {
+    // Check if it's a common prep or a compound dish
+    const preps = COMMON_PREPS[queryLower];
+    if (preps && preps.some((p) => nameLower.includes(p))) return 90;
+    // Penalize compound dishes (e.g. "egg burrito" when searching "egg")
+    const isCompound = COMPOUND_WORDS.some((w) => nameLower.includes(w) && !queryLower.includes(w));
+    return isCompound ? 55 : 88;
+  }
 
+  // Common preparation of the searched food
   const preps = COMMON_PREPS[queryLower];
   if (preps && preps.some((p) => nameLower.includes(p))) return 85;
 
+  // All query words in name but not at start — decent match
   const allMatch = queryWords.every((w) => nameLower.includes(w));
   if (allMatch) {
-    const lengthPenalty = Math.max(0, (nameLower.length - 40) * 0.3);
-    return Math.round(75 - lengthPenalty);
+    // Shorter names = more likely base food
+    const lengthPenalty = Math.max(0, (nameLower.length - 35) * 0.5);
+    const isCompound = COMPOUND_WORDS.some((w) => nameLower.includes(w) && !queryLower.includes(w));
+    return Math.round((isCompound ? 50 : 70) - lengthPenalty);
   }
 
-  if (queryWords.includes(nameWords[0])) return 50;
+  // First word of name matches a query word
+  if (queryWords.includes(firstWord)) return 45;
 
+  // Partial match
   const someMatch = queryWords.some((w) => nameLower.includes(w));
-  if (someMatch) return 30;
+  if (someMatch) return 20;
   return 0;
 }
 
@@ -339,8 +361,8 @@ async function searchOpenFoodFacts(query) {
         // Must have serving data — no per-100g guesses
         const servingG = parseFloat(p.serving_quantity) || 0;
         if (servingG <= 0) return false;
-        // Must be popular (40+ scans)
-        if ((p.unique_scans_n || 0) < 40) return false;
+        // Must be popular (30+ scans)
+        if ((p.unique_scans_n || 0) < 30) return false;
         return true;
       })
       .map((p) => {

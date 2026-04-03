@@ -21,16 +21,7 @@ export async function getMealPrep(req, res) {
       [userId]
     );
 
-    // Group by day
-    const schedule = {};
-    for (let i = 0; i < 7; i++) {
-      schedule[i] = { day: DAY_NAMES[i], meals: [] };
-    }
-    for (const row of result.rows) {
-      schedule[row.day_of_week].meals.push(row);
-    }
-
-    res.json({ schedule, today: new Date().getDay() });
+    res.json({ mealPreps: result.rows, today: new Date().getDay() });
   } catch (err) {
     console.error('getMealPrep error:', err);
     res.status(500).json({ error: 'Failed to fetch meal prep' });
