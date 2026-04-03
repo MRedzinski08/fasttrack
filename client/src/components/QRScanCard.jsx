@@ -219,7 +219,7 @@ export default function QRScanCard({ onMealLogged }) {
                 {result.brand && <p className="text-xs text-white/30 mt-1">{result.brand}</p>}
                 <p className="text-[10px] text-white/20 tracking-wide mt-1">Per {result.servingSize}</p>
               </div>
-              <span className="text-sm text-primary-500 font-display tabular-nums">{result.calories} kcal</span>
+              <span className="text-sm text-primary-500 font-display tabular-nums">{result.calories} cal</span>
             </div>
             <div className="flex gap-4 mt-3 text-xs text-white/30">
               <span>P: {result.protein}g</span>

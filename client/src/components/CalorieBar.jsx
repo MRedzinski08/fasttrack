@@ -17,7 +17,7 @@ export default function CalorieBar({ current, goal }) {
         />
       </div>
       {overGoal && (
-        <p className="text-[10px] text-red-400/70 mt-1.5 tracking-wide">{current - goal} kcal over goal</p>
+        <p className="text-[10px] text-red-400/70 mt-1.5 tracking-wide">{current - goal} cal over goal</p>
       )}
     </div>
   );

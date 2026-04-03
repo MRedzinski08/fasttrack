@@ -180,7 +180,7 @@ export default function PhotoLogCard({ onMealLogged }) {
                     <p className="text-sm text-white/60 capitalize">{food.name}</p>
                     <p className="text-[10px] text-white/30 tracking-wide mt-1">{food.serving} · P:{food.protein}g C:{food.carbs}g F:{food.fat}g</p>
                   </div>
-                  <span className="text-xs text-primary-500 tabular-nums">{food.calories} kcal</span>
+                  <span className="text-xs text-primary-500 tabular-nums">{food.calories} cal</span>
                 </div>
               </div>
             ))}

@@ -351,7 +351,7 @@ export default function Dashboard() {
                   />
                   <Tooltip
                     labelFormatter={(d) => new Date(d).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-                    formatter={(v) => [`${v} kcal`, 'Calories']}
+                    formatter={(v) => [`${v} cal`, 'Calories']}
                     contentStyle={{
                       backgroundColor: '#111111',
                       border: '1px solid rgba(255,255,255,0.06)',
@@ -443,7 +443,7 @@ export default function Dashboard() {
                         <div className="flex-1 min-w-0">
                           <p className="font-display text-sm text-white truncate capitalize">{exercise.exercise_name}</p>
                           <p className="text-xs text-white tracking-wide mt-1">
-                            {exercise.duration_min}min &middot; {exercise.calories_burned} kcal
+                            {exercise.duration_min}min &middot; {exercise.calories_burned} cal
                           </p>
                         </div>
                         <button
@@ -459,7 +459,7 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center pt-3 mt-1 border-t border-white/[0.08]">
                   <span className="text-xs tracking-[0.2em] uppercase text-white">Total</span>
                   <span className="text-sm font-display font-light text-orange-400 tabular-nums">
-                    {exerciseData.reduce((s, e) => s + (e.calories_burned || 0), 0)} kcal
+                    {exerciseData.reduce((s, e) => s + (e.calories_burned || 0), 0)} cal
                   </span>
                 </div>
               </>

@@ -72,7 +72,7 @@ export default function FoodSearchBar({ onSelect }) {
                     <p className="text-xs text-white/30">{food.servingQty} {food.servingUnit}</p>
                   </div>
                   <div className="text-right shrink-0 ml-3">
-                    <p className="text-sm font-display text-primary-500 tabular-nums">{food.calories} kcal</p>
+                    <p className="text-sm font-display text-primary-500 tabular-nums">{food.calories} cal</p>
                     <p className="text-xs text-white/30">P:{food.protein}g C:{food.carbs}g F:{food.fat}g</p>
                   </div>
                 </div>

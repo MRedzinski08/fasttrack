@@ -196,7 +196,7 @@ export default function LogMeal() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div>
                   <label className="text-xs uppercase tracking-[0.15em] text-white/60 block mb-2">Calories</label>
-                  <input required type="number" placeholder="kcal" value={manual.calories}
+                  <input required type="number" placeholder="cal" value={manual.calories}
                     onChange={(e) => setManual({ ...manual, calories: e.target.value })} className={inputClass} />
                 </div>
                 <div>
@@ -277,7 +277,7 @@ export default function LogMeal() {
                         </button>
                       </div>
                       <span className="text-sm font-display text-primary-500 w-20 text-right tabular-nums">
-                        {Math.round(food.calories * food.qty)} kcal
+                        {Math.round(food.calories * food.qty)} cal
                       </span>
                       <button
                         onClick={() => removeSelected(i)}
@@ -297,7 +297,7 @@ export default function LogMeal() {
             <div className="pt-4 border-t border-white/[0.06]">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-xs uppercase tracking-[0.2em] text-white/40">Total</span>
-                <span className="text-lg font-display text-white tabular-nums">{totalCal} kcal</span>
+                <span className="text-lg font-display text-white tabular-nums">{totalCal} cal</span>
               </div>
               <div className="flex gap-4 text-xs text-white/30 justify-end">
                 <span>P: {totalProtein.toFixed(1)}g</span>
@@ -451,7 +451,7 @@ export default function LogMeal() {
               {/* Calorie estimate preview */}
               <div className="mt-4 flex justify-between items-center">
                 <span className="text-xs text-white/40">Estimated calories burned</span>
-                <span className="text-sm font-display text-primary-500 tabular-nums">~{getCalorieEstimate()} kcal</span>
+                <span className="text-sm font-display text-primary-500 tabular-nums">~{getCalorieEstimate()} cal</span>
               </div>
 
               <button

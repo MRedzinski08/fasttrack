@@ -164,7 +164,7 @@ export default function MealPrepCard() {
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-white/60 capitalize truncate">{meal.meal_name || meal.mealName}</p>
-                  <p className="text-xs text-white/30 mt-1">{totalCalForMeal(meal)} kcal</p>
+                  <p className="text-xs text-white/30 mt-1">{totalCalForMeal(meal)} cal</p>
                   {(meal.food_items || meal.foodItems || []).length > 0 && (
                     <div className="mt-1.5 flex flex-wrap gap-1">
                       {(meal.food_items || meal.foodItems || []).map((f, idx) => (
@@ -270,7 +270,7 @@ export default function MealPrepCard() {
                     <p className="text-sm text-white/60 capitalize">{food.name}</p>
                     <p className="text-xs text-white/25">{food.servingQty} {food.servingUnit}</p>
                   </div>
-                  <span className="text-xs text-primary-500 ml-2">{food.calories} kcal</span>
+                  <span className="text-xs text-primary-500 ml-2">{food.calories} cal</span>
                 </button>
               ))}
             </div>

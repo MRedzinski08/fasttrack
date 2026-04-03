@@ -83,7 +83,7 @@ async function searchOpenFoodFacts(query) {
 
         return {
           name, calories, protein, carbs, fat,
-          servingQty: servingG || 100,
+          servingQty: Math.round((servingG || 100) * 10) / 10,
           servingUnit,
           hasServing: hasServing || servingG > 0,
           source: 'openfoodfacts',
@@ -98,7 +98,8 @@ async function searchOpenFoodFacts(query) {
 
 async function searchUSDA(query) {
   try {
-    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(query)}&api_key=${process.env.USDA_API_KEY}&pageSize=12&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation,Branded`;
+    // Only curated data types — Branded is manufacturer-submitted junk for generic searches
+    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(query)}&api_key=${process.env.USDA_API_KEY}&pageSize=12&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation`;
 
     let response;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -131,7 +132,7 @@ async function searchUSDA(query) {
         .toLowerCase()
         .replace(/\b\w/g, (c) => c.toUpperCase());
 
-      const servingQty  = servingG || 100;
+      const servingQty  = Math.round((servingG || 100) * 10) / 10;
       const servingUnit = f.servingSizeUnit || 'g';
 
       return {

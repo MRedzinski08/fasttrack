@@ -128,7 +128,7 @@ export default function History() {
               />
               <Tooltip
                 labelFormatter={(d) => new Date(d).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-                formatter={(v) => [`${v} kcal`, 'Calories']}
+                formatter={(v) => [`${v} cal`, 'Calories']}
                 contentStyle={{
                   backgroundColor: '#111111',
                   border: '1px solid rgba(255,255,255,0.06)',
