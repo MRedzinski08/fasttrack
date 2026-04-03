@@ -1,48 +1,124 @@
 // Dual food search: OpenFoodFacts (branded/grocery) + USDA FoodData Central (generic)
-// OFF is great for packaged brands, USDA is great for whole/generic foods.
-// Results are scored by name relevance + serving data quality, then merged.
+// Standard serving sizes applied to USDA results for common foods.
 
 const USDA_BASE = 'https://api.nal.usda.gov/fdc/v1';
 const OFF_SEARCH = 'https://world.openfoodfacts.net/cgi/search.pl';
 
-const NUTRIENT = {
-  calories: 1008,
-  protein:  1003,
-  carbs:    1005,
-  fat:      1004,
-};
+const NUTRIENT = { calories: 1008, protein: 1003, carbs: 1005, fat: 1004 };
 
 function getNutrient(foodNutrients, id) {
   const match = foodNutrients.find((n) => n.nutrientId === id);
   return match ? Math.round(match.value * 10) / 10 : 0;
 }
 
-// Score how well a result name matches the search query (0-100)
+// Standard serving sizes for common whole foods (grams)
+// Matched by keyword in the food name
+const STANDARD_SERVINGS = [
+  { keywords: ['egg', 'whole', 'raw'], grams: 50, label: '1 large egg' },
+  { keywords: ['egg', 'whole', 'cooked'], grams: 50, label: '1 large egg' },
+  { keywords: ['egg', 'whole', 'scrambled'], grams: 91, label: '1 large egg scrambled' },
+  { keywords: ['egg', 'whole', 'fried'], grams: 46, label: '1 large egg fried' },
+  { keywords: ['egg', 'whole', 'hard'], grams: 50, label: '1 large egg' },
+  { keywords: ['egg', 'white'], grams: 33, label: '1 large egg white' },
+  { keywords: ['egg', 'yolk'], grams: 17, label: '1 large yolk' },
+  { keywords: ['chicken', 'breast'], grams: 174, label: '1 breast (174g)' },
+  { keywords: ['chicken', 'thigh'], grams: 116, label: '1 thigh (116g)' },
+  { keywords: ['chicken', 'wing'], grams: 34, label: '1 wing (34g)' },
+  { keywords: ['chicken', 'drumstick'], grams: 72, label: '1 drumstick (72g)' },
+  { keywords: ['ground', 'beef'], grams: 113, label: '4 oz patty (113g)' },
+  { keywords: ['beef', 'steak'], grams: 170, label: '6 oz steak (170g)' },
+  { keywords: ['salmon', 'fillet'], grams: 170, label: '6 oz fillet (170g)' },
+  { keywords: ['salmon'], grams: 85, label: '3 oz (85g)' },
+  { keywords: ['tuna'], grams: 85, label: '3 oz (85g)' },
+  { keywords: ['shrimp'], grams: 85, label: '3 oz (85g)' },
+  { keywords: ['pork', 'chop'], grams: 136, label: '1 chop (136g)' },
+  { keywords: ['bacon'], grams: 8, label: '1 slice (8g)' },
+  { keywords: ['turkey', 'breast'], grams: 85, label: '3 oz (85g)' },
+  { keywords: ['rice', 'cooked'], grams: 158, label: '1 cup cooked (158g)' },
+  { keywords: ['rice', 'white'], grams: 158, label: '1 cup cooked (158g)' },
+  { keywords: ['rice', 'brown'], grams: 195, label: '1 cup cooked (195g)' },
+  { keywords: ['pasta', 'cooked'], grams: 140, label: '1 cup cooked (140g)' },
+  { keywords: ['spaghetti'], grams: 140, label: '1 cup cooked (140g)' },
+  { keywords: ['noodle'], grams: 140, label: '1 cup cooked (140g)' },
+  { keywords: ['bread', 'white'], grams: 30, label: '1 slice (30g)' },
+  { keywords: ['bread', 'wheat'], grams: 32, label: '1 slice (32g)' },
+  { keywords: ['bread'], grams: 30, label: '1 slice (30g)' },
+  { keywords: ['tortilla'], grams: 49, label: '1 tortilla (49g)' },
+  { keywords: ['bagel'], grams: 105, label: '1 bagel (105g)' },
+  { keywords: ['oatmeal', 'cooked'], grams: 234, label: '1 cup cooked (234g)' },
+  { keywords: ['oats'], grams: 40, label: '1/2 cup dry (40g)' },
+  { keywords: ['milk', 'whole'], grams: 244, label: '1 cup (244ml)' },
+  { keywords: ['milk', 'skim'], grams: 245, label: '1 cup (245ml)' },
+  { keywords: ['milk', '2%'], grams: 244, label: '1 cup (244ml)' },
+  { keywords: ['milk', 'reduced'], grams: 244, label: '1 cup (244ml)' },
+  { keywords: ['yogurt'], grams: 170, label: '1 container (170g)' },
+  { keywords: ['cheese', 'cheddar'], grams: 28, label: '1 oz (28g)' },
+  { keywords: ['cheese', 'mozzarella'], grams: 28, label: '1 oz (28g)' },
+  { keywords: ['cheese', 'american'], grams: 21, label: '1 slice (21g)' },
+  { keywords: ['cheese', 'cream'], grams: 29, label: '2 tbsp (29g)' },
+  { keywords: ['cheese', 'cottage'], grams: 113, label: '1/2 cup (113g)' },
+  { keywords: ['butter'], grams: 14, label: '1 tbsp (14g)' },
+  { keywords: ['peanut', 'butter'], grams: 32, label: '2 tbsp (32g)' },
+  { keywords: ['almond', 'butter'], grams: 32, label: '2 tbsp (32g)' },
+  { keywords: ['almonds'], grams: 28, label: '1 oz / 23 almonds (28g)' },
+  { keywords: ['peanuts'], grams: 28, label: '1 oz (28g)' },
+  { keywords: ['walnuts'], grams: 28, label: '1 oz (28g)' },
+  { keywords: ['apple'], grams: 182, label: '1 medium apple (182g)' },
+  { keywords: ['banana'], grams: 118, label: '1 medium banana (118g)' },
+  { keywords: ['orange'], grams: 131, label: '1 medium orange (131g)' },
+  { keywords: ['strawberr'], grams: 152, label: '1 cup (152g)' },
+  { keywords: ['blueberr'], grams: 148, label: '1 cup (148g)' },
+  { keywords: ['grape'], grams: 92, label: '1 cup (92g)' },
+  { keywords: ['avocado'], grams: 68, label: '1/2 avocado (68g)' },
+  { keywords: ['potato', 'baked'], grams: 173, label: '1 medium potato (173g)' },
+  { keywords: ['potato', 'sweet'], grams: 130, label: '1 medium sweet potato (130g)' },
+  { keywords: ['potato'], grams: 148, label: '1 medium potato (148g)' },
+  { keywords: ['broccoli'], grams: 91, label: '1 cup chopped (91g)' },
+  { keywords: ['spinach', 'raw'], grams: 30, label: '1 cup raw (30g)' },
+  { keywords: ['spinach', 'cooked'], grams: 180, label: '1 cup cooked (180g)' },
+  { keywords: ['spinach'], grams: 30, label: '1 cup raw (30g)' },
+  { keywords: ['carrot'], grams: 61, label: '1 medium carrot (61g)' },
+  { keywords: ['tomato'], grams: 123, label: '1 medium tomato (123g)' },
+  { keywords: ['lettuce'], grams: 36, label: '1 cup shredded (36g)' },
+  { keywords: ['corn'], grams: 90, label: '1 ear medium (90g)' },
+  { keywords: ['beans', 'black'], grams: 172, label: '1 cup (172g)' },
+  { keywords: ['beans', 'kidney'], grams: 177, label: '1 cup (177g)' },
+  { keywords: ['lentil'], grams: 198, label: '1 cup cooked (198g)' },
+  { keywords: ['tofu'], grams: 126, label: '1/2 cup (126g)' },
+  { keywords: ['olive', 'oil'], grams: 14, label: '1 tbsp (14ml)' },
+  { keywords: ['coconut', 'oil'], grams: 14, label: '1 tbsp (14ml)' },
+  { keywords: ['honey'], grams: 21, label: '1 tbsp (21g)' },
+  { keywords: ['sugar'], grams: 4, label: '1 tsp (4g)' },
+];
+
+function findStandardServing(foodName) {
+  const nameLower = foodName.toLowerCase();
+  // Try most specific match first (more keywords = more specific)
+  const sorted = [...STANDARD_SERVINGS].sort((a, b) => b.keywords.length - a.keywords.length);
+  for (const entry of sorted) {
+    if (entry.keywords.every((kw) => nameLower.includes(kw))) {
+      return entry;
+    }
+  }
+  return null;
+}
+
 function relevanceScore(name, query) {
   const nameLower = name.toLowerCase();
   const queryLower = query.toLowerCase();
   const queryWords = queryLower.split(/\s+/);
 
-  // Exact match or starts with query
   if (nameLower === queryLower) return 100;
   if (nameLower.startsWith(queryLower)) return 90;
 
-  // First word of name matches query
   const firstName = nameLower.split(/[\s,(-]/)[0];
   if (firstName === queryLower) return 85;
 
-  // All query words appear in name
   const allMatch = queryWords.every((w) => nameLower.includes(w));
-  if (allMatch) {
-    // Bonus if query words are at the start
-    const startsWithFirst = nameLower.startsWith(queryWords[0]);
-    return startsWithFirst ? 75 : 60;
-  }
+  if (allMatch) return nameLower.startsWith(queryWords[0]) ? 75 : 60;
 
-  // At least one query word in name
   const someMatch = queryWords.some((w) => nameLower.includes(w));
   if (someMatch) return 30;
-
   return 0;
 }
 
@@ -58,7 +134,6 @@ async function searchOpenFoodFacts(query) {
     return data.products
       .filter((p) => {
         if (!p.product_name || !p.nutriments) return false;
-        // Only keep results where the query appears in the product name
         const nameLower = p.product_name.toLowerCase();
         const queryWords = query.toLowerCase().split(/\s+/);
         return queryWords.some((w) => nameLower.includes(w));
@@ -79,12 +154,12 @@ async function searchOpenFoodFacts(query) {
 
         const brand = p.brands ? p.brands.split(',')[0].trim() : '';
         const name = brand ? `${p.product_name} (${brand})` : p.product_name;
-        const servingUnit = p.serving_size || (servingG > 0 ? `${servingG}g` : '100g');
+        const servingLabel = p.serving_size || (servingG > 0 ? `${Math.round(servingG)}g` : '100g');
 
         return {
           name, calories, protein, carbs, fat,
-          servingQty: Math.round((servingG || 100) * 10) / 10,
-          servingUnit,
+          servingQty: Math.round(servingG || 100),
+          servingUnit: servingLabel,
           hasServing: hasServing || servingG > 0,
           source: 'openfoodfacts',
         };
@@ -98,7 +173,6 @@ async function searchOpenFoodFacts(query) {
 
 async function searchUSDA(query) {
   try {
-    // Only curated data types — Branded is manufacturer-submitted junk for generic searches
     const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(query)}&api_key=${process.env.USDA_API_KEY}&pageSize=12&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation`;
 
     let response;
@@ -109,7 +183,6 @@ async function searchUSDA(query) {
     }
 
     if (!response.ok) return [];
-
     const data = await response.json();
     if (!data.foods?.length) return [];
 
@@ -120,25 +193,23 @@ async function searchUSDA(query) {
       const carb100 = getNutrient(nutrients, NUTRIENT.carbs);
       const fat100  = getNutrient(nutrients, NUTRIENT.fat);
 
-      const servingG = f.servingSize || 0;
-      const scale = servingG > 0 ? servingG / 100 : 1;
+      const name = f.description.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
-      const calories = Math.round(cal100 * scale);
-      const protein  = Math.round(pro100 * scale * 10) / 10;
-      const carbs    = Math.round(carb100 * scale * 10) / 10;
-      const fat      = Math.round(fat100 * scale * 10) / 10;
-
-      const name = f.description
-        .toLowerCase()
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-
-      const servingQty  = Math.round((servingG || 100) * 10) / 10;
-      const servingUnit = f.servingSizeUnit || 'g';
+      // Look up a standard serving size for this food
+      const std = findStandardServing(name);
+      const servingG = std ? std.grams : 100;
+      const servingLabel = std ? std.label : '100g';
+      const scale = servingG / 100;
 
       return {
-        name, calories, protein, carbs, fat,
-        servingQty, servingUnit,
-        hasServing: servingG > 0,
+        name,
+        calories: Math.round(cal100 * scale),
+        protein: Math.round(pro100 * scale * 10) / 10,
+        carbs: Math.round(carb100 * scale * 10) / 10,
+        fat: Math.round(fat100 * scale * 10) / 10,
+        servingQty: servingG,
+        servingUnit: servingLabel,
+        hasServing: !!std,
         source: 'usda',
       };
     }).filter((f) => f.calories > 0);
@@ -160,16 +231,13 @@ export async function searchFood(req, res) {
       searchUSDA(q),
     ]);
 
-    // Score and sort all results by relevance to the query
     const all = [...offResults, ...usdaResults].map((f) => ({
       ...f,
       _score: relevanceScore(f.name, q) + (f.hasServing ? 10 : 0),
     }));
 
-    // Sort: highest relevance first, then prefer items with serving data
     all.sort((a, b) => b._score - a._score);
 
-    // Deduplicate by similar name
     const seen = new Set();
     const deduped = all.filter((f) => {
       const key = f.name.toLowerCase().replace(/\(.*\)/, '').trim().slice(0, 25);
@@ -178,9 +246,7 @@ export async function searchFood(req, res) {
       return true;
     });
 
-    // Strip internal fields before sending
     const foods = deduped.slice(0, 15).map(({ _score, hasServing, source, ...rest }) => rest);
-
     res.json({ foods });
   } catch (err) {
     console.error('searchFood error:', err);
