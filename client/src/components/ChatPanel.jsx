@@ -59,7 +59,7 @@ export default function ChatPanel({ isOpen, onClose }) {
         className="bg-[#050505] border-white/[0.06] p-0 flex flex-col w-full sm:max-w-sm"
       >
         {/* Header */}
-        <SheetHeader className="px-5 py-4 border-b border-white/[0.06] gap-0">
+        <SheetHeader className="px-5 py-4 border-b border-white/[0.06] gap-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top, 1rem))' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <motion.div className="w-4 h-[2px] bg-primary-500" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.5 }} />

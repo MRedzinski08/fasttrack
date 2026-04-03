@@ -212,8 +212,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
         animate={isOpen ? { x: 0, opacity: 1 } : { x: 30, opacity: 0 }}
         transition={{ duration: 0.4, ease }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
+        {/* Header — extra top padding for PWA safe area (notch / status bar) */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]" style={{ paddingTop: 'max(1.25rem, env(safe-area-inset-top, 1.25rem))' }}>
           <span className="text-xs uppercase tracking-[0.2em] text-primary-500">SETTINGS</span>
           <button onClick={onClose} className="text-white/30 hover:text-white transition-colors duration-300">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
