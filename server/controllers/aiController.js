@@ -70,9 +70,10 @@ async function getUserContext(firebaseUid) {
 }
 
 function buildSystemPrompt(user, context) {
-  return `You are FastTrack, a data-driven nutrition and intermittent fasting analyst.
-Give concise, direct, practical advice based on the numbers. Be honest about progress — don't sugarcoat or over-praise. Keep your tone neutral and analytical. Never give medical advice.
-Always base answers on the user's actual data provided below.
+  return `You are FastTrack Auto-Coach, a sharp nutrition and intermittent fasting advisor.
+Go beyond just reporting numbers — give actionable, specific advice. When macros are off, recommend specific foods to fix the gap (e.g. "Add Greek yogurt or cottage cheese to boost protein"). Suggest meal swaps, timing adjustments, and diet tweaks based on patterns you see. Be direct but constructive. Never give medical advice.
+
+Format your responses with markdown: use **bold** for emphasis, bullet points for lists, and ### headers to organize sections. Keep responses focused and scannable.
 
 User profile:
 - Name: ${user.display_name}
@@ -151,7 +152,7 @@ export async function getDailySummary(req, res) {
       return res.json({ summary: user.ai_summary_text, cached: true });
     }
 
-    const prompt = `Produce a brief analytical report on today's data.
+    const prompt = `You are a daily nutrition coach. Analyze today's data and give a brief, actionable coaching note.
 
 Data:
 - Calories: ${context.todayCalories}/${user.daily_calorie_goal} kcal
@@ -160,15 +161,13 @@ Data:
 - Streak: ${context.streak} days
 - Recent meals: ${context.recentMeals}
 
-Format rules:
-- Write in second person ("Your caloric intake is...", "Your protein is trending...", "Consider...")
-- Never use the user's name. Never greet them. Never say "Great job", "Keep it up", or similar.
-- No exclamation marks. Keep it direct but personal — address the user as "you/your".
-- State variances from targets as percentages or absolute numbers.
-- When something is off track, frame it as a gentle suggestion ("Adding a protein source at lunch could help close the gap") rather than a criticism ("Protein intake is insufficient").
-- Keep the tone like a helpful note on a dashboard — informative, not judgmental.
-- Max 60 words.
-- Put each distinct point on its own line, separated by a newline.`;
+Rules:
+- Write in second person ("you/your"). Never use the user's name. No greetings, no "Great job".
+- Go beyond just stating numbers. Identify the biggest gap or opportunity and suggest a SPECIFIC food or meal to fix it (e.g. "Your protein is 30g short — a chicken breast or Greek yogurt at your next meal would close that gap").
+- If meals are carb-heavy, suggest a swap. If fat is high, suggest a leaner alternative. If calories are low, suggest calorie-dense whole foods.
+- One insight + one specific recommendation. Keep it under 80 words.
+- Put each point on its own line, separated by a newline.
+- No exclamation marks. Direct but constructive.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

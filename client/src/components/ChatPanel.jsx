@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { streamChat } from '../services/api.js';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import ReactMarkdown from 'react-markdown';
 
 export default function ChatPanel({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Hi! I'm your FastTrack AI coach. Ask me anything about your fasting, nutrition, or goals!" },
+    { role: 'assistant', content: "Hi — I'm your FastTrack Auto-Coach. Ask me anything about your nutrition, fasting, or goals and I'll give you specific, actionable advice." },
   ]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
@@ -63,9 +64,9 @@ export default function ChatPanel({ isOpen, onClose }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <motion.div className="w-4 h-[2px] bg-primary-500" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.5 }} />
-              <SheetTitle className="text-xs uppercase tracking-[0.2em] text-primary-500 font-normal">AI Coach</SheetTitle>
+              <SheetTitle className="text-xs uppercase tracking-[0.2em] text-primary-500 font-normal">Auto-Coaching</SheetTitle>
             </div>
-            <SheetDescription className="sr-only">FastTrack AI Coach chat panel</SheetDescription>
+            <SheetDescription className="sr-only">FastTrack Auto-Coaching chat panel</SheetDescription>
           </div>
         </SheetHeader>
 
@@ -86,7 +87,13 @@ export default function ChatPanel({ isOpen, onClose }) {
                     : 'bg-white/[0.03] text-white'
                 }`}
               >
-                {msg.content || (streaming && i === messages.length - 1 ? (
+                {msg.content ? (
+                  msg.role === 'assistant' ? (
+                    <div className="prose-chat">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : msg.content
+                ) : (streaming && i === messages.length - 1 ? (
                   <span className="inline-flex gap-1 items-center">
                     <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-bounce" />
                     <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-bounce [animation-delay:0.1s]" />
@@ -106,7 +113,7 @@ export default function ChatPanel({ isOpen, onClose }) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask your coach..."
+              placeholder="Ask your auto-coach..."
               disabled={streaming}
               className="flex-1 bg-transparent border-b border-white/[0.1] text-white py-2 text-sm focus:border-primary-500 outline-none transition-all placeholder:text-white/20"
             />

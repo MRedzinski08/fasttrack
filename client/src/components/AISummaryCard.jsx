@@ -40,7 +40,7 @@ export default function AISummaryCard({ initialSummary }) {
       <div className="relative mb-6">
         <div className="w-full h-px bg-white/[0.08]" />
         <span className="absolute left-0 top-1/2 -translate-y-1/2 bg-black px-3 text-[10px] uppercase tracking-[0.2em] text-primary-500">
-          AI
+          Daily Coaching
         </span>
       </div>
 

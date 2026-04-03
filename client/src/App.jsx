@@ -55,7 +55,7 @@ function AppLayout() {
       <button
         onClick={() => setChatOpen(true)}
         className="fixed bottom-20 right-4 sm:bottom-8 sm:right-8 z-30 w-11 h-11 rounded-full border border-white/[0.08] bg-[#0A0A0A] flex items-center justify-center transition-all hover:border-primary-500/40 group"
-        title="AI Coach"
+        title="Auto-Coach"
       >
         <svg className="w-5 h-5 text-white/30 group-hover:text-primary-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
