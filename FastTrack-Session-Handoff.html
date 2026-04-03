@@ -111,6 +111,12 @@
       <td>Login page redesign: horizon scene with concentric rings, sun gradient, parallax on cursor move (rings, card, sun, foreground), liquid glass card with inner shadow/bevel. Onboarding redesign: wavy gradient background, liquid glass cards, slide-in-from-right entry animation with reversed back transitions, new welcome intro card, scaled up all elements 2x. All dashboard/navbar/settings cards updated to liquid glass style with matching borders and inner shadows. Triangle grid attempted and replaced with wavy foreground gradient. Amber color theme refined across all pages.</td>
       <td>Day 8</td>
     </tr>
+    <tr>
+      <td>7</td>
+      <td>2026-04-02</td>
+      <td>11-theme color palette system (Modern Dark, Modern Dark+, Punk Dark, Punk Dark+, Warm Light, Pastel Pink, Pastel Blue, Pastel Yellow, Pinkout, Tropical, Forest) with CSS custom properties + data-theme attributes. Theme-aware fasting timer: unique colors per theme for fasting/eating/warning states with matching 3D extrudes and glow effects. Light mode contrast overhaul: deeper backgrounds, stronger text/border opacities, inline metric colors for dashboard ticker. Mobile polish: consistent px-5 padding, compact Log Meal button with whitespace-nowrap. PWA support: vite-plugin-pwa with service worker, manifest, auto-update. Custom FT icon (Illustrator) for favicon, PWA icons (512/192/180). Safe-area-inset-top for Settings/Chat panels in PWA standalone mode. Fixed Vercel deployment: .npmrc for legacy-peer-deps, vercel.json rewrite ordering for PWA files.</td>
+      <td>Day 9</td>
+    </tr>
   </table>
 
   <!-- ============================================================ -->
@@ -162,12 +168,24 @@
     <tr><td class="status-done">DONE</td><td>Day 6</td><td>Empty states for new users</td><td>Already handled in Dashboard + History</td></tr>
     <!-- Day 7 -->
     <tr><td class="status-done">DONE</td><td>Day 7</td><td>Full app walkthrough + bug fixes</td><td>Macro delete fix, fasting schedule sync, DB leak, retry logic, AI date cache, breakFast transaction</td></tr>
-    <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Deploy backend (GCP Cloud Run)</td><td>Optional</td></tr>
-    <tr><td class="status-todo">TODO</td><td>Day 7</td><td>Deploy frontend (Firebase Hosting)</td><td>Optional</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 7</td><td>Deploy backend (Render)</td><td>https://fasttrack-api-0uzz.onrender.com</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 7</td><td>Deploy frontend (Vercel)</td><td>https://fasttrack-mredzinski08s-projects.vercel.app</td></tr>
+    <!-- Day 8+ -->
+    <tr><td class="status-done">DONE</td><td>Day 8</td><td>Exercise logging with MET database</td><td>60+ exercises, 6 categories, calorie calc: MET × weight × hours</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 8</td><td>Stripe subscription billing (Pro tier)</td><td>Checkout sessions, polling approach, ProGate component</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 8</td><td>Photo food logging (OpenAI Vision)</td><td>Camera capture → gpt-4o-mini → structured food data</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 8</td><td>Barcode scanning (OpenFoodFacts)</td><td>BarcodeDetector API + html5-qrcode fallback</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 8</td><td>Meal prep scheduler</td><td>Weekly day tabs, food search integration, one-click log</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 8</td><td>Google Sign-In</td><td>Firebase GoogleAuthProvider via signInWithPopup</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 9</td><td>11-theme color palette system</td><td>CSS custom properties + data-theme/data-theme-type attributes</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 9</td><td>Theme-aware fasting timer</td><td>Unique fasting/eating/warning colors per theme</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 9</td><td>Light mode contrast overhaul</td><td>Deeper backgrounds, stronger opacities, inline metric colors</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 9</td><td>PWA support</td><td>vite-plugin-pwa, service worker, installable on iOS/Android</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 9</td><td>Custom FT icon (Illustrator)</td><td>Favicon, PWA icons (512/192/180), apple-touch-icon</td></tr>
+    <tr><td class="status-done">DONE</td><td>Day 9</td><td>Mobile PWA polish</td><td>Safe-area-inset-top for panels, consistent mobile padding</td></tr>
     <!-- Future / Backlog -->
-    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>Google Sign-In (Firebase GoogleAuthProvider)</td><td>User requested - add during polish</td></tr>
-    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>UI redesign pass</td><td>User wants to restyle - Tailwind makes this easy</td></tr>
-    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>Port to mobile app</td><td>React Native likely candidate</td></tr>
+    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>Stripe webhook for subscription events</td><td>Currently using polling approach</td></tr>
+    <tr><td class="status-todo">FUTURE</td><td>Backlog</td><td>Capacitor native mobile app</td><td>Wrap PWA in native iOS/Android shell</td></tr>
   </table>
 
   <!-- ============================================================ -->
@@ -202,7 +220,11 @@
     <tr><td>Tailwind CSS</td><td>4.2.2</td><td>Utility-first styling (via @tailwindcss/vite plugin)</td></tr>
     <tr><td>React Router DOM</td><td>7.13.2</td><td>Client-side routing (v6+ API)</td></tr>
     <tr><td>Recharts</td><td>3.8.1</td><td>Calorie trend / fasting charts</td></tr>
-    <tr><td>Firebase (client)</td><td>12.11.0</td><td>Email/password authentication</td></tr>
+    <tr><td>Framer Motion</td><td>12+</td><td>Animations (whileInView, AnimatePresence, useInView, useMotionValue)</td></tr>
+    <tr><td>shadcn/ui</td><td>latest</td><td>Card, Button, Input, Label, Sheet, Tabs, Tooltip, etc.</td></tr>
+    <tr><td>vite-plugin-pwa</td><td>1.2.0</td><td>PWA: service worker, manifest, auto-update</td></tr>
+    <tr><td>Firebase (client)</td><td>12.11.0</td><td>Email/password + Google Sign-In authentication</td></tr>
+    <tr><td>Stripe</td><td>latest</td><td>Pro subscription billing (checkout sessions)</td></tr>
     <tr><td>Express</td><td>4.18.2</td><td>REST API server</td></tr>
     <tr><td>pg</td><td>8.11.5</td><td>PostgreSQL client (no ORM)</td></tr>
     <tr><td>firebase-admin</td><td>12.0.0</td><td>JWT token verification on backend</td></tr>
@@ -468,8 +490,25 @@ npm run dev
     <p>Before starting work, read the actual source files to verify the handoff document is accurate - code is the source of truth.</p>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- DEPLOYMENT -->
+  <!-- ============================================================ -->
+  <h2 class="section">15. Deployment</h2>
+  <table>
+    <tr><th>Service</th><th>Platform</th><th>URL</th></tr>
+    <tr><td>Frontend</td><td>Vercel (auto-deploy on push)</td><td><code>https://fasttrack-mredzinski08s-projects.vercel.app</code></td></tr>
+    <tr><td>Backend</td><td>Render (auto-deploy on push)</td><td><code>https://fasttrack-api-0uzz.onrender.com</code></td></tr>
+    <tr><td>Database</td><td>Render PostgreSQL</td><td>Internal connection via DATABASE_URL</td></tr>
+  </table>
+  <div class="box box-green">
+    <div class="box-label">Deployment Notes</div>
+    <p><strong>Vercel:</strong> Root directory set to <code>client/</code>. Requires <code>.npmrc</code> with <code>legacy-peer-deps=true</code>. SPA fallback via <code>vercel.json</code> rewrites (with exceptions for PWA files: manifest, sw.js, registerSW.js).</p>
+    <p><strong>Render:</strong> Free tier has 30-60s cold starts. SSL required for PostgreSQL (<code>ssl: { rejectUnauthorized: false }</code>). NODE_ENV=production enables SSL.</p>
+    <p><strong>PWA:</strong> Installable via Safari "Add to Home Screen" (iOS) or Chrome install prompt (Android). Service worker caches app shell + API responses (NetworkFirst, 5-min expiry).</p>
+  </div>
+
   <div class="footer">
-    FastTrack Session Handoff &nbsp;|&nbsp; Last updated: 2026-03-31 (Session 6)
+    FastTrack Session Handoff &nbsp;|&nbsp; Last updated: 2026-04-02 (Session 7)
   </div>
 
 </div>
