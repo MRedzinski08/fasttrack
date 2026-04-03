@@ -491,7 +491,7 @@ export default function Dashboard() {
       <motion.section className="py-12" {...sectionReveal}>
         <span className="text-xs uppercase tracking-[0.2em] text-primary-500 block mb-8 text-center">ACTIONS</span>
 
-        <div className="flex items-start justify-center gap-16 sm:gap-24">
+        <div className="flex items-start justify-around sm:justify-center gap-6 sm:gap-24 px-2">
           {/* Log Meal */}
           <Link to="/log-meal" className="group text-center">
             <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-3">
