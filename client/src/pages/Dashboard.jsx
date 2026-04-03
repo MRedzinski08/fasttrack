@@ -176,7 +176,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-20 md:pt-20 pb-24 md:pb-16 space-y-0">
+    <div className="max-w-[1600px] mx-auto px-5 sm:px-10 lg:px-16 pt-20 md:pt-20 pb-24 md:pb-16 space-y-0">
 
       {/* Scanning line -- pure aesthetic */}
       <div className="line-scan" />

@@ -52,7 +52,7 @@ export default function History() {
 
   if (error) {
     return (
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 py-8">
+      <div className="max-w-[1600px] mx-auto px-5 sm:px-10 lg:px-16 py-8">
         <div className="text-red-400 text-sm">
           {error}
           <button onClick={() => setRetryKey((k) => k + 1)} className="ml-3 text-red-400 underline text-xs uppercase tracking-wider">Retry</button>
@@ -62,7 +62,7 @@ export default function History() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-20 md:pt-20 pb-24 md:pb-16 space-y-0">
+    <div className="max-w-[1600px] mx-auto px-5 sm:px-10 lg:px-16 pt-20 md:pt-20 pb-24 md:pb-16 space-y-0">
 
       {/* Header */}
       <motion.h1
