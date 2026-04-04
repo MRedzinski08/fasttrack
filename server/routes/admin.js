@@ -64,4 +64,25 @@ router.put('/users/:id/tier', requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/admin/migrate — run pending migrations
+router.post('/migrate', requireAdmin, async (req, res) => {
+  try {
+    const results = [];
+    const migrations = [
+      `CREATE TABLE IF NOT EXISTS saved_foods (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, food_name VARCHAR(255) NOT NULL, calories INTEGER NOT NULL, protein_g DECIMAL(6,1) DEFAULT 0, carbs_g DECIMAL(6,1) DEFAULT 0, fat_g DECIMAL(6,1) DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())`,
+      `CREATE TABLE IF NOT EXISTS weight_logs (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, weight_lbs DECIMAL(5,1) NOT NULL, logged_at DATE DEFAULT CURRENT_DATE, created_at TIMESTAMP DEFAULT NOW(), UNIQUE(user_id, logged_at))`,
+      `CREATE TABLE IF NOT EXISTS mood_logs (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5), context VARCHAR(20) DEFAULT 'general', meal_id INTEGER REFERENCES meal_logs(id) ON DELETE SET NULL, note TEXT, logged_at TIMESTAMP DEFAULT NOW(), created_at TIMESTAMP DEFAULT NOW())`,
+      `CREATE TABLE IF NOT EXISTS tdee_logs (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, week_start DATE NOT NULL, avg_intake INTEGER, weight_start DECIMAL(5,1), weight_end DECIMAL(5,1), estimated_tdee INTEGER, created_at TIMESTAMP DEFAULT NOW())`,
+    ];
+    for (const sql of migrations) {
+      await pool.query(sql);
+      results.push('OK');
+    }
+    res.json({ migrated: results.length, results });
+  } catch (err) {
+    console.error('migrate error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
