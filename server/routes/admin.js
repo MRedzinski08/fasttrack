@@ -47,4 +47,21 @@ router.get('/stats', requireAdmin, async (req, res) => {
   }
 });
 
+// PUT /api/admin/users/:id/tier
+router.put('/users/:id/tier', requireAdmin, async (req, res) => {
+  const { tier } = req.body;
+  if (!['free', 'pro'].includes(tier)) return res.status(400).json({ error: 'tier must be free or pro' });
+  try {
+    const result = await pool.query(
+      `UPDATE user_profiles SET subscription_tier = $1, subscription_status = $2 WHERE id = $3 RETURNING id, email, display_name, subscription_tier`,
+      [tier, tier === 'pro' ? 'active' : 'none', req.params.id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'User not found' });
+    res.json({ updated: result.rows[0] });
+  } catch (err) {
+    console.error('admin/tier error:', err);
+    res.status(500).json({ error: 'Failed to update tier' });
+  }
+});
+
 export default router;
