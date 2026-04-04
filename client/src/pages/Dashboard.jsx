@@ -79,17 +79,20 @@ export default function Dashboard() {
   const [calorieTrend, setCalorieTrend] = useState([]);
   const [chartRange, setChartRange] = useState(7);
   const [exerciseData, setExerciseData] = useState([]);
+  const [waterGlasses, setWaterGlasses] = useState(0);
 
   const load = useCallback(async () => {
     try {
-      const [summary, trend, exercises] = await Promise.all([
+      const [summary, trend, exercises, hydration] = await Promise.all([
         api.dashboard.summary(),
         api.history.calories(chartRange),
         api.exercise.today(),
+        api.hydration.get(),
       ]);
       setData(summary);
       setCalorieTrend(trend.trend || []);
       setExerciseData(exercises.exercises || []);
+      setWaterGlasses(hydration.glasses || 0);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -310,6 +313,7 @@ export default function Dashboard() {
             protein={data?.macros?.protein || 0}
             carbs={data?.macros?.carbs || 0}
             fat={data?.macros?.fat || 0}
+            water={waterGlasses}
           />
         </div>
       </motion.section>
@@ -510,6 +514,27 @@ export default function Dashboard() {
                 <p className="text-white/10 text-sm">Nothing logged yet</p>
               </div>
             )}
+          </div>
+
+          {/* Hydration */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <motion.div className="w-4 h-[2px] bg-blue-400" initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }} />
+                <span className="text-xs uppercase tracking-[0.2em] text-blue-400">WATER</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={async () => { const d = await api.hydration.remove(); setWaterGlasses(d.glasses); }}
+                className="w-8 h-8 border border-white/[0.08] text-white/40 hover:border-blue-400 hover:text-blue-400 flex items-center justify-center text-sm transition-all duration-200"
+              >-</button>
+              <span className="text-sm font-display text-white tabular-nums">{waterGlasses} <span className="text-white/30">/ 8 glasses</span></span>
+              <button
+                onClick={async () => { const d = await api.hydration.add(); setWaterGlasses(d.glasses); }}
+                className="w-8 h-8 border border-white/[0.08] text-white/40 hover:border-blue-400 hover:text-blue-400 flex items-center justify-center text-sm transition-all duration-200"
+              >+</button>
+            </div>
           </div>
 
           {/* Today's Exercise */}

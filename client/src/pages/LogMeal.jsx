@@ -21,7 +21,14 @@ export default function LogMeal() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showOutsidePopup, setShowOutsidePopup] = useState(false);
+  const [showDifficultyPopup, setShowDifficultyPopup] = useState(false);
+  const [difficultySessionId, setDifficultySessionId] = useState(null);
+  const [recentMeals, setRecentMeals] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    api.meals.recent().then((d) => setRecentMeals(d.meals || [])).catch(() => {});
+  }, []);
 
   // Exercise state
   const [exerciseQuery, setExerciseQuery] = useState('');
@@ -131,6 +138,8 @@ export default function LogMeal() {
     setError('');
     try {
       let wasOutside = false;
+      let brokeTheFast = false;
+      let sessionId = null;
       for (const food of selected) {
         const result = await api.meals.log({
           foodName: food.name,
@@ -142,9 +151,13 @@ export default function LogMeal() {
           unit: food.servingUnit,
         });
         if (result.outsideEatingWindow) wasOutside = true;
+        if (result.fastBroken) { brokeTheFast = true; sessionId = result.fastingSession?.id; }
       }
       if (wasOutside) {
         setShowOutsidePopup(true);
+      } else if (brokeTheFast && sessionId) {
+        setDifficultySessionId(sessionId);
+        setShowDifficultyPopup(true);
       } else {
         navigate('/dashboard');
       }
@@ -174,6 +187,34 @@ export default function LogMeal() {
       >
         LOG
       </motion.h1>
+
+      {/* ===== MEAL REPLAY ===== */}
+      {recentMeals.length > 0 && (
+        <motion.section className="mb-8" {...sectionReveal}>
+          <p className="text-[10px] uppercase tracking-[0.15em] text-white/30 mb-3">Recently logged</p>
+          <div className="flex gap-2 overflow-x-auto scrollbar-thin pb-2">
+            {recentMeals.map((m, i) => (
+              <button
+                key={i}
+                onClick={() => setSelected((prev) => [...prev, {
+                  name: m.food_name,
+                  calories: m.calories,
+                  protein: parseFloat(m.protein_g) || 0,
+                  carbs: parseFloat(m.carbs_g) || 0,
+                  fat: parseFloat(m.fat_g) || 0,
+                  servingQty: 1,
+                  servingUnit: m.unit || '1 serving',
+                  qty: 1,
+                }])}
+                className="shrink-0 px-3 py-2 border border-white/[0.06] hover:border-primary-500/40 transition-all duration-200 text-left"
+              >
+                <p className="text-xs text-white truncate max-w-[140px] capitalize">{m.food_name}</p>
+                <p className="text-[10px] text-primary-500/60 tabular-nums">{m.calories} cal</p>
+              </button>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* ===== LOG FOOD SECTION ===== */}
       <motion.section {...sectionReveal}>
@@ -395,6 +436,55 @@ export default function LogMeal() {
                   No, Keep Fasting
                 </button>
               </div>
+            </motion.div>
+          </div>
+        </>
+      )}
+
+      {/* Fasting Difficulty Popup */}
+      {showDifficultyPopup && (
+        <>
+          <div className="fixed inset-0 bg-black/70 z-40" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              className="w-full max-w-lg bg-[#080808] border border-white/[0.06] rounded-xl p-8 sm:p-10"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, ease }}
+            >
+              <h2 className="text-2xl font-display font-bold text-primary-500 mb-2">
+                Fast complete!
+              </h2>
+              <p className="text-sm text-white/60 leading-relaxed mb-6">
+                How difficult was this fast? This helps us track your progress and find patterns.
+              </p>
+
+              <div className="flex gap-2 mb-6">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={async () => {
+                      try { await api.fasting.logDifficulty(difficultySessionId, n); } catch {}
+                      setShowDifficultyPopup(false);
+                      navigate('/dashboard');
+                    }}
+                    className="flex-1 py-4 text-lg font-display border border-white/[0.06] text-white/40 hover:border-primary-500 hover:text-primary-500 hover:bg-primary-500/10 transition-all duration-200"
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <div className="flex justify-between text-[10px] text-white/25 uppercase tracking-wider px-1 mb-6">
+                <span>Easy</span>
+                <span>Hard</span>
+              </div>
+
+              <button
+                onClick={() => { setShowDifficultyPopup(false); navigate('/dashboard'); }}
+                className="w-full text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 py-2 transition-colors duration-300"
+              >
+                Skip
+              </button>
             </motion.div>
           </div>
         </>

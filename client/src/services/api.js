@@ -44,12 +44,15 @@ export const api = {
     getByDate: (date) => request(`/api/meals?date=${date}`),
     log: (data) => request('/api/meals', { method: 'POST', body: JSON.stringify(data) }),
     delete: (id) => request(`/api/meals/${id}`, { method: 'DELETE' }),
+    recent: () => request('/api/meals/recent'),
   },
   fasting: {
     current: () => request('/api/fasting/current'),
     start: (targetHours) => request('/api/fasting/start', { method: 'POST', body: JSON.stringify({ targetHours }) }),
     break: () => request('/api/fasting/break', { method: 'POST' }),
     startEating: () => request('/api/fasting/start-eating', { method: 'POST' }),
+    logDifficulty: (sessionId, rating) => request('/api/fasting/difficulty', { method: 'POST', body: JSON.stringify({ sessionId, rating }) }),
+    getDifficulty: () => request('/api/fasting/difficulty'),
     history: (limit) => request(`/api/fasting/history?limit=${limit || 30}`),
   },
   food: {
@@ -92,6 +95,12 @@ export const api = {
   history: {
     calories: (days) => request(`/api/history/calories?days=${days || 7}`),
     fasting: (days) => request(`/api/history/fasting?days=${days || 30}`),
+    weeklyReport: () => request('/api/history/weekly-report'),
+  },
+  hydration: {
+    get: () => request('/api/hydration'),
+    add: () => request('/api/hydration', { method: 'POST' }),
+    remove: () => request('/api/hydration', { method: 'DELETE' }),
   },
   mealBuilder: {
     suggest: (data) => request('/api/meal-builder/suggest', { method: 'POST', body: JSON.stringify(data) }),

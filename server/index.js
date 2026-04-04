@@ -19,6 +19,7 @@ import mealBuilderRoutes from './routes/mealBuilder.js';
 import tdeeRoutes from './routes/tdee.js';
 import moodRoutes from './routes/mood.js';
 import groceryRoutes from './routes/grocery.js';
+import hydrationRoutes from './routes/hydration.js';
 
 dotenv.config();
 
@@ -53,6 +54,7 @@ app.use('/api/meal-builder', mealBuilderRoutes);
 app.use('/api/tdee', tdeeRoutes);
 app.use('/api/mood', moodRoutes);
 app.use('/api/grocery', groceryRoutes);
+app.use('/api/hydration', hydrationRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

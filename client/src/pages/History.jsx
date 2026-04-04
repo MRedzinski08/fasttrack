@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 import { api } from '../services/api.js';
+import WeeklyReportCard from '../components/WeeklyReportCard.jsx';
 
 const ease = [0.16, 1, 0.3, 1];
 
@@ -80,6 +81,9 @@ export default function History() {
       >
         HISTORY
       </motion.h1>
+
+      {/* ===== WEEKLY REPORT ===== */}
+      <WeeklyReportCard />
 
       {/* ===== ACTIVITY CHART ===== */}
       <motion.section {...sectionReveal}>

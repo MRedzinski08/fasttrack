@@ -93,6 +93,26 @@ CREATE TABLE IF NOT EXISTS tdee_logs (
   created_at      TIMESTAMP DEFAULT NOW()
 );
 
+-- Fasting difficulty ratings
+CREATE TABLE IF NOT EXISTS fasting_difficulty (
+  id          SERIAL PRIMARY KEY,
+  user_id     INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  session_id  INTEGER REFERENCES fasting_sessions(id) ON DELETE CASCADE,
+  rating      INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  created_at  TIMESTAMP DEFAULT NOW(),
+  UNIQUE(session_id)
+);
+
+-- Hydration logs
+CREATE TABLE IF NOT EXISTS hydration_logs (
+  id          SERIAL PRIMARY KEY,
+  user_id     INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  glasses     INTEGER NOT NULL DEFAULT 1,
+  logged_at   DATE DEFAULT CURRENT_DATE,
+  created_at  TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, logged_at)
+);
+
 -- User-saved custom foods
 CREATE TABLE IF NOT EXISTS saved_foods (
   id          SERIAL PRIMARY KEY,

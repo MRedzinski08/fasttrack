@@ -89,6 +89,8 @@ router.post('/migrate', requireAdmin, async (req, res) => {
       `CREATE TABLE IF NOT EXISTS weight_logs (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, weight_lbs DECIMAL(5,1) NOT NULL, logged_at DATE DEFAULT CURRENT_DATE, created_at TIMESTAMP DEFAULT NOW(), UNIQUE(user_id, logged_at))`,
       `CREATE TABLE IF NOT EXISTS mood_logs (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5), context VARCHAR(20) DEFAULT 'general', meal_id INTEGER REFERENCES meal_logs(id) ON DELETE SET NULL, note TEXT, logged_at TIMESTAMP DEFAULT NOW(), created_at TIMESTAMP DEFAULT NOW())`,
       `CREATE TABLE IF NOT EXISTS tdee_logs (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, week_start DATE NOT NULL, avg_intake INTEGER, weight_start DECIMAL(5,1), weight_end DECIMAL(5,1), estimated_tdee INTEGER, created_at TIMESTAMP DEFAULT NOW())`,
+      `CREATE TABLE IF NOT EXISTS fasting_difficulty (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, session_id INTEGER REFERENCES fasting_sessions(id) ON DELETE CASCADE, rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5), created_at TIMESTAMP DEFAULT NOW(), UNIQUE(session_id))`,
+      `CREATE TABLE IF NOT EXISTS hydration_logs (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE, glasses INTEGER NOT NULL DEFAULT 1, logged_at DATE DEFAULT CURRENT_DATE, created_at TIMESTAMP DEFAULT NOW(), UNIQUE(user_id, logged_at))`,
     ];
     for (const sql of migrations) {
       await pool.query(sql);

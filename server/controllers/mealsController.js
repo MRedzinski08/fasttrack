@@ -83,6 +83,7 @@ export async function logMeal(req, res) {
     let outsideEatingWindow = false;
     let eatingWindowActive = false;
     let eatingWindowRemaining = 0;
+    let fastBroken = false;
 
     if (activeResult.rows[0]) {
       const active = activeResult.rows[0];
@@ -130,6 +131,7 @@ export async function logMeal(req, res) {
         fastingSession = { ...active, eating_window_start: now, eating_window_hours: user.eating_hours };
         eatingWindowActive = true;
         eatingWindowRemaining = user.eating_hours * 3600;
+        fastBroken = true;
       } else {
         // Still fasting — meal is outside eating window
         outsideEatingWindow = true;
@@ -159,7 +161,7 @@ export async function logMeal(req, res) {
       timeRemainingSeconds = Math.max(0, Math.round((targetMs - elapsedMs) / 1000));
     }
 
-    res.status(201).json({ meal, fastingSession, timeRemainingSeconds, outsideEatingWindow, eatingWindowActive });
+    res.status(201).json({ meal, fastingSession, timeRemainingSeconds, outsideEatingWindow, eatingWindowActive, fastBroken });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('logMeal error:', err);
