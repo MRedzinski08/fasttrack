@@ -11,6 +11,7 @@ export default function QRScanCard({ onMealLogged }) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [manualCode, setManualCode] = useState('');
+  const [debugMsg, setDebugMsg] = useState('');
   const scannerRef = useRef(null);
   const detectedRef = useRef(false);
 
@@ -46,11 +47,23 @@ export default function QRScanCard({ onMealLogged }) {
     }, (err) => {
       if (err) {
         console.error('Quagga init error:', err);
-        setError('Could not access camera. Please allow camera permissions.');
+        setDebugMsg('Camera error: ' + (err.message || err));
+        setError('Could not access camera: ' + (err.message || err));
         setScanning(false);
         return;
       }
+      console.log('Quagga started successfully');
+      setDebugMsg('Camera active — scanning...');
       Quagga.start();
+    });
+
+    // Log every processing frame to confirm scanning is active
+    Quagga.onProcessed((result) => {
+      if (result?.codeResult?.code) {
+        const errs = result.codeResult.decodedCodes?.filter(d => d.error != null) || [];
+        const avg = errs.length > 0 ? (errs.reduce((s, d) => s + d.error, 0) / errs.length).toFixed(3) : '?';
+        setDebugMsg(`Found: ${result.codeResult.code} (${result.codeResult.format}, err:${avg})`);
+      }
     });
 
     function onDetected(data) {
@@ -58,12 +71,7 @@ export default function QRScanCard({ onMealLogged }) {
       const code = data.codeResult?.code;
       if (!code) return;
 
-      // Require high confidence — at least 3 of the digit results must agree
-      const results = data.codeResult?.decodedCodes?.filter(d => d.error != null) || [];
-      const avgError = results.length > 0
-        ? results.reduce((s, d) => s + d.error, 0) / results.length
-        : 1;
-      if (avgError > 0.15) return; // skip low-confidence reads
+      console.log('Quagga DETECTED:', code, 'format:', data.codeResult.format);
 
       detectedRef.current = true;
       Quagga.stop();
@@ -186,7 +194,8 @@ export default function QRScanCard({ onMealLogged }) {
                 <div className="absolute left-2 right-2 h-[2px] bg-primary-500/80 animate-scan-sweep shadow-[0_0_8px_rgba(255,170,0,0.4)]" />
               </div>
             </div>
-            <p className="absolute bottom-3 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/60 z-20">Hold steady — scanning automatically</p>
+            <p className="absolute bottom-8 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/60 z-20">Hold steady — scanning automatically</p>
+            {debugMsg && <p className="absolute bottom-2 left-0 right-0 text-center text-[9px] text-primary-500/60 z-20 px-4 truncate">{debugMsg}</p>}
           </div>
           <button
             onClick={stopScanner}
