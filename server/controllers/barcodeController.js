@@ -5,7 +5,7 @@ export async function lookupBarcode(req, res) {
   }
 
   try {
-    const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json`);
+    const response = await fetch(`https://world.openfoodfacts.net/api/v2/product/${code}.json`);
     const data = await response.json();
 
     if (data.status !== 1 || !data.product) {
