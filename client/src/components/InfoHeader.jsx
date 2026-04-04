@@ -23,7 +23,7 @@ export default function InfoHeader({ title, description }) {
           onClick={() => setOpen(!open)}
           className="w-3.5 h-3.5 rounded-full border border-primary-500 flex items-center justify-center text-primary-500 hover:bg-primary-500 hover:text-black transition-all duration-200 shrink-0"
         >
-          <span className="text-[8px] font-bold font-display leading-none">i</span>
+          <span className="text-[8px] font-black font-display leading-none">i</span>
         </button>
         <AnimatePresence>
           {open && (
