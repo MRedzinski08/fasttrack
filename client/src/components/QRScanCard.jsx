@@ -153,7 +153,8 @@ export default function QRScanCard({ onMealLogged }) {
   return (
     <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
       {/* Header */}
-      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-6">BARCODE SCAN</span>
+      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-2">BARCODE SCAN</span>
+      <p className="text-xs text-white/30 mb-6 leading-relaxed">Scan a product barcode with your camera to instantly look up nutrition info from the package.</p>
 
       {/* Idle state */}
       {!scanning && !looking && !result && !saved && (

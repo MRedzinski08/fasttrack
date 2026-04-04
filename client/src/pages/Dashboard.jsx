@@ -139,8 +139,13 @@ export default function Dashboard() {
   /* ---- Loading state ---- */
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black">
+      <div className="flex flex-col items-center justify-center h-screen bg-black gap-6">
+        <span className="text-lg font-display tracking-[0.3em] uppercase select-none">
+          <span className="text-white/80">FAST</span>
+          <span className="text-primary-500">TRACK</span>
+        </span>
         <div className="w-10 h-10 border-[3px] border-primary-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-[11px] text-white/30 text-center max-w-[280px] leading-relaxed">This app is still in development. As a tester, you may experience increased loading times — this is normal, and will take less than a minute to complete.</p>
       </div>
     );
   }
@@ -552,14 +557,28 @@ export default function Dashboard() {
           <hr className="flex-1 border-white/[0.08]" />
         </div>
 
-        <ProGate feature="Meal Prep">
-          <MealPrepCard />
+        {/* AI Meal Builder */}
+        <ProGate feature="AI Meal Builder">
+          <MealBuilderCard />
         </ProGate>
       </motion.section>
 
+      {/* Meal Prep + Grocery List combined */}
+      <motion.section className="py-6" {...sectionReveal}>
+        <ProGate feature="Meal Prep & Grocery">
+          <div className="space-y-8">
+            <MealPrepCard />
+            <div className="border-t border-white/[0.06] pt-8">
+              <GroceryListCard />
+            </div>
+          </div>
+        </ProGate>
+      </motion.section>
+
+      {/* Photo + QR */}
       <motion.section
         id="photo-log-section"
-        className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        className="py-6 grid grid-cols-1 sm:grid-cols-2 gap-6"
         {...sectionReveal}
       >
         <ProGate feature="Photo Logging"><PhotoLogCard onMealLogged={load} /></ProGate>
@@ -568,15 +587,10 @@ export default function Dashboard() {
         </div>
       </motion.section>
 
-      {/* ===== SECTION 7 -- NEW PRO FEATURES ===== */}
-      <motion.section className="py-12 grid grid-cols-1 sm:grid-cols-2 gap-6" {...sectionReveal}>
-        <ProGate feature="AI Meal Builder"><MealBuilderCard /></ProGate>
-        <ProGate feature="Adaptive TDEE"><AdaptiveTDEECard /></ProGate>
-      </motion.section>
-
+      {/* Adaptive TDEE + Mood/Energy */}
       <motion.section className="py-6 grid grid-cols-1 sm:grid-cols-2 gap-6" {...sectionReveal}>
+        <ProGate feature="Adaptive TDEE"><AdaptiveTDEECard /></ProGate>
         <ProGate feature="Mood Tracking"><MoodTrackerCard /></ProGate>
-        <ProGate feature="Grocery List"><GroceryListCard /></ProGate>
       </motion.section>
     </div>
   );

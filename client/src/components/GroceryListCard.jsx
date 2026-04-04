@@ -45,10 +45,11 @@ export default function GroceryListCard() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-2">
         <div className="w-4 h-[2px] bg-primary-500" />
         <span className="text-xs uppercase tracking-[0.2em] text-primary-500">Grocery List</span>
       </div>
+      <p className="text-xs text-white/30 mb-5 leading-relaxed">Automatically generates a shopping list from your meal prep plans. Select which days to shop for, and we'll combine all ingredients into a single checklist.</p>
 
       {/* Day selector */}
       <div className="flex gap-1 mb-4">

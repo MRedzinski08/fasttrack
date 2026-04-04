@@ -113,7 +113,8 @@ export default function PhotoLogCard({ onMealLogged }) {
   return (
     <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
       {/* Header */}
-      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-6">PHOTO LOG</span>
+      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-2">PHOTO LOG</span>
+      <p className="text-xs text-white/30 mb-6 leading-relaxed">Take a photo of your meal and AI will identify the food and estimate calories and macros for you.</p>
 
       {/* Idle state */}
       {!cameraActive && !analyzing && !results && !saved && (

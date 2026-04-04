@@ -43,10 +43,11 @@ export default function MoodTrackerCard() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-2">
         <div className="w-4 h-[2px] bg-primary-500" />
         <span className="text-xs uppercase tracking-[0.2em] text-primary-500">Mood & Energy</span>
       </div>
+      <p className="text-xs text-white/30 mb-5 leading-relaxed">Rate your energy throughout the day to discover patterns. After a week of entries, we'll show you how your energy correlates with what you eat, when you eat, and your fasting schedule.</p>
 
       {/* Rating selector */}
       <div className="space-y-3 mb-6">

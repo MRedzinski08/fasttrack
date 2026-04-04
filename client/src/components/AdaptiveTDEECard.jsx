@@ -49,10 +49,11 @@ export default function AdaptiveTDEECard() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-2">
         <div className="w-4 h-[2px] bg-primary-500" />
         <span className="text-xs uppercase tracking-[0.2em] text-primary-500">Adaptive TDEE</span>
       </div>
+      <p className="text-xs text-white/30 mb-5 leading-relaxed">Your TDEE (Total Daily Energy Expenditure) is how many calories your body actually burns each day. Log your weight daily and we'll calculate your real TDEE based on your weight trend vs calorie intake — then suggest the right calorie goal to reach your target weight.</p>
 
       {/* Weight logging */}
       <div className="flex gap-3 items-end mb-6">

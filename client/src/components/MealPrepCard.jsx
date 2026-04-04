@@ -130,10 +130,11 @@ export default function MealPrepCard() {
   return (
     <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
       {/* Header */}
-      <div className="flex items-baseline gap-3 mb-6">
+      <div className="flex items-baseline gap-3 mb-2">
         <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display">MEAL PREP</span>
         <span className="text-[11px] uppercase tracking-[0.15em] text-primary-500 font-display">{DAYS[today]}</span>
       </div>
+      <p className="text-xs text-white/30 mb-6 leading-relaxed">Plan your meals for each day of the week. Search for foods, add them to a meal, and log prepped meals with one tap when it's time to eat.</p>
 
       {/* Day tabs */}
       <div className="flex gap-4 overflow-x-auto pb-3 mb-6">
