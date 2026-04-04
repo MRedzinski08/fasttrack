@@ -319,7 +319,7 @@ export default function Dashboard() {
         <div className="flex items-start justify-around px-2">
           {/* Log Meal */}
           <Link to="/log-meal" className="group text-center">
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+            <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v18m0-18c-1.5 2-3 3-5 3m5-3c1.5 2 3 3 5 3M5 21h14" />
               </svg>
@@ -329,7 +329,7 @@ export default function Dashboard() {
 
           {/* Log Exercise */}
           <Link to="/log-meal" className="group text-center">
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+            <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12h4l3-9 4 18 3-9h4" />
               </svg>
@@ -342,7 +342,7 @@ export default function Dashboard() {
             className="group text-center cursor-pointer"
             onClick={() => document.getElementById('meal-prep-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+            <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
@@ -355,7 +355,7 @@ export default function Dashboard() {
             className="group text-center cursor-pointer"
             onClick={() => document.getElementById('meal-builder-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+            <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
@@ -368,7 +368,7 @@ export default function Dashboard() {
             className="group text-center cursor-pointer"
             onClick={() => document.getElementById('photo-log-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+            <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -382,7 +382,7 @@ export default function Dashboard() {
             className="group text-center cursor-pointer"
             onClick={() => document.getElementById('qr-scan-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+            <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4h4v4H4V4zm12 0h4v4h-4V4zM4 16h4v4H4v-4zm12 0h4v4h-4v-4zM4 10h2v2H4v-2zm6-6h2v2h-2V4zm0 6h2v2h-2v-2zm0 6h2v2h-2v-2zm6-6h2v2h-2v-2z" />
               </svg>
