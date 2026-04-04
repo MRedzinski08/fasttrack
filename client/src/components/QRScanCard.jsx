@@ -41,10 +41,10 @@ export default function QRScanCard({ onMealLogged }) {
       } catch {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
       }
-      // Try to enable continuous autofocus
+      // Try to enable continuous autofocus and torch
       const track = stream.getVideoTracks()[0];
       if (track?.applyConstraints) {
-        try { await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch {}
+        try { await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }, { torch: false }] }); } catch {}
       }
       streamRef.current = stream;
       node.srcObject = stream;
@@ -70,32 +70,39 @@ export default function QRScanCard({ onMealLogged }) {
     async function scanFrame() {
       if (!scanningRef.current || !videoRef.current || videoRef.current.readyState < 2) return;
 
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+
       if (detector) {
         try {
-          const barcodes = await detector.detect(videoRef.current);
+          // Try detecting from video element directly
+          let barcodes = await detector.detect(video);
+          if (barcodes.length === 0) {
+            // Also try from canvas (sometimes works better)
+            barcodes = await detector.detect(canvas);
+          }
           if (barcodes.length > 0) {
             handleBarcode(barcodes[0].rawValue);
+            return;
           }
         } catch {}
-      } else {
-        // Fallback: capture frame and try to decode with html5-qrcode
-        try {
-          const { Html5Qrcode } = await import('html5-qrcode');
-          const canvas = canvasRef.current;
-          canvas.width = videoRef.current.videoWidth;
-          canvas.height = videoRef.current.videoHeight;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(videoRef.current, 0, 0);
-          const dataUrl = canvas.toDataURL('image/png');
-          const file = await (await fetch(dataUrl)).blob();
-          const imageFile = new File([file], 'frame.png', { type: 'image/png' });
-          const result = await Html5Qrcode.scanFile(imageFile, false);
-          if (result) handleBarcode(result);
-        } catch {}
       }
+
+      // Fallback: html5-qrcode from canvas frame
+      try {
+        const { Html5Qrcode } = await import('html5-qrcode');
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+        const imageFile = new File([blob], 'frame.jpg', { type: 'image/jpeg' });
+        const result = await Html5Qrcode.scanFile(imageFile, false);
+        if (result) handleBarcode(result);
+      } catch {}
     }
 
-    intervalId = setInterval(scanFrame, 200);
+    intervalId = setInterval(scanFrame, 150);
 
     return () => {
       clearInterval(intervalId);
@@ -210,23 +217,23 @@ export default function QRScanCard({ onMealLogged }) {
       {scanning && (
         <div className="space-y-4">
           <div className="relative rounded-lg overflow-hidden bg-black">
-            <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full object-cover" style={{ minHeight: '250px' }} />
+            <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full object-cover" style={{ minHeight: '300px' }} />
             {/* Barcode alignment guide */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               {/* Dimmed edges */}
               <div className="absolute inset-0 bg-black/40" />
-              {/* Clear scan zone */}
-              <div className="relative w-[75%] h-[100px] border-2 border-primary-500/70 bg-transparent z-10" style={{ boxShadow: '0 0 0 9999px rgba(0,0,0,0.4)' }}>
+              {/* Clear scan zone — sized for tall barcodes */}
+              <div className="relative w-[80%] h-[140px] border-2 border-primary-500/70 bg-transparent z-10" style={{ boxShadow: '0 0 0 9999px rgba(0,0,0,0.4)' }}>
                 {/* Corner markers */}
-                <div className="absolute -top-[2px] -left-[2px] w-5 h-5 border-t-[3px] border-l-[3px] border-primary-500" />
-                <div className="absolute -top-[2px] -right-[2px] w-5 h-5 border-t-[3px] border-r-[3px] border-primary-500" />
-                <div className="absolute -bottom-[2px] -left-[2px] w-5 h-5 border-b-[3px] border-l-[3px] border-primary-500" />
-                <div className="absolute -bottom-[2px] -right-[2px] w-5 h-5 border-b-[3px] border-r-[3px] border-primary-500" />
+                <div className="absolute -top-[2px] -left-[2px] w-6 h-6 border-t-[3px] border-l-[3px] border-primary-500" />
+                <div className="absolute -top-[2px] -right-[2px] w-6 h-6 border-t-[3px] border-r-[3px] border-primary-500" />
+                <div className="absolute -bottom-[2px] -left-[2px] w-6 h-6 border-b-[3px] border-l-[3px] border-primary-500" />
+                <div className="absolute -bottom-[2px] -right-[2px] w-6 h-6 border-b-[3px] border-r-[3px] border-primary-500" />
                 {/* Scanning line */}
                 <div className="absolute left-2 right-2 h-[2px] bg-primary-500/80 animate-scan-sweep shadow-[0_0_8px_rgba(255,170,0,0.4)]" />
               </div>
             </div>
-            <p className="absolute bottom-3 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/60 z-20">Align barcode within the box</p>
+            <p className="absolute bottom-3 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/60 z-20">Hold steady — scanning automatically</p>
           </div>
           <button
             onClick={stopCamera}
