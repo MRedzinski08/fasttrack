@@ -220,6 +220,98 @@ const COMMON_FOODS = [
   // ─── Sugar & Sweeteners ────────────────────────────────────────────
   { name: 'Sugar, white', serving: '1 tsp (4g)', cal: 16, protein: 0, carbs: 4.0, fat: 0 },
   { name: 'Sugar, brown', serving: '1 tsp packed (5g)', cal: 17, protein: 0, carbs: 4.5, fat: 0 },
+
+  // ─── Branded Chips & Snacks ────────────────────────────────────────
+  { name: 'Doritos, Nacho Cheese', serving: '1 oz / ~11 chips (28g)', cal: 140, protein: 2.0, carbs: 18.0, fat: 7.0 },
+  { name: 'Doritos, Cool Ranch', serving: '1 oz / ~11 chips (28g)', cal: 140, protein: 2.0, carbs: 18.0, fat: 7.0 },
+  { name: 'Doritos, Spicy Sweet Chili', serving: '1 oz / ~11 chips (28g)', cal: 140, protein: 2.0, carbs: 18.0, fat: 7.0 },
+  { name: 'Doritos, Flamin Hot', serving: '1 oz / ~11 chips (28g)', cal: 140, protein: 2.0, carbs: 17.0, fat: 8.0 },
+  { name: 'Pringles, Original', serving: '1 oz / ~16 crisps (28g)', cal: 150, protein: 1.0, carbs: 15.0, fat: 9.0 },
+  { name: 'Pringles, Sour Cream & Onion', serving: '1 oz / ~16 crisps (28g)', cal: 150, protein: 1.0, carbs: 15.0, fat: 9.0 },
+  { name: 'Pringles, Cheddar Cheese', serving: '1 oz / ~16 crisps (28g)', cal: 150, protein: 1.0, carbs: 15.0, fat: 10.0 },
+  { name: 'Pringles, BBQ', serving: '1 oz / ~16 crisps (28g)', cal: 150, protein: 1.0, carbs: 16.0, fat: 9.0 },
+  { name: "Lay's, Classic", serving: '1 oz / ~15 chips (28g)', cal: 160, protein: 2.0, carbs: 15.0, fat: 10.0 },
+  { name: "Lay's, Barbecue", serving: '1 oz / ~15 chips (28g)', cal: 150, protein: 2.0, carbs: 15.0, fat: 9.0 },
+  { name: "Lay's, Sour Cream & Onion", serving: '1 oz / ~15 chips (28g)', cal: 160, protein: 2.0, carbs: 15.0, fat: 10.0 },
+  { name: 'Tostitos, Scoops', serving: '1 oz / ~13 chips (28g)', cal: 140, protein: 2.0, carbs: 19.0, fat: 7.0 },
+  { name: 'Cheetos, Crunchy', serving: '1 oz / ~21 pieces (28g)', cal: 150, protein: 2.0, carbs: 13.0, fat: 10.0 },
+  { name: 'Cheetos, Flamin Hot', serving: '1 oz / ~21 pieces (28g)', cal: 160, protein: 2.0, carbs: 13.0, fat: 11.0 },
+  { name: 'Fritos, Original', serving: '1 oz (28g)', cal: 160, protein: 2.0, carbs: 15.0, fat: 10.0 },
+  { name: 'Ruffles, Original', serving: '1 oz / ~12 chips (28g)', cal: 160, protein: 1.0, carbs: 14.0, fat: 10.0 },
+  { name: 'SunChips, Original', serving: '1 oz / ~16 chips (28g)', cal: 140, protein: 2.0, carbs: 19.0, fat: 6.0 },
+  { name: 'Goldfish, Cheddar', serving: '55 pieces (30g)', cal: 140, protein: 4.0, carbs: 20.0, fat: 5.0 },
+  { name: 'Takis, Fuego', serving: '1 oz (28g)', cal: 140, protein: 2.0, carbs: 17.0, fat: 8.0 },
+  { name: 'Smartfood, White Cheddar Popcorn', serving: '2.5 cups (28g)', cal: 160, protein: 2.0, carbs: 13.0, fat: 10.0 },
+
+  // ─── Branded Cookies & Sweets ──────────────────────────────────────
+  { name: 'Oreo cookies', serving: '3 cookies (34g)', cal: 160, protein: 1.0, carbs: 25.0, fat: 7.0 },
+  { name: 'Oreo Double Stuf', serving: '2 cookies (29g)', cal: 140, protein: 1.0, carbs: 21.0, fat: 6.0 },
+  { name: 'Chips Ahoy, Original', serving: '3 cookies (33g)', cal: 160, protein: 1.0, carbs: 22.0, fat: 8.0 },
+  { name: 'Nutter Butter', serving: '2 cookies (26g)', cal: 130, protein: 2.0, carbs: 18.0, fat: 5.0 },
+  { name: 'Girl Scout Thin Mints', serving: '4 cookies (32g)', cal: 160, protein: 1.0, carbs: 22.0, fat: 8.0 },
+  { name: 'Pop-Tarts, Frosted Strawberry', serving: '1 pastry (48g)', cal: 200, protein: 2.0, carbs: 37.0, fat: 5.0 },
+  { name: 'Nutella', serving: '2 tbsp (37g)', cal: 200, protein: 2.0, carbs: 23.0, fat: 11.0 },
+  { name: 'Reeses Peanut Butter Cups', serving: '1 package / 2 cups (42g)', cal: 210, protein: 5.0, carbs: 24.0, fat: 12.0 },
+  { name: "M&M's, Peanut", serving: '1 oz (28g)', cal: 144, protein: 3.0, carbs: 17.0, fat: 7.0 },
+  { name: "M&M's, Milk Chocolate", serving: '1 oz (28g)', cal: 140, protein: 2.0, carbs: 20.0, fat: 6.0 },
+  { name: 'Snickers bar', serving: '1 bar (52g)', cal: 250, protein: 4.0, carbs: 33.0, fat: 12.0 },
+  { name: 'Kit Kat bar', serving: '1 bar (42g)', cal: 210, protein: 3.0, carbs: 27.0, fat: 11.0 },
+  { name: 'Twix bar', serving: '1 package / 2 bars (50g)', cal: 250, protein: 2.0, carbs: 34.0, fat: 12.0 },
+  { name: 'Skittles', serving: '1 oz (28g)', cal: 113, protein: 0, carbs: 25.0, fat: 1.2 },
+
+  // ─── Branded Cereal ────────────────────────────────────────────────
+  { name: 'Cheerios', serving: '1.5 cups (39g)', cal: 140, protein: 5.0, carbs: 29.0, fat: 2.5 },
+  { name: 'Honey Nut Cheerios', serving: '1.5 cups (39g)', cal: 150, protein: 4.0, carbs: 31.0, fat: 2.0 },
+  { name: 'Frosted Flakes', serving: '1 cup (37g)', cal: 140, protein: 1.0, carbs: 34.0, fat: 0 },
+  { name: 'Cinnamon Toast Crunch', serving: '1 cup (36g)', cal: 170, protein: 2.0, carbs: 28.0, fat: 5.0 },
+  { name: 'Froot Loops', serving: '1.5 cups (39g)', cal: 150, protein: 2.0, carbs: 34.0, fat: 1.0 },
+  { name: 'Lucky Charms', serving: '1 cup (36g)', cal: 140, protein: 2.0, carbs: 29.0, fat: 1.5 },
+  { name: 'Cocoa Puffs', serving: '1.5 cups (40g)', cal: 160, protein: 2.0, carbs: 30.0, fat: 2.5 },
+  { name: 'Raisin Bran', serving: '1 cup (59g)', cal: 190, protein: 5.0, carbs: 46.0, fat: 1.0 },
+  { name: 'Special K', serving: '1.25 cups (40g)', cal: 150, protein: 7.0, carbs: 29.0, fat: 0.5 },
+  { name: 'Life cereal', serving: '1 cup (43g)', cal: 160, protein: 4.0, carbs: 33.0, fat: 2.0 },
+
+  // ─── Branded Drinks ────────────────────────────────────────────────
+  { name: 'Coca-Cola', serving: '12 fl oz can (355ml)', cal: 140, protein: 0, carbs: 39.0, fat: 0 },
+  { name: 'Coca-Cola Zero', serving: '12 fl oz can (355ml)', cal: 0, protein: 0, carbs: 0, fat: 0 },
+  { name: 'Diet Coke', serving: '12 fl oz can (355ml)', cal: 0, protein: 0, carbs: 0, fat: 0 },
+  { name: 'Pepsi', serving: '12 fl oz can (355ml)', cal: 150, protein: 0, carbs: 41.0, fat: 0 },
+  { name: 'Dr Pepper', serving: '12 fl oz can (355ml)', cal: 150, protein: 0, carbs: 40.0, fat: 0 },
+  { name: 'Sprite', serving: '12 fl oz can (355ml)', cal: 140, protein: 0, carbs: 38.0, fat: 0 },
+  { name: 'Mountain Dew', serving: '12 fl oz can (355ml)', cal: 170, protein: 0, carbs: 46.0, fat: 0 },
+  { name: 'Gatorade', serving: '12 fl oz (355ml)', cal: 80, protein: 0, carbs: 21.0, fat: 0 },
+  { name: 'Red Bull', serving: '1 can (250ml)', cal: 110, protein: 0, carbs: 28.0, fat: 0 },
+  { name: 'Monster Energy', serving: '1 can (473ml)', cal: 210, protein: 0, carbs: 54.0, fat: 0 },
+  { name: 'Starbucks Frappuccino (bottled)', serving: '1 bottle (405ml)', cal: 290, protein: 6.0, carbs: 46.0, fat: 4.5 },
+
+  // ─── Branded Bars & Protein ────────────────────────────────────────
+  { name: 'KIND bar, Dark Chocolate Nuts', serving: '1 bar (40g)', cal: 200, protein: 6.0, carbs: 17.0, fat: 15.0 },
+  { name: 'Clif Bar, Chocolate Chip', serving: '1 bar (68g)', cal: 250, protein: 10.0, carbs: 44.0, fat: 5.0 },
+  { name: 'Nature Valley, Oats & Honey', serving: '2 bars (42g)', cal: 190, protein: 3.0, carbs: 29.0, fat: 7.0 },
+  { name: 'Nature Valley, Crunchy Peanut Butter', serving: '2 bars (42g)', cal: 190, protein: 4.0, carbs: 28.0, fat: 7.0 },
+  { name: 'Quest Bar, Chocolate Chip Cookie Dough', serving: '1 bar (60g)', cal: 190, protein: 21.0, carbs: 21.0, fat: 7.0 },
+  { name: 'RX Bar, Chocolate Sea Salt', serving: '1 bar (52g)', cal: 210, protein: 12.0, carbs: 24.0, fat: 9.0 },
+  { name: 'Fairlife protein shake', serving: '1 bottle (340ml)', cal: 150, protein: 30.0, carbs: 3.0, fat: 2.5 },
+  { name: 'Premier Protein shake', serving: '1 bottle (340ml)', cal: 160, protein: 30.0, carbs: 5.0, fat: 3.0 },
+
+  // ─── Branded Yogurt & Dairy ────────────────────────────────────────
+  { name: 'Chobani, Plain Nonfat Greek Yogurt', serving: '1 container (150g)', cal: 90, protein: 15.0, carbs: 6.0, fat: 0 },
+  { name: 'Chobani, Strawberry Greek Yogurt', serving: '1 container (150g)', cal: 120, protein: 12.0, carbs: 15.0, fat: 0 },
+  { name: 'Yoplait, Original Strawberry', serving: '1 container (170g)', cal: 150, protein: 6.0, carbs: 26.0, fat: 2.0 },
+  { name: 'Oikos Triple Zero, Vanilla', serving: '1 container (150g)', cal: 90, protein: 15.0, carbs: 8.0, fat: 0 },
+  { name: 'Siggi\'s, Vanilla', serving: '1 container (150g)', cal: 110, protein: 15.0, carbs: 11.0, fat: 0 },
+
+  // ─── Branded Bread & Wraps ─────────────────────────────────────────
+  { name: 'Dave\'s Killer Bread, 21 Whole Grains', serving: '1 slice (45g)', cal: 110, protein: 5.0, carbs: 22.0, fat: 1.5 },
+  { name: 'Mission, Flour Tortillas (8")', serving: '1 tortilla (49g)', cal: 140, protein: 3.0, carbs: 24.0, fat: 3.5 },
+  { name: 'Thomas\', English Muffins', serving: '1 muffin (57g)', cal: 130, protein: 4.0, carbs: 25.0, fat: 1.0 },
+  { name: 'Sara Lee, Honey Wheat Bread', serving: '1 slice (28g)', cal: 70, protein: 3.0, carbs: 13.0, fat: 1.0 },
+
+  // ─── Branded Peanut Butter & Spreads ───────────────────────────────
+  { name: 'Jif, Creamy Peanut Butter', serving: '2 tbsp (33g)', cal: 190, protein: 7.0, carbs: 8.0, fat: 16.0 },
+  { name: 'Skippy, Creamy Peanut Butter', serving: '2 tbsp (33g)', cal: 190, protein: 7.0, carbs: 7.0, fat: 16.0 },
+  { name: 'Justin\'s, Classic Almond Butter', serving: '2 tbsp (32g)', cal: 190, protein: 6.0, carbs: 7.0, fat: 16.0 },
+  { name: 'Philadelphia Cream Cheese', serving: '2 tbsp (30g)', cal: 100, protein: 2.0, carbs: 1.0, fat: 9.0 },
 ];
 
 export default COMMON_FOODS;
