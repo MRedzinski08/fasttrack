@@ -333,7 +333,7 @@ export default function Dashboard() {
           {/* Meal Prep */}
           <div
             className="group text-center cursor-pointer"
-            onClick={() => document.getElementById('meal-prep-section')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.getElementById('meal-prep-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
             <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,7 +346,7 @@ export default function Dashboard() {
           {/* Meal Builder */}
           <div
             className="group text-center cursor-pointer"
-            onClick={() => document.getElementById('meal-builder-section')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.getElementById('meal-builder-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
             <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +359,7 @@ export default function Dashboard() {
           {/* Take Photo */}
           <div
             className="group text-center cursor-pointer"
-            onClick={() => document.getElementById('photo-log-section')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.getElementById('photo-log-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
             <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,7 +373,7 @@ export default function Dashboard() {
           {/* Scan Code */}
           <div
             className="group text-center cursor-pointer"
-            onClick={() => document.getElementById('qr-scan-section')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.getElementById('qr-scan-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           >
             <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
               <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
