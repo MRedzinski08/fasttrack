@@ -7,6 +7,7 @@ const USDA_BASE = 'https://api.nal.usda.gov/fdc/v1';
 const OFF_SEARCH = 'https://world.openfoodfacts.net/cgi/search.pl';
 
 const NUTRIENT = { calories: 1008, protein: 1003, carbs: 1005, fat: 1004 };
+const BLOCKED = ['babyfood', 'baby food', 'infant', 'formula', 'dog food', 'cat food', 'pet'];
 
 function getNutrient(foodNutrients, id) {
   const match = foodNutrients.find((n) => n.nutrientId === id);
@@ -261,11 +262,18 @@ const STANDARD_SERVINGS = [
 
 function findStandardServing(foodName) {
   const nameLower = foodName.toLowerCase();
+  // Try most specific match first (more keywords = more specific)
   const sorted = [...STANDARD_SERVINGS].sort((a, b) => b.keywords.length - a.keywords.length);
   for (const entry of sorted) {
-    if (entry.keywords.every((kw) => nameLower.includes(kw))) {
-      return entry;
-    }
+    // Each keyword must appear in the name, allowing for plurals (egg/eggs)
+    const allMatch = entry.keywords.every((kw) => {
+      if (nameLower.includes(kw)) return true;
+      // Try plural/singular variants
+      if (nameLower.includes(kw + 's')) return true;
+      if (kw.endsWith('s') && nameLower.includes(kw.slice(0, -1))) return true;
+      return false;
+    });
+    if (allMatch) return entry;
   }
   return null;
 }
@@ -303,8 +311,9 @@ function relevanceScore(name, query) {
   // ── Tier 1 (100): The food IS the query ──
   // "egg" → "Egg, Whole, Raw" or "Eggs, Grade A, Large, Egg Whole"
   // Check if after removing filler words, the name is basically just the food + a preparation
-  const FILLER = ['grade', 'a', 'large', 'medium', 'small', 'raw', 'fresh', 'plain', 'regular', 'ns', 'as', 'to', 'fat', 'type', 'with', 'made', 'no', 'added'];
-  const PREPS = ['whole', 'white', 'yolk', 'scrambled', 'fried', 'poached', 'boiled', 'hard-boiled', 'soft-boiled', 'baked', 'grilled', 'roasted', 'steamed', 'raw', 'cooked', 'dried', 'canned', 'frozen', 'smoked', 'braised', 'sauteed', 'broiled', 'mashed', 'sliced', 'chopped', 'shredded', 'ground', 'diced', 'omelet', 'omelette'];
+  const FILLER = ['grade', 'a', 'large', 'medium', 'small', 'raw', 'fresh', 'plain', 'regular', 'ns', 'as', 'to', 'fat', 'type', 'with', 'made', 'no', 'added', 'or', 'and', 'the', 'in', 'of', 'for'];
+  const PREPS = ['whole', 'white', 'yolk', 'scrambled', 'fried', 'poached', 'boiled', 'hard-boiled', 'soft-boiled', 'baked', 'grilled', 'roasted', 'steamed', 'raw', 'cooked', 'dried', 'canned', 'frozen', 'smoked', 'braised', 'sauteed', 'broiled', 'mashed', 'sliced', 'chopped', 'shredded', 'ground', 'diced', 'omelet', 'omelette', 'pickled', 'marinated', 'seasoned', 'breaded', 'blanched', 'pureed', 'fresh'];
+  // BLOCKED is defined at module scope
 
   // Get the "core" words of the name: remove fillers and preps
   const coreWords = nWords.filter(w => !FILLER.includes(w) && !PREPS.includes(w));
@@ -354,10 +363,16 @@ async function searchOpenFoodFacts(query) {
     return data.products
       .filter((p) => {
         if (!p.product_name || !p.nutriments) return false;
-        // Query must match product name
+        // Product name must START with a query word (not just contain it)
+        // This prevents "Mini Eggs" matching for "egg" or "Mayonnaise" for "egg"
         const nameLower = p.product_name.toLowerCase();
+        const nameFirst = nameLower.split(/[\s,(-]+/)[0];
         const queryWords = query.toLowerCase().split(/\s+/);
-        if (!queryWords.some((w) => nameLower.includes(w))) return false;
+        const nameStartsWithQuery = queryWords.some((w) => {
+          const wStem = w.replace(/s$/, '');
+          return nameFirst === w || nameFirst === w + 's' || nameFirst === wStem || nameFirst.startsWith(w);
+        });
+        if (!nameStartsWithQuery) return false;
         // Must have serving data — no per-100g guesses
         const servingG = parseFloat(p.serving_quantity) || 0;
         if (servingG <= 0) return false;
@@ -399,20 +414,39 @@ async function searchOpenFoodFacts(query) {
 
 async function searchUSDA(query) {
   try {
-    const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(query)}&api_key=${process.env.USDA_API_KEY}&pageSize=25&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation`;
-
-    let response;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      response = await fetch(url);
-      if (response.ok) break;
-      if (attempt < 2) await new Promise(r => setTimeout(r, 500));
+    // For single-word queries with common preps, search for the base + specific preparations
+    const queries = [query];
+    const preps = COMMON_PREPS[query.toLowerCase()];
+    if (preps && query.trim().split(/\s+/).length === 1) {
+      // Add targeted searches like "egg whole raw", "egg scrambled", "egg fried"
+      const extraQueries = preps.slice(0, 4).map(p => p.includes(' ') ? p : `${query} ${p}`);
+      queries.push(...extraQueries);
     }
 
-    if (!response.ok) return [];
-    const data = await response.json();
-    if (!data.foods?.length) return [];
+    // Fetch all queries in parallel
+    const allFoods = [];
+    const seen = new Set();
+    await Promise.all(queries.map(async (q) => {
+      const url = `${USDA_BASE}/foods/search?query=${encodeURIComponent(q)}&api_key=${process.env.USDA_API_KEY}&pageSize=10&dataType=SR%20Legacy,Survey%20(FNDDS),Foundation`;
+      let response;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        response = await fetch(url);
+        if (response.ok) break;
+        if (attempt < 1) await new Promise(r => setTimeout(r, 300));
+      }
+      if (!response?.ok) return;
+      const data = await response.json();
+      for (const f of (data.foods || [])) {
+        if (!seen.has(f.fdcId)) {
+          seen.add(f.fdcId);
+          allFoods.push(f);
+        }
+      }
+    }));
 
-    return data.foods
+    if (!allFoods.length) return [];
+
+    return allFoods
       .map((f) => {
         const nutrients = f.foodNutrients || [];
         const cal100  = getNutrient(nutrients, NUTRIENT.calories);
@@ -422,20 +456,23 @@ async function searchUSDA(query) {
 
         const name = f.description.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
-        const std = findStandardServing(name);
-        // ONLY include results that have a standard serving match
-        if (!std) return null;
+        // Skip blocked items
+        if (BLOCKED.some((b) => name.toLowerCase().includes(b))) return null;
 
-        const scale = std.grams / 100;
+        const std = findStandardServing(name);
+        const servingG = std ? std.grams : 100;
+        const servingLabel = std ? std.label : '1 serving (100g)';
+        const scale = servingG / 100;
+
         return {
           name,
           calories: Math.round(cal100 * scale),
           protein: Math.round(pro100 * scale * 10) / 10,
           carbs: Math.round(carb100 * scale * 10) / 10,
           fat: Math.round(fat100 * scale * 10) / 10,
-          servingQty: std.grams,
-          servingUnit: std.label,
-          hasServing: true,
+          servingQty: servingG,
+          servingUnit: servingLabel,
+          hasServing: !!std,
           source: 'usda',
         };
       })
@@ -462,7 +499,7 @@ export async function searchFood(req, res) {
 
     const all = [...offResults, ...usdaResults].map((f) => ({
       ...f,
-      _score: relevanceScore(f.name, q) + (f.hasServing ? 10 : 0),
+      _score: relevanceScore(f.name, q),
     }));
 
     all.sort((a, b) => b._score - a._score);
