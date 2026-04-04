@@ -21,6 +21,8 @@ export default function QRScanCard({ onMealLogged }) {
     setScanning(true);
   }
 
+  const [manualCode, setManualCode] = useState('');
+
   // Attach camera when video element mounts
   const videoCallbackRef = useCallback(async (node) => {
     videoRef.current = node;
@@ -29,10 +31,20 @@ export default function QRScanCard({ onMealLogged }) {
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+            focusMode: { ideal: 'continuous' },
+          },
         });
       } catch {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      }
+      // Try to enable continuous autofocus
+      const track = stream.getVideoTracks()[0];
+      if (track?.applyConstraints) {
+        try { await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch {}
       }
       streamRef.current = stream;
       node.srcObject = stream;
@@ -83,7 +95,7 @@ export default function QRScanCard({ onMealLogged }) {
       }
     }
 
-    intervalId = setInterval(scanFrame, 500);
+    intervalId = setInterval(scanFrame, 200);
 
     return () => {
       clearInterval(intervalId);
@@ -158,20 +170,39 @@ export default function QRScanCard({ onMealLogged }) {
 
       {/* Idle state */}
       {!scanning && !looking && !result && !saved && (
-        <div className="flex flex-col items-center gap-3 py-4">
-          <div className="w-10 h-10 border border-white/[0.08] rounded-full p-2 flex items-center justify-center">
-            <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
-            </svg>
+        <div className="space-y-4 py-3">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border border-white/[0.08] rounded-full p-2 flex items-center justify-center">
+              <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+              </svg>
+            </div>
+            <button
+              onClick={startScanner}
+              className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-5 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
+            >
+              SCAN
+            </button>
           </div>
-          <button
-            onClick={startScanner}
-            className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-5 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
-          >
-            SCAN
-          </button>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              placeholder="Or type barcode number"
+              className="flex-1 bg-transparent border-b border-white/[0.1] text-white py-2 text-xs focus:border-primary-500 outline-none transition-all placeholder:text-white/20"
+            />
+            <button
+              onClick={() => { if (manualCode.trim()) { setLooking(true); handleBarcode(manualCode.trim()); setManualCode(''); } }}
+              disabled={!manualCode.trim()}
+              className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-30 shrink-0"
+            >
+              Look Up
+            </button>
+          </div>
         </div>
       )}
 
@@ -203,6 +234,23 @@ export default function QRScanCard({ onMealLogged }) {
           >
             Cancel
           </button>
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              placeholder="Or type barcode number"
+              className="flex-1 bg-transparent border-b border-white/[0.1] text-white py-2 text-xs focus:border-primary-500 outline-none transition-all placeholder:text-white/20"
+            />
+            <button
+              onClick={() => { if (manualCode.trim()) handleBarcode(manualCode.trim()); }}
+              disabled={!manualCode.trim()}
+              className="px-4 py-2 text-[10px] uppercase tracking-[0.1em] border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-30 shrink-0"
+            >
+              Look Up
+            </button>
+          </div>
         </div>
       )}
 
