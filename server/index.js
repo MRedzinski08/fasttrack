@@ -15,6 +15,10 @@ import mealPrepRoutes from './routes/mealPrep.js';
 import photoRoutes from './routes/photo.js';
 import barcodeRoutes from './routes/barcode.js';
 import adminRoutes from './routes/admin.js';
+import mealBuilderRoutes from './routes/mealBuilder.js';
+import tdeeRoutes from './routes/tdee.js';
+import moodRoutes from './routes/mood.js';
+import groceryRoutes from './routes/grocery.js';
 
 dotenv.config();
 
@@ -45,6 +49,10 @@ app.use('/api/meal-prep', mealPrepRoutes);
 app.use('/api/photo', photoRoutes);
 app.use('/api/barcode', barcodeRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/meal-builder', mealBuilderRoutes);
+app.use('/api/tdee', tdeeRoutes);
+app.use('/api/mood', moodRoutes);
+app.use('/api/grocery', groceryRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

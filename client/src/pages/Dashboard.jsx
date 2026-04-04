@@ -14,6 +14,10 @@ import ProGate from '../components/ProGate.jsx';
 import MealPrepCard from '../components/MealPrepCard.jsx';
 import PhotoLogCard from '../components/PhotoLogCard.jsx';
 import QRScanCard from '../components/QRScanCard.jsx';
+import MealBuilderCard from '../components/MealBuilderCard.jsx';
+import AdaptiveTDEECard from '../components/AdaptiveTDEECard.jsx';
+import MoodTrackerCard from '../components/MoodTrackerCard.jsx';
+import GroceryListCard from '../components/GroceryListCard.jsx';
 import { Button } from '@/components/ui/button';
 
 /* ------------------------------------------------------------------ */
@@ -562,6 +566,17 @@ export default function Dashboard() {
         <div id="qr-scan-section">
           <ProGate feature="QR Code Scanner"><QRScanCard onMealLogged={load} /></ProGate>
         </div>
+      </motion.section>
+
+      {/* ===== SECTION 7 -- NEW PRO FEATURES ===== */}
+      <motion.section className="py-12 grid grid-cols-1 sm:grid-cols-2 gap-6" {...sectionReveal}>
+        <ProGate feature="AI Meal Builder"><MealBuilderCard /></ProGate>
+        <ProGate feature="Adaptive TDEE"><AdaptiveTDEECard /></ProGate>
+      </motion.section>
+
+      <motion.section className="py-6 grid grid-cols-1 sm:grid-cols-2 gap-6" {...sectionReveal}>
+        <ProGate feature="Mood Tracking"><MoodTrackerCard /></ProGate>
+        <ProGate feature="Grocery List"><GroceryListCard /></ProGate>
       </motion.section>
     </div>
   );

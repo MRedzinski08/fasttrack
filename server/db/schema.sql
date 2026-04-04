@@ -59,6 +59,40 @@ CREATE TABLE IF NOT EXISTS exercise_logs (
   created_at      TIMESTAMP DEFAULT NOW()
 );
 
+-- Weight log for Adaptive TDEE
+CREATE TABLE IF NOT EXISTS weight_logs (
+  id          SERIAL PRIMARY KEY,
+  user_id     INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  weight_lbs  DECIMAL(5,1) NOT NULL,
+  logged_at   DATE DEFAULT CURRENT_DATE,
+  created_at  TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, logged_at)
+);
+
+-- Mood/Energy ratings
+CREATE TABLE IF NOT EXISTS mood_logs (
+  id          SERIAL PRIMARY KEY,
+  user_id     INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  rating      INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  context     VARCHAR(20) DEFAULT 'general',  -- 'post_meal', 'fasting', 'general'
+  meal_id     INTEGER REFERENCES meal_logs(id) ON DELETE SET NULL,
+  note        TEXT,
+  logged_at   TIMESTAMP DEFAULT NOW(),
+  created_at  TIMESTAMP DEFAULT NOW()
+);
+
+-- TDEE estimates
+CREATE TABLE IF NOT EXISTS tdee_logs (
+  id              SERIAL PRIMARY KEY,
+  user_id         INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  week_start      DATE NOT NULL,
+  avg_intake      INTEGER,
+  weight_start    DECIMAL(5,1),
+  weight_end      DECIMAL(5,1),
+  estimated_tdee  INTEGER,
+  created_at      TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_meal_logs_user_id ON meal_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_meal_logs_eaten_at ON meal_logs(eaten_at);
@@ -66,3 +100,6 @@ CREATE INDEX IF NOT EXISTS idx_fasting_sessions_user_id ON fasting_sessions(user
 CREATE INDEX IF NOT EXISTS idx_fasting_sessions_fast_end ON fasting_sessions(fast_end);
 CREATE INDEX IF NOT EXISTS idx_exercise_logs_user_id ON exercise_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_exercise_logs_logged_at ON exercise_logs(logged_at);
+CREATE INDEX IF NOT EXISTS idx_weight_logs_user_id ON weight_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_mood_logs_user_id ON mood_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_tdee_logs_user_id ON tdee_logs(user_id);

@@ -89,6 +89,22 @@ export const api = {
     calories: (days) => request(`/api/history/calories?days=${days || 7}`),
     fasting: (days) => request(`/api/history/fasting?days=${days || 30}`),
   },
+  mealBuilder: {
+    suggest: (data) => request('/api/meal-builder/suggest', { method: 'POST', body: JSON.stringify(data) }),
+  },
+  tdee: {
+    logWeight: (weight) => request('/api/tdee/weight', { method: 'POST', body: JSON.stringify({ weight }) }),
+    weightHistory: (days) => request(`/api/tdee/weight?days=${days || 30}`),
+    calculate: () => request('/api/tdee/calculate'),
+  },
+  mood: {
+    log: (data) => request('/api/mood', { method: 'POST', body: JSON.stringify(data) }),
+    history: (days) => request(`/api/mood/history?days=${days || 14}`),
+    insights: () => request('/api/mood/insights'),
+  },
+  grocery: {
+    generate: (days) => request('/api/grocery/generate', { method: 'POST', body: JSON.stringify({ days }) }),
+  },
 };
 
 export async function streamChat(message, history, onChunk) {
