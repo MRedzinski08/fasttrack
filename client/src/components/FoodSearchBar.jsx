@@ -69,7 +69,7 @@ export default function FoodSearchBar({ onSelect }) {
                 <div className="flex justify-between items-start w-full">
                   <div>
                     <p className="text-sm text-white capitalize">{food.name}</p>
-                    <p className="text-xs text-white/30">{food.servingUnit}</p>
+                    <p className="text-xs text-white/30">{food.servingUnit.replace(/\s*\(\d+\.?\d*\s*g\)/gi, '')}</p>
                   </div>
                   <div className="text-right shrink-0 ml-3">
                     <p className="text-sm font-display text-primary-500 tabular-nums">{food.calories} cal</p>
