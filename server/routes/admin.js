@@ -47,6 +47,22 @@ router.get('/stats', requireAdmin, async (req, res) => {
   }
 });
 
+// PUT /api/admin/users/:id/profile
+router.put('/users/:id/profile', requireAdmin, async (req, res) => {
+  const { displayName } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE user_profiles SET display_name = COALESCE($1, display_name) WHERE id = $2 RETURNING id, email, display_name',
+      [displayName, req.params.id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'User not found' });
+    res.json({ updated: result.rows[0] });
+  } catch (err) {
+    console.error('admin/profile error:', err);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
 // PUT /api/admin/users/:id/tier
 router.put('/users/:id/tier', requireAdmin, async (req, res) => {
   const { tier } = req.body;
