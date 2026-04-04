@@ -182,33 +182,80 @@ export async function getDailySummary(req, res) {
     if (!data) return res.status(404).json({ error: 'User not found' });
 
     const { user, context } = data;
-    const today = new Date().toISOString().split('T')[0];
 
-    // Return cached summary if already generated today
-    const summaryDate = user.ai_summary_date
-      ? (typeof user.ai_summary_date === 'string' ? user.ai_summary_date : user.ai_summary_date.toISOString().split('T')[0])
-      : null;
-    if (summaryDate === today) {
-      return res.json({ summary: user.ai_summary_text, cached: true });
+    // Check if user has ever completed a fasting cycle
+    const completedResult = await pool.query(
+      `SELECT id FROM fasting_sessions WHERE user_id = $1 AND completed = TRUE LIMIT 1`,
+      [user.id]
+    );
+
+    if (completedResult.rows.length === 0) {
+      return res.json({
+        summary: 'Your daily coaching will begin after your first fasting cycle has concluded.',
+        cached: true,
+      });
     }
 
-    const prompt = `Give a brief daily coaching note based on today's data.
+    // Check if there's a cached summary — return it if exists (from last completed cycle)
+    if (user.ai_summary_text) {
+      // Check if a new cycle has completed since the last summary
+      const lastSummaryDate = user.ai_summary_date
+        ? (typeof user.ai_summary_date === 'string' ? user.ai_summary_date : user.ai_summary_date.toISOString().split('T')[0])
+        : null;
 
-Data:
-- Calories: ${context.todayCalories}/${user.daily_calorie_goal} cal
-- Protein: ${context.protein}g | Carbs: ${context.carbs}g | Fat: ${context.fat}g
-- Fasting: ${context.fastingStatus} (${context.timeRemaining})
-- Streak: ${context.streak} days
-- Recent meals: ${context.recentMeals}
+      const newCompletedResult = await pool.query(
+        `SELECT id FROM fasting_sessions
+         WHERE user_id = $1 AND completed = TRUE AND fast_end > $2::date
+         ORDER BY fast_end DESC LIMIT 1`,
+        [user.id, lastSummaryDate || '1970-01-01']
+      );
+
+      // No new completed cycles since last summary — return cached
+      if (newCompletedResult.rows.length === 0) {
+        return res.json({ summary: user.ai_summary_text, cached: true });
+      }
+    }
+
+    // A cycle has completed since the last summary — generate a new one
+    // Get meals from the last completed eating window period
+    const lastCycleResult = await pool.query(
+      `SELECT fast_start, fast_end FROM fasting_sessions
+       WHERE user_id = $1 AND completed = TRUE
+       ORDER BY fast_end DESC LIMIT 1`,
+      [user.id]
+    );
+    const lastCycle = lastCycleResult.rows[0];
+
+    // Get meals logged during that cycle
+    const cycleMealsResult = await pool.query(
+      `SELECT food_name, calories, protein_g, carbs_g, fat_g FROM meal_logs
+       WHERE user_id = $1 AND eaten_at >= $2 AND eaten_at <= $3
+       ORDER BY eaten_at`,
+      [user.id, lastCycle.fast_start, lastCycle.fast_end]
+    );
+    const cycleMeals = cycleMealsResult.rows;
+    const cycleCal = cycleMeals.reduce((s, m) => s + m.calories, 0);
+    const cycleProtein = cycleMeals.reduce((s, m) => s + parseFloat(m.protein_g || 0), 0).toFixed(1);
+    const cycleCarbs = cycleMeals.reduce((s, m) => s + parseFloat(m.carbs_g || 0), 0).toFixed(1);
+    const cycleFat = cycleMeals.reduce((s, m) => s + parseFloat(m.fat_g || 0), 0).toFixed(1);
+    const cycleFoodList = cycleMeals.map(m => `${m.food_name} (${m.calories} cal)`).join(', ') || 'No meals logged';
+
+    const prompt = `Give a brief coaching note based on the user's last completed fasting cycle.
+
+Last cycle data:
+- Total calories consumed: ${cycleCal}/${user.daily_calorie_goal} cal
+- Protein: ${cycleProtein}g | Carbs: ${cycleCarbs}g | Fat: ${cycleFat}g
+- Meals: ${cycleFoodList}
+- Fasting streak: ${context.streak} days
 - Energy/mood: ${context.moodInfo}
 - Weight trend: ${context.tdeeInfo}
 
 Rules:
 - Write in second person ("you/your"). Never use the user's name.
-- Be warm and encouraging but real. Acknowledge what's going well before suggesting improvements. ("You're staying consistent with your fasting — nice. To close the protein gap, try adding...")
+- Be warm and encouraging but real. Acknowledge what went well before suggesting improvements.
 - Suggest a SPECIFIC food or meal for any gap.
-- If energy data is available and relevant, weave it in naturally (e.g. "Your energy has been dipping on low-protein days — worth keeping an eye on").
-- If weight trend is available, reference it briefly if useful (e.g. "You're trending down steadily, the deficit is working").
+- If energy data is available and relevant, weave it in naturally.
+- If weight trend is available, reference it briefly if useful.
 - Don't force mood/weight references if the data doesn't say anything interesting.
 - One observation + one suggestion. Keep it under 80 words.
 - Put each point on its own line, separated by a newline.
@@ -224,6 +271,7 @@ Rules:
     });
 
     const summary = completion.choices[0].message.content;
+    const today = new Date().toISOString().split('T')[0];
 
     // Cache in DB
     await pool.query(
