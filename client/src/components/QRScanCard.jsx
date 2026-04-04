@@ -180,11 +180,22 @@ export default function QRScanCard({ onMealLogged }) {
         <div className="space-y-4">
           <div className="relative rounded-lg overflow-hidden bg-black">
             <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full object-cover" style={{ minHeight: '250px' }} />
-            {/* Scanning line overlay */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute left-4 right-4 h-[2px] bg-primary-500/80 animate-scan-sweep shadow-[0_0_8px_rgba(255,170,0,0.4)]" />
+            {/* Barcode alignment guide */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              {/* Dimmed edges */}
+              <div className="absolute inset-0 bg-black/40" />
+              {/* Clear scan zone */}
+              <div className="relative w-[75%] h-[100px] border-2 border-primary-500/70 bg-transparent z-10" style={{ boxShadow: '0 0 0 9999px rgba(0,0,0,0.4)' }}>
+                {/* Corner markers */}
+                <div className="absolute -top-[2px] -left-[2px] w-5 h-5 border-t-[3px] border-l-[3px] border-primary-500" />
+                <div className="absolute -top-[2px] -right-[2px] w-5 h-5 border-t-[3px] border-r-[3px] border-primary-500" />
+                <div className="absolute -bottom-[2px] -left-[2px] w-5 h-5 border-b-[3px] border-l-[3px] border-primary-500" />
+                <div className="absolute -bottom-[2px] -right-[2px] w-5 h-5 border-b-[3px] border-r-[3px] border-primary-500" />
+                {/* Scanning line */}
+                <div className="absolute left-2 right-2 h-[2px] bg-primary-500/80 animate-scan-sweep shadow-[0_0_8px_rgba(255,170,0,0.4)]" />
+              </div>
             </div>
-            <p className="absolute bottom-3 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/40">Point camera at a barcode</p>
+            <p className="absolute bottom-3 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/60 z-20">Align barcode within the box</p>
           </div>
           <button
             onClick={stopCamera}
