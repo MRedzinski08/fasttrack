@@ -93,6 +93,18 @@ CREATE TABLE IF NOT EXISTS tdee_logs (
   created_at      TIMESTAMP DEFAULT NOW()
 );
 
+-- User-saved custom foods
+CREATE TABLE IF NOT EXISTS saved_foods (
+  id          SERIAL PRIMARY KEY,
+  user_id     INTEGER REFERENCES user_profiles(id) ON DELETE CASCADE,
+  food_name   VARCHAR(255) NOT NULL,
+  calories    INTEGER NOT NULL,
+  protein_g   DECIMAL(6,1) DEFAULT 0,
+  carbs_g     DECIMAL(6,1) DEFAULT 0,
+  fat_g       DECIMAL(6,1) DEFAULT 0,
+  created_at  TIMESTAMP DEFAULT NOW()
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_meal_logs_user_id ON meal_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_meal_logs_eaten_at ON meal_logs(eaten_at);

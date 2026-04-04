@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { api } from '../services/api.js';
+import InfoHeader from './InfoHeader.jsx';
 
 export default function PhotoLogCard({ onMealLogged }) {
   const [cameraActive, setCameraActive] = useState(false);
@@ -113,22 +114,20 @@ export default function PhotoLogCard({ onMealLogged }) {
   return (
     <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
       {/* Header */}
-      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-2">PHOTO LOG</span>
-      <p className="text-xs text-white/30 mb-6 leading-relaxed">Take a photo of your meal and AI will identify the food and estimate calories and macros for you.</p>
+      <InfoHeader title="Photo Log" description="Take a photo of your meal and AI will identify the food and estimate calories and macros for you." />
 
       {/* Idle state */}
       {!cameraActive && !analyzing && !results && !saved && (
-        <div className="text-center py-8">
-          <div className="w-16 h-16 border border-white/[0.08] rounded-full p-4 flex items-center justify-center mx-auto mb-5">
-            <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+        <div className="flex flex-col items-center gap-3 py-4">
+          <div className="w-10 h-10 border border-white/[0.08] rounded-full p-2 flex items-center justify-center">
+            <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
             </svg>
           </div>
-          <p className="text-sm text-white/40 mb-6">Snap a photo and let AI identify the food and estimate calories.</p>
           <button
             onClick={startCamera}
-            className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
+            className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-5 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
           >
             CAPTURE
           </button>

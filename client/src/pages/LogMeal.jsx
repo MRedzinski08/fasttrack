@@ -16,6 +16,7 @@ const sectionReveal = {
 export default function LogMeal() {
   const [selected, setSelected] = useState([]);
   const [manual, setManual] = useState({ foodName: '', calories: '', protein: '', carbs: '', fat: '' });
+  const [saveManual, setSaveManual] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -86,7 +87,7 @@ export default function LogMeal() {
   }
 
   function updateQty(i, qty) {
-    const val = Math.max(0.25, parseFloat(qty) || 1);
+    const val = Math.min(10, Math.max(0.25, parseFloat(qty) || 1));
     setSelected((prev) => prev.map((f, idx) => idx === i ? { ...f, qty: val } : f));
   }
 
@@ -94,20 +95,33 @@ export default function LogMeal() {
     setSelected((prev) => prev.filter((_, idx) => idx !== i));
   }
 
-  function addManualToList(e) {
+  async function addManualToList(e) {
     e.preventDefault();
     if (!manual.foodName || !manual.calories) return;
-    setSelected((prev) => [...prev, {
+    const entry = {
       name: manual.foodName,
       calories: parseInt(manual.calories),
       protein: parseFloat(manual.protein) || 0,
       carbs: parseFloat(manual.carbs) || 0,
       fat: parseFloat(manual.fat) || 0,
       servingQty: 1,
-      servingUnit: 'serving',
+      servingUnit: '1 serving',
       qty: 1,
-    }]);
+    };
+    setSelected((prev) => [...prev, entry]);
+    if (saveManual) {
+      try {
+        await api.food.save({
+          foodName: entry.name,
+          calories: entry.calories,
+          proteinG: entry.protein,
+          carbsG: entry.carbs,
+          fatG: entry.fat,
+        });
+      } catch {}
+    }
     setManual({ foodName: '', calories: '', protein: '', carbs: '', fat: '' });
+    setSaveManual(false);
     setShowManual(false);
   }
 
@@ -215,12 +229,29 @@ export default function LogMeal() {
                     onChange={(e) => setManual({ ...manual, fat: e.target.value })} className={inputClass} />
                 </div>
               </div>
-              <button
-                type="submit"
-                className="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black px-5 py-2 text-xs uppercase tracking-[0.15em] transition-all duration-300"
-              >
-                Add to Meal
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  type="submit"
+                  className="border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black px-5 py-2 text-xs uppercase tracking-[0.15em] transition-all duration-300"
+                >
+                  Add to Meal
+                </button>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <div
+                    className={`w-4 h-4 border flex items-center justify-center transition-all ${
+                      saveManual ? 'border-primary-500 bg-primary-500' : 'border-white/20'
+                    }`}
+                    onClick={() => setSaveManual(!saveManual)}
+                  >
+                    {saveManual && (
+                      <svg className="w-3 h-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-[10px] uppercase tracking-[0.1em] text-white/40" onClick={() => setSaveManual(!saveManual)}>Save for later</span>
+                </label>
+              </div>
             </form>
           )}
         </div>
@@ -251,12 +282,12 @@ export default function LogMeal() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 gap-2">
                     <div className="flex-1 min-w-0 mr-4">
                       <p className="text-sm font-display text-white capitalize truncate">{food.name}</p>
-                      <p className="text-xs text-white/40">{food.servingQty} {food.servingUnit} per serving</p>
+                      <p className="text-xs text-white/40">{food.servingUnit.replace(/\s*\(\d+\.?\d*\s*g\)/gi, '')}</p>
                     </div>
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => updateQty(i, food.qty - (food.qty > 1 ? 1 : 0.25))}
+                          onClick={() => updateQty(i, Math.max(0.25, food.qty - 0.25))}
                           className="w-8 h-8 border border-white/[0.08] text-white/40 hover:border-primary-500 hover:text-primary-500 flex items-center justify-center text-sm transition-all duration-300"
                         >
                           -
@@ -270,7 +301,7 @@ export default function LogMeal() {
                           className="w-14 text-center bg-transparent text-white text-sm border-none outline-none"
                         />
                         <button
-                          onClick={() => updateQty(i, food.qty + 1)}
+                          onClick={() => updateQty(i, food.qty + 0.25)}
                           className="w-8 h-8 border border-white/[0.08] text-white/40 hover:border-primary-500 hover:text-primary-500 flex items-center justify-center text-sm transition-all duration-300"
                         >
                           +
@@ -335,18 +366,35 @@ export default function LogMeal() {
               <h2 className="text-2xl font-display font-bold text-primary-500 mb-4">
                 You logged a meal outside of your eating window.
               </h2>
-              <p className="text-sm text-white/60 leading-relaxed mb-8">
+              <p className="text-sm text-white/60 leading-relaxed mb-4">
                 It's hard to manage a day's worth of food in a short window, and nobody is perfect. Sometimes, you'll need to make a few exceptions — the consistency is what matters. Tomorrow is a brand new day to get right back on Track!
               </p>
-              <button
-                onClick={() => {
-                  setShowOutsidePopup(false);
-                  navigate('/dashboard');
-                }}
-                className="w-full border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300"
-              >
-                Close
-              </button>
+              <p className="text-sm text-white/80 leading-relaxed mb-8">
+                Would you like to reset your fasting timer and begin your eating window now?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={async () => {
+                    try {
+                      await api.fasting.startEating();
+                    } catch {}
+                    setShowOutsidePopup(false);
+                    navigate('/dashboard');
+                  }}
+                  className="flex-1 bg-primary-500 text-black hover:bg-primary-400 py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300"
+                >
+                  Yes, Start Eating Window
+                </button>
+                <button
+                  onClick={() => {
+                    setShowOutsidePopup(false);
+                    navigate('/dashboard');
+                  }}
+                  className="flex-1 border border-white/[0.12] text-white/50 hover:text-white hover:border-white/[0.2] py-3 text-xs uppercase tracking-[0.15em] transition-all duration-300"
+                >
+                  No, Keep Fasting
+                </button>
+              </div>
             </motion.div>
           </div>
         </>
@@ -432,7 +480,7 @@ export default function LogMeal() {
                       type="number"
                       min="1"
                       value={exerciseDuration}
-                      onChange={(e) => setExerciseDuration(Math.max(1, parseInt(e.target.value) || 1))}
+                      onChange={(e) => setExerciseDuration(Math.min(300, Math.max(1, parseInt(e.target.value) || 1)))}
                       className="w-20 bg-transparent border-b border-white/[0.1] text-white py-1 text-sm text-center focus:border-primary-500 outline-none transition-all"
                     />
                     <span className="text-xs text-white/30">min</span>

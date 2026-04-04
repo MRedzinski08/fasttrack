@@ -74,12 +74,12 @@ export async function calculateTDEE(req, res) {
       [userId]
     );
 
-    if (weightResult.rows.length < 3) {
+    if (weightResult.rows.length < 7) {
       return res.json({
         tdee: null,
-        message: 'Need at least 3 weight entries over 2 weeks to calculate TDEE. Keep logging daily.',
+        message: `Need ${7 - weightResult.rows.length} more weight entries to calculate TDEE. Keep logging daily.`,
         dataPoints: weightResult.rows.length,
-        needed: 3,
+        needed: 7,
       });
     }
 
@@ -93,12 +93,12 @@ export async function calculateTDEE(req, res) {
       [userId]
     );
 
-    if (intakeResult.rows.length < 3) {
+    if (intakeResult.rows.length < 7) {
       return res.json({
         tdee: null,
-        message: 'Need at least 3 days of meal data to calculate TDEE. Keep logging meals.',
+        message: `Need ${7 - intakeResult.rows.length} more days of meal data to calculate TDEE. Keep logging meals.`,
         dataPoints: intakeResult.rows.length,
-        needed: 3,
+        needed: 7,
       });
     }
 

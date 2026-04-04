@@ -24,10 +24,14 @@ export default function NavBar({ onSettingsOpen }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [logoProgress, setLogoProgress] = useState(0); // 0 = fully visible, 1 = fully hidden
 
   useEffect(() => {
     function handleScroll() {
       setScrolled(window.scrollY > 50);
+      // Fade between 120px and 200px scroll
+      const progress = Math.min(1, Math.max(0, (window.scrollY - 120) / 80));
+      setLogoProgress(progress);
     }
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -96,6 +100,21 @@ export default function NavBar({ onSettingsOpen }) {
           </div>
         </div>
       </nav>
+
+      {/* Mobile top logo -- fixed, pans off as you scroll past name */}
+      <div
+        className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-center h-14 pointer-events-none"
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          opacity: 1 - logoProgress,
+          transform: `translateY(${-logoProgress * 100}%) scale(${1 - logoProgress * 0.05})`,
+        }}
+      >
+        <span className="text-lg font-display tracking-[0.3em] uppercase select-none">
+          <span className="text-white/80">FAST</span>
+          <span className="text-primary-500">TRACK</span>
+        </span>
+      </div>
 
       {/* Mobile bottom tab bar -- icon-only */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-black border-t border-white/[0.04]">

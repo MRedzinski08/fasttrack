@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../services/api.js';
+import InfoHeader from './InfoHeader.jsx';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAY_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -13,7 +14,7 @@ export default function MealPrepCard() {
   const [logging, setLogging] = useState(null);
 
   // Form state
-  const [formDay, setFormDay] = useState(today);
+  const [formDays, setFormDays] = useState([today]);
   const [mealName, setMealName] = useState('');
   const [foodItems, setFoodItems] = useState([]);
   const [foodQuery, setFoodQuery] = useState('');
@@ -72,22 +73,25 @@ export default function MealPrepCard() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!mealName.trim() || foodItems.length === 0) return;
+    if (!mealName.trim() || foodItems.length === 0 || formDays.length === 0) return;
     setSaving(true);
     try {
-      await api.mealPrep.add({
-        dayOfWeek: formDay,
-        mealName: mealName.trim(),
-        foodItems: foodItems.map((f) => ({
-          name: f.name,
-          calories: Math.round(f.calories * f.qty),
-          protein: Math.round(f.protein * f.qty * 10) / 10,
-          carbs: Math.round(f.carbs * f.qty * 10) / 10,
-          fat: Math.round(f.fat * f.qty * 10) / 10,
-          qty: f.qty,
-          servingUnit: f.servingUnit || 'serving',
-        })),
-      });
+      const items = foodItems.map((f) => ({
+        name: f.name,
+        calories: Math.round(f.calories * f.qty),
+        protein: Math.round(f.protein * f.qty * 10) / 10,
+        carbs: Math.round(f.carbs * f.qty * 10) / 10,
+        fat: Math.round(f.fat * f.qty * 10) / 10,
+        qty: f.qty,
+        servingUnit: f.servingUnit || 'serving',
+      }));
+      for (const day of formDays) {
+        await api.mealPrep.add({
+          dayOfWeek: day,
+          mealName: mealName.trim(),
+          foodItems: items,
+        });
+      }
       setMealName('');
       setFoodItems([]);
       setShowForm(false);
@@ -130,11 +134,7 @@ export default function MealPrepCard() {
   return (
     <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
       {/* Header */}
-      <div className="flex items-baseline gap-3 mb-2">
-        <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display">MEAL PREP</span>
-        <span className="text-[11px] uppercase tracking-[0.15em] text-primary-500 font-display">{DAYS[today]}</span>
-      </div>
-      <p className="text-xs text-white/30 mb-6 leading-relaxed">Plan your meals for each day of the week. Search for foods, add them to a meal, and log prepped meals with one tap when it's time to eat.</p>
+      <InfoHeader title={`Meal Prep — ${DAYS[today]}`} description="Plan your meals for each day of the week. Search for foods, add them to a meal, and log prepped meals with one tap when it's time to eat." />
 
       {/* Day tabs */}
       <div className="flex gap-4 overflow-x-auto pb-3 mb-6">
@@ -207,25 +207,32 @@ export default function MealPrepCard() {
       {/* Toggle form button */}
       {!showForm ? (
         <button
-          onClick={() => { setShowForm(true); setFormDay(selectedDay); }}
+          onClick={() => { setShowForm(true); setFormDays([selectedDay]); }}
           className="text-[11px] text-primary-500 hover:text-primary-400 uppercase tracking-[0.15em] mt-6 transition-colors duration-300"
         >
           + Plan Meal
         </button>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5 pt-6 mt-6 border-t border-white/[0.06]">
-          {/* Day select */}
+          {/* Day checkboxes */}
           <div>
-            <label className="text-[10px] uppercase tracking-[0.15em] text-white/25 block mb-2">Day</label>
-            <select
-              value={formDay}
-              onChange={(e) => setFormDay(Number(e.target.value))}
-              className="bg-transparent border-b border-white/[0.08] text-white/70 py-2 text-sm w-full outline-none focus:border-primary-500 transition-colors"
-            >
-              {DAYS.map((d, i) => (
-                <option key={d} value={i} className="bg-[#080808]">{d}</option>
+            <label className="text-[10px] uppercase tracking-[0.15em] text-white/25 block mb-2">Days</label>
+            <div className="flex gap-1">
+              {DAY_ABBR.map((day, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setFormDays((prev) => prev.includes(i) ? prev.filter((d) => d !== i) : [...prev, i].sort())}
+                  className={`flex-1 py-2 text-[10px] uppercase tracking-wider transition-all duration-200 border ${
+                    formDays.includes(i)
+                      ? 'border-primary-500/50 text-primary-500 bg-primary-500/10'
+                      : 'border-white/[0.06] text-white/30'
+                  }`}
+                >
+                  {day}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Meal name */}

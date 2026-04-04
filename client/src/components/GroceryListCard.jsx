@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../services/api.js';
+import InfoHeader from './InfoHeader.jsx';
 
 export default function GroceryListCard() {
   const [groceryList, setGroceryList] = useState([]);
@@ -29,11 +30,7 @@ export default function GroceryListCard() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-4 h-[2px] bg-primary-500" />
-        <span className="text-xs uppercase tracking-[0.2em] text-primary-500">Grocery List</span>
-      </div>
-      <p className="text-xs text-white/30 mb-5 leading-relaxed">Your shopping list, built automatically from your meal prep plans. Tap items to check them off.</p>
+      <InfoHeader title="Grocery List" description="Your shopping list, built automatically from your meal prep plans. Tap items to check them off." />
 
       {loading && (
         <div className="flex items-center gap-2 py-4">

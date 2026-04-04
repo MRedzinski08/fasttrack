@@ -154,6 +154,40 @@ export async function breakFast(req, res) {
   }
 }
 
+export async function startEatingWindow(req, res) {
+  try {
+    const user = await getUserId(req.user.uid);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // Get eating_hours from user profile
+    const profileResult = await pool.query(
+      'SELECT eating_hours FROM user_profiles WHERE id = $1',
+      [user.id]
+    );
+    const eatingHours = profileResult.rows[0]?.eating_hours || 8;
+
+    // Close any existing active session
+    await pool.query(
+      `UPDATE fasting_sessions SET fast_end = NOW(), broken_early = TRUE
+       WHERE user_id = $1 AND fast_end IS NULL`,
+      [user.id]
+    );
+
+    // Create a fresh session with eating window starting now
+    const result = await pool.query(
+      `INSERT INTO fasting_sessions (user_id, fast_start, target_hours, eating_window_start, eating_window_hours)
+       VALUES ($1, NOW(), $2, NOW(), $3) RETURNING *`,
+      [user.id, user.fasting_hours, eatingHours]
+    );
+
+    const ewRemaining = eatingHours * 3600;
+    res.json({ session: result.rows[0], timeRemainingSeconds: ewRemaining, eatingWindowActive: true });
+  } catch (err) {
+    console.error('startEatingWindow error:', err);
+    res.status(500).json({ error: 'Failed to start eating window' });
+  }
+}
+
 export async function getFastingHistory(req, res) {
   const limit = parseInt(req.query.limit) || 30;
   try {

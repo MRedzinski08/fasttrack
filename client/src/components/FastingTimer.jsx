@@ -71,8 +71,10 @@ export default function FastingTimer({ session, initialSeconds, eatingWindowActi
   const statusLabel = isEatingWindow ? 'EATING WINDOW' : fastComplete ? 'FAST COMPLETE — LOG A MEAL' : isWarning ? 'ALMOST THERE' : 'FASTING';
   const marqueeWord = isEatingWindow ? 'EAT' : fastComplete ? 'EAT' : 'FASTING';
 
-  // Progress
-  const totalSeconds = session ? session.target_hours * 3600 : 1;
+  // Progress — reset for each phase (fasting vs eating window)
+  const totalSeconds = isEatingWindow && session?.eating_window_hours
+    ? session.eating_window_hours * 3600
+    : session ? session.target_hours * 3600 : 1;
   const elapsedSec = totalSeconds - seconds;
   const progress = Math.min(1, Math.max(0, elapsedSec / totalSeconds));
   const elapsedInfo = formatElapsed(session);

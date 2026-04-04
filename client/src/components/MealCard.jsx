@@ -20,7 +20,7 @@ export default function MealCard({ meal, onDelete }) {
         {onDelete && (
           <button
             onClick={() => onDelete(meal.id)}
-            className="opacity-0 group-hover:opacity-100 text-white/10 hover:text-red-400 transition-all duration-200 ml-3 mt-0.5 shrink-0"
+            className="text-primary-500/40 hover:text-primary-500 transition-all duration-200 ml-3 mt-0.5 shrink-0"
             title="Remove"
           >
             <span className="text-lg leading-none">&times;</span>

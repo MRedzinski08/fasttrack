@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../services/api.js';
+import InfoHeader from './InfoHeader.jsx';
+import { useTheme } from '../context/ThemeContext';
 
 export default function AdaptiveTDEECard() {
   const [weight, setWeight] = useState('');
@@ -8,10 +10,19 @@ export default function AdaptiveTDEECard() {
   const [weightHistory, setWeightHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [logMsg, setLogMsg] = useState('');
+  const [loggedToday, setLoggedToday] = useState(false);
+  const { info: themeInfo } = useTheme();
+  const timerColors = themeInfo.timer;
 
   useEffect(() => {
     api.tdee.calculate().then(setTdeeData).catch(() => {});
-    api.tdee.weightHistory(30).then((d) => setWeightHistory(d.weights || [])).catch(() => {});
+    api.tdee.weightHistory(30).then((d) => {
+      const weights = d.weights || [];
+      setWeightHistory(weights);
+      // Check if already logged today
+      const today = new Date().toISOString().split('T')[0];
+      setLoggedToday(weights.some((w) => w.logged_at?.startsWith(today)));
+    }).catch(() => {});
   }, []);
 
   async function handleLogWeight() {
@@ -21,6 +32,7 @@ export default function AdaptiveTDEECard() {
       await api.tdee.logWeight(parseFloat(weight));
       setLogMsg('Weight logged');
       setWeight('');
+      setLoggedToday(true);
       setTimeout(() => setLogMsg(''), 2000);
       // Refresh data
       const [tdee, history] = await Promise.all([
@@ -48,45 +60,69 @@ export default function AdaptiveTDEECard() {
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-4 h-[2px] bg-primary-500" />
-        <span className="text-xs uppercase tracking-[0.2em] text-primary-500">Adaptive TDEE</span>
-      </div>
-      <p className="text-xs text-white/30 mb-5 leading-relaxed">Your TDEE (Total Daily Energy Expenditure) is how many calories your body actually burns each day. Log your weight daily and we'll calculate your real TDEE based on your weight trend vs calorie intake — then suggest the right calorie goal to reach your target weight.</p>
+    <div className="flex flex-col h-full">
+      <InfoHeader title="Adaptive TDEE" description="Your TDEE (Total Daily Energy Expenditure) is how many calories your body actually burns each day. Log your weight daily and we'll calculate your real TDEE based on your weight trend vs calorie intake — then suggest the right calorie goal to reach your target weight. Note: Weight still fluctuates daily for a variety of reasons. This tool should be used to simply estimate your weight loss progress overtime." />
 
-      {/* Weight logging */}
-      <div className="flex gap-3 items-end mb-6">
-        <input
-          type="number"
-          step="0.1"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          placeholder="Today's weight (lbs)"
-          className="flex-1 bg-transparent border-b border-white/[0.1] text-white py-3 text-sm focus:border-primary-500 outline-none transition-all placeholder:text-white/20"
-        />
-        <button
-          onClick={handleLogWeight}
-          disabled={loading || !weight}
-          className="px-5 py-2.5 text-xs uppercase tracking-[0.15em] border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-30 shrink-0"
-        >
-          Log
-        </button>
-      </div>
+      {/* Weight input */}
+      <input
+        type="number"
+        step="0.1"
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+        placeholder="Today's weight (lbs)"
+        className="w-full bg-transparent border-b border-white/[0.1] text-white py-3 text-sm focus:border-primary-500 outline-none transition-all placeholder:text-white/20 mb-3"
+      />
+      <button
+        onClick={handleLogWeight}
+        disabled={loading || !weight || loggedToday}
+        className="w-full py-2.5 mt-4 mb-6 text-xs uppercase tracking-[0.15em] border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-30"
+      >
+        {loggedToday ? 'Logged Today' : 'Log Weight'}
+      </button>
 
       {logMsg && <p className="text-xs text-primary-500/60 mb-4">{logMsg}</p>}
 
-      {/* Weight trend mini-display */}
-      {weightHistory.length > 0 && (
-        <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-thin pb-1">
-          {weightHistory.slice(-7).map((w, i) => (
-            <div key={i} className="text-center shrink-0">
-              <p className="text-xs text-white tabular-nums">{parseFloat(w.weight_lbs).toFixed(1)}</p>
-              <p className="text-[9px] text-white/30">{new Date(w.logged_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Weight entry bar chart — always visible */}
+      {(() => {
+        const minSlots = 7;
+        const recent = weightHistory.slice(-minSlots);
+        const filled = recent.length;
+        const empty = Math.max(0, minSlots - filled);
+        const weights = recent.map(w => parseFloat(w.weight_lbs));
+        const min = weights.length > 0 ? Math.min(...weights) : 0;
+        const max = weights.length > 0 ? Math.max(...weights) : 1;
+        const range = max - min || 1;
+        return (
+          <div className="flex gap-1 mb-2">
+            {recent.map((w, i) => {
+              const val = parseFloat(w.weight_lbs);
+              const pct = ((val - min) / range) * 0.7 + 0.3;
+              return (
+                <div key={i} className="flex-1 h-6 flex items-end" title={`${val.toFixed(1)} lbs — ${new Date(w.logged_at).toLocaleDateString()}`}>
+                  <div
+                    className="w-full transition-all"
+                    style={{
+                      height: `${pct * 100}%`,
+                      backgroundColor: timerColors.fasting.color,
+                      boxShadow: `0 0 8px rgba(${timerColors.fasting.glow}, 0.5)`,
+                    }}
+                  />
+                </div>
+              );
+            })}
+            {Array.from({ length: empty }).map((_, i) => (
+              <div key={`e-${i}`} className="flex-1 h-6 flex items-end">
+                <div className="w-full h-[3px] rounded-sm bg-white/[0.06]" />
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+      <p className="text-xs text-white/30 mb-4">
+        {weightHistory.length > 0
+          ? `${weightHistory.length} of 7 entries logged.${weightHistory.length < 7 ? ` ${7 - weightHistory.length} more to unlock insights.` : ''}`
+          : 'Log your weight daily to see trends.'}
+      </p>
 
       {/* TDEE Result */}
       {tdeeData && (
@@ -133,9 +169,7 @@ export default function AdaptiveTDEECard() {
                 </div>
               )}
             </>
-          ) : (
-            <p className="text-xs text-white/40">{tdeeData.message}</p>
-          )}
+          ) : null}
         </motion.div>
       )}
     </div>

@@ -49,10 +49,14 @@ export const api = {
     current: () => request('/api/fasting/current'),
     start: (targetHours) => request('/api/fasting/start', { method: 'POST', body: JSON.stringify({ targetHours }) }),
     break: () => request('/api/fasting/break', { method: 'POST' }),
+    startEating: () => request('/api/fasting/start-eating', { method: 'POST' }),
     history: (limit) => request(`/api/fasting/history?limit=${limit || 30}`),
   },
   food: {
     search: (q) => request(`/api/food/search?q=${encodeURIComponent(q)}`),
+    saved: () => request('/api/food/saved'),
+    save: (data) => request('/api/food/saved', { method: 'POST', body: JSON.stringify(data) }),
+    deleteSaved: (id) => request(`/api/food/saved/${id}`, { method: 'DELETE' }),
   },
   dashboard: {
     summary: () => request('/api/dashboard/summary'),

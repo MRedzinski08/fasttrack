@@ -185,7 +185,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="max-w-[1600px] mx-auto px-5 sm:px-10 lg:px-16 pt-20 md:pt-20 pb-24 md:pb-16 space-y-0">
+    <div className="max-w-[1600px] mx-auto px-5 sm:px-10 lg:px-16 pt-20 md:pt-20 pb-48 md:pb-32 space-y-0">
 
       {/* Scanning line -- pure aesthetic */}
       <div className="line-scan" />
@@ -238,23 +238,15 @@ export default function Dashboard() {
         className="py-8 border-y border-white/[0.08]"
         {...sectionReveal}
       >
-        {/* Scrolling ticker */}
-        <div className="overflow-hidden mb-8 pointer-events-none select-none">
+        {/* Scrolling header */}
+        <div className="overflow-hidden mb-8 pointer-events-none select-none" style={{ maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
           <div className="animate-marquee whitespace-nowrap flex items-center">
-            {/* Repeat metrics enough to fill and loop */}
-            {Array.from({ length: 6 }).map((_, rep) =>
-              metrics.map((m, i) => (
-                <span key={`${rep}-${i}`} className="inline-flex items-baseline gap-3 mx-6">
-                  <span className="text-4xl font-display font-light tabular-nums" style={{ color: m.color }}>
-                    {m.value.toLocaleString()}
-                  </span>
-                  <span className="text-[11px] uppercase tracking-[0.2em]" style={{ color: 'var(--ft-text)' }}>
-                    {m.label}
-                  </span>
-                  <span className="mx-4" style={{ color: 'var(--ft-text-muted)' }}>&middot;</span>
-                </span>
-              ))
-            )}
+            {Array.from({ length: 8 }).map((_, i) => (
+              <span key={i} className="text-4xl sm:text-5xl font-display tracking-[0.3em] uppercase inline-block mx-8">
+                <span className="text-primary-500">CALORIE</span>
+                <span style={{ color: 'var(--ft-text)' }}> COUNTER</span>
+              </span>
+            ))}
           </div>
         </div>
 
@@ -297,6 +289,101 @@ export default function Dashboard() {
         viewport={{ once: true }}
         transition={{ duration: 1.2 }}
       />
+
+      {/* ===== CALORIES / MACROS ===== */}
+      <motion.section className="py-6" {...sectionReveal}>
+        <div className="border border-white/[0.06] p-5 sm:p-6 space-y-5">
+          <CalorieBar
+            current={data?.calorieTotal || 0}
+            goal={data?.user?.dailyCalorieGoal || 2000}
+          />
+          <MacroBar
+            protein={data?.macros?.protein || 0}
+            carbs={data?.macros?.carbs || 0}
+            fat={data?.macros?.fat || 0}
+          />
+        </div>
+      </motion.section>
+
+      {/* ===== QUICK ACTIONS ===== */}
+      <motion.section className="py-8" {...sectionReveal}>
+        <span className="text-xs uppercase tracking-[0.2em] text-primary-500 block mb-6 text-center">ACTIONS</span>
+
+        <div className="flex items-start justify-around px-2">
+          {/* Log Meal */}
+          <Link to="/log-meal" className="group text-center">
+            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+              <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v18m0-18c-1.5 2-3 3-5 3m5-3c1.5 2 3 3 5 3M5 21h14" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-[0.1em] text-white">Meal</span>
+            </motion.div>
+          </Link>
+
+          {/* Log Exercise */}
+          <Link to="/log-meal" className="group text-center">
+            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+              <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12h4l3-9 4 18 3-9h4" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-[0.1em] text-white">Exercise</span>
+            </motion.div>
+          </Link>
+
+          {/* Meal Prep */}
+          <div
+            className="group text-center cursor-pointer"
+            onClick={() => document.getElementById('meal-prep-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+              <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-[0.1em] text-white">Prep</span>
+            </motion.div>
+          </div>
+
+          {/* Meal Builder */}
+          <div
+            className="group text-center cursor-pointer"
+            onClick={() => document.getElementById('meal-builder-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+              <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-[0.1em] text-white">Build</span>
+            </motion.div>
+          </div>
+
+          {/* Take Photo */}
+          <div
+            className="group text-center cursor-pointer"
+            onClick={() => document.getElementById('photo-log-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+              <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-[0.1em] text-white">Photo</span>
+            </motion.div>
+          </div>
+
+          {/* Scan Code */}
+          <div
+            className="group text-center cursor-pointer"
+            onClick={() => document.getElementById('qr-scan-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-2">
+              <svg className="w-7 h-7 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4h4v4H4V4zm12 0h4v4h-4V4zM4 16h4v4H4v-4zm12 0h4v4h-4v-4zM4 10h2v2H4v-2zm6-6h2v2h-2V4zm0 6h2v2h-2v-2zm0 6h2v2h-2v-2zm6-6h2v2h-2v-2z" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-[0.1em] text-white">Scan</span>
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* ===== SECTION 4 -- TWO-COLUMN SPLIT ===== */}
       <motion.section
@@ -387,18 +474,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* CalorieBar + MacroBar (already redesigned) */}
-          <div className="space-y-5">
-            <CalorieBar
-              current={data?.calorieTotal || 0}
-              goal={data?.user?.dailyCalorieGoal || 2000}
-            />
-            <MacroBar
-              protein={data?.macros?.protein || 0}
-              carbs={data?.macros?.carbs || 0}
-              fat={data?.macros?.fat || 0}
-            />
-          </div>
         </div>
 
         {/* ---------- RIGHT COLUMN ---------- */}
@@ -422,11 +497,8 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : (
-              <div className="py-12">
-                <p className="text-white/10 text-sm mb-3">Nothing logged yet</p>
-                <Link to="/log-meal" className="text-xs tracking-[0.2em] uppercase text-primary-500/50 hover:text-primary-500 transition-colors duration-300">
-                  Log your first meal
-                </Link>
+              <div className="py-3">
+                <p className="text-white/10 text-sm">Nothing logged yet</p>
               </div>
             )}
           </div>
@@ -473,16 +545,18 @@ export default function Dashboard() {
                 </div>
               </>
             ) : (
-              <div className="py-10">
-                <p className="text-white/10 text-sm mb-3">No exercises yet</p>
-                <Link to="/log-meal" className="text-xs tracking-[0.2em] uppercase text-primary-500/50 hover:text-primary-500 transition-colors duration-300">
-                  Log an exercise
-                </Link>
+              <div className="py-3">
+                <p className="text-white/10 text-sm">No exercises yet</p>
               </div>
             )}
           </div>
 
-          {/* AI Analysis */}
+        </div>
+      </motion.section>
+
+      {/* ===== DAILY COACHING ===== */}
+      <motion.section className="py-6" {...sectionReveal}>
+        <div className="border border-white/[0.06] p-5 sm:p-6">
           <AISummaryCard initialSummary={data?.aiSummary} />
         </div>
       </motion.section>
@@ -496,59 +570,7 @@ export default function Dashboard() {
         transition={{ duration: 1.2 }}
       />
 
-      {/* ===== SECTION 5 -- QUICK ACTIONS ===== */}
-      <motion.section className="py-12" {...sectionReveal}>
-        <span className="text-xs uppercase tracking-[0.2em] text-primary-500 block mb-8 text-center">ACTIONS</span>
-
-        <div className="flex items-start justify-around sm:justify-center gap-6 sm:gap-24 px-2">
-          {/* Log Meal */}
-          <Link to="/log-meal" className="group text-center">
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-3">
-              <svg className="w-8 h-8 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3v18m0-18c-1.5 2-3 3-5 3m5-3c1.5 2 3 3 5 3M5 21h14" />
-              </svg>
-              <span className="text-xs uppercase tracking-[0.15em] text-white group-hover:text-white transition-colors duration-300">Meal</span>
-            </motion.div>
-          </Link>
-
-          {/* Log Exercise */}
-          <Link to="/log-meal" className="group text-center">
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-3">
-              <svg className="w-8 h-8 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12h4l3-9 4 18 3-9h4" />
-              </svg>
-              <span className="text-xs uppercase tracking-[0.15em] text-white group-hover:text-white transition-colors duration-300">Exercise</span>
-            </motion.div>
-          </Link>
-
-          {/* Take Photo */}
-          <div
-            className="group text-center cursor-pointer"
-            onClick={() => document.getElementById('photo-log-section')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-3">
-              <svg className="w-8 h-8 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span className="text-xs uppercase tracking-[0.15em] text-white group-hover:text-white transition-colors duration-300">Photo</span>
-            </motion.div>
-          </div>
-
-          {/* Scan Code */}
-          <div
-            className="group text-center cursor-pointer"
-            onClick={() => document.getElementById('qr-scan-section')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="flex flex-col items-center gap-3">
-              <svg className="w-8 h-8 text-white group-hover:text-primary-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4h4v4H4V4zm12 0h4v4h-4V4zM4 16h4v4H4v-4zm12 0h4v4h-4v-4zM4 10h2v2H4v-2zm6-6h2v2h-2V4zm0 6h2v2h-2v-2zm0 6h2v2h-2v-2zm6-6h2v2h-2v-2z" />
-              </svg>
-              <span className="text-xs uppercase tracking-[0.15em] text-white group-hover:text-white transition-colors duration-300">Scan</span>
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
+      {/* Actions section moved above activity graph */}
 
       {/* ===== SECTION 6 -- PRO FEATURES ===== */}
       <motion.section className="py-12" {...sectionReveal}>
@@ -558,13 +580,15 @@ export default function Dashboard() {
         </div>
 
         {/* AI Meal Builder */}
-        <ProGate feature="AI Meal Builder">
-          <MealBuilderCard />
-        </ProGate>
+        <div id="meal-builder-section">
+          <ProGate feature="AI Meal Builder">
+            <MealBuilderCard />
+          </ProGate>
+        </div>
       </motion.section>
 
       {/* Meal Prep + Grocery List combined */}
-      <motion.section className="py-6" {...sectionReveal}>
+      <motion.section id="meal-prep-section" className="py-6" {...sectionReveal}>
         <ProGate feature="Meal Prep & Grocery">
           <div className="space-y-8">
             <MealPrepCard />
@@ -588,7 +612,7 @@ export default function Dashboard() {
       </motion.section>
 
       {/* Adaptive TDEE + Mood/Energy */}
-      <motion.section className="py-6 grid grid-cols-1 sm:grid-cols-2 gap-6" {...sectionReveal}>
+      <motion.section className="py-6 grid grid-cols-2 gap-4 sm:gap-6 items-stretch" {...sectionReveal}>
         <ProGate feature="Adaptive TDEE"><AdaptiveTDEECard /></ProGate>
         <ProGate feature="Mood Tracking"><MoodTrackerCard /></ProGate>
       </motion.section>

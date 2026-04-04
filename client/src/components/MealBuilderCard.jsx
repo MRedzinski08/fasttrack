@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api.js';
+import InfoHeader from './InfoHeader.jsx';
 
 export default function MealBuilderCard() {
   const [ingredients, setIngredients] = useState('');
@@ -87,11 +88,7 @@ export default function MealBuilderCard() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-4 h-[2px] bg-primary-500" />
-        <span className="text-xs uppercase tracking-[0.2em] text-primary-500">AI Meal Builder</span>
-      </div>
-      <p className="text-xs text-white/30 mb-5 leading-relaxed">Tell us what ingredients you have or what you're in the mood for, and we'll build a meal that fits your remaining macros for the day. You can log it now or save it to your meal prep.</p>
+      <InfoHeader title="AI Meal Builder" description="Tell us what ingredients you have or what you're in the mood for, and we'll build a meal that fits your remaining macros for the day. You can log it now or save it to your meal prep." />
 
       <div className="space-y-3">
         <input

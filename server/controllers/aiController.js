@@ -63,30 +63,70 @@ async function getUserContext(firebaseUid) {
 
   const recentMeals = meals.slice(0, 5).map((m) => `${m.food_name} (${m.calories} kcal)`).join(', ') || 'None logged yet';
 
+  // Mood/energy data (recent)
+  let moodInfo = 'No energy data logged yet';
+  try {
+    const moodResult = await pool.query(
+      `SELECT rating, logged_at FROM mood_logs WHERE user_id = $1 ORDER BY logged_at DESC LIMIT 7`,
+      [user.id]
+    );
+    if (moodResult.rows.length > 0) {
+      const avg = (moodResult.rows.reduce((s, r) => s + r.rating, 0) / moodResult.rows.length).toFixed(1);
+      const latest = moodResult.rows[0].rating;
+      moodInfo = `Latest energy rating: ${latest}/5, 7-day avg: ${avg}/5 (${moodResult.rows.length} entries)`;
+    }
+  } catch {}
+
+  // TDEE/weight data
+  let tdeeInfo = 'No weight data logged yet';
+  try {
+    const weightResult = await pool.query(
+      `SELECT weight_lbs, logged_at FROM weight_logs WHERE user_id = $1 ORDER BY logged_at DESC LIMIT 7`,
+      [user.id]
+    );
+    if (weightResult.rows.length >= 2) {
+      const latest = parseFloat(weightResult.rows[0].weight_lbs);
+      const oldest = parseFloat(weightResult.rows[weightResult.rows.length - 1].weight_lbs);
+      const change = (latest - oldest).toFixed(1);
+      tdeeInfo = `Current weight: ${latest} lbs, trend: ${change > 0 ? '+' : ''}${change} lbs over last ${weightResult.rows.length} entries`;
+      if (user.goal_weight) tdeeInfo += `, goal: ${user.goal_weight} lbs`;
+    } else if (weightResult.rows.length === 1) {
+      tdeeInfo = `Current weight: ${weightResult.rows[0].weight_lbs} lbs`;
+      if (user.goal_weight) tdeeInfo += `, goal: ${user.goal_weight} lbs`;
+    }
+  } catch {}
+
   return {
     user,
-    context: { todayCalories, protein, carbs, fat, fastingStatus, timeRemaining, streak, recentMeals },
+    context: { todayCalories, protein, carbs, fat, fastingStatus, timeRemaining, streak, recentMeals, moodInfo, tdeeInfo },
   };
 }
 
 function buildSystemPrompt(user, context) {
-  return `You are FastTrack Auto-Coach, a sharp nutrition and intermittent fasting advisor.
-Go beyond just reporting numbers — give actionable, specific advice. When macros are off, recommend specific foods to fix the gap (e.g. "Add Greek yogurt or cottage cheese to boost protein"). Suggest meal swaps, timing adjustments, and diet tweaks based on patterns you see. Be direct but constructive. Never give medical advice.
+  return `You are FastTrack Auto-Coach — a supportive, knowledgeable nutrition and fasting coach.
 
-Format your responses with markdown: use **bold** for emphasis, bullet points for lists, and ### headers to organize sections. Keep responses focused and scannable.
+Tone: Warm but not over-the-top. Give genuine encouragement when things are going well ("You're making solid progress" not "AMAZING JOB!!!"). Be honest about gaps without being harsh — frame things as opportunities, not failures. Sound like a coach who actually cares, not a robot reading data.
+
+Give actionable, specific advice. When macros are off, recommend specific foods. Suggest meal swaps and practical tweaks. If the user's energy or weight data suggests something, mention it naturally — don't force it.
+
+Format responses with markdown: **bold** for emphasis, bullet points for lists, ### headers for sections. Keep responses focused and scannable. Never give medical advice.
 
 User profile:
 - Name: ${user.display_name}
-- Daily calorie goal: ${user.daily_calorie_goal} kcal
+- Daily calorie goal: ${user.daily_calorie_goal} cal
 - Fasting protocol: ${user.fasting_protocol}
 
 Today's data:
-- Calories logged: ${context.todayCalories} kcal
+- Calories logged: ${context.todayCalories} cal
 - Protein: ${context.protein}g | Carbs: ${context.carbs}g | Fat: ${context.fat}g
 - Fasting status: ${context.fastingStatus}
-- Time remaining in fast: ${context.timeRemaining}
+- Time remaining: ${context.timeRemaining}
 - Fasting streak: ${context.streak} consecutive days
-- Recent meals: ${context.recentMeals}`;
+- Recent meals: ${context.recentMeals}
+
+Wellness data (use if relevant, don't force):
+- Energy/mood: ${context.moodInfo}
+- Weight trend: ${context.tdeeInfo}`;
 }
 
 export async function chat(req, res) {
@@ -152,22 +192,27 @@ export async function getDailySummary(req, res) {
       return res.json({ summary: user.ai_summary_text, cached: true });
     }
 
-    const prompt = `You are a daily nutrition coach. Analyze today's data and give a brief, actionable coaching note.
+    const prompt = `Give a brief daily coaching note based on today's data.
 
 Data:
-- Calories: ${context.todayCalories}/${user.daily_calorie_goal} kcal
+- Calories: ${context.todayCalories}/${user.daily_calorie_goal} cal
 - Protein: ${context.protein}g | Carbs: ${context.carbs}g | Fat: ${context.fat}g
 - Fasting: ${context.fastingStatus} (${context.timeRemaining})
 - Streak: ${context.streak} days
 - Recent meals: ${context.recentMeals}
+- Energy/mood: ${context.moodInfo}
+- Weight trend: ${context.tdeeInfo}
 
 Rules:
-- Write in second person ("you/your"). Never use the user's name. No greetings, no "Great job".
-- Go beyond just stating numbers. Identify the biggest gap or opportunity and suggest a SPECIFIC food or meal to fix it (e.g. "Your protein is 30g short — a chicken breast or Greek yogurt at your next meal would close that gap").
-- If meals are carb-heavy, suggest a swap. If fat is high, suggest a leaner alternative. If calories are low, suggest calorie-dense whole foods.
-- One insight + one specific recommendation. Keep it under 80 words.
+- Write in second person ("you/your"). Never use the user's name.
+- Be warm and encouraging but real. Acknowledge what's going well before suggesting improvements. ("You're staying consistent with your fasting — nice. To close the protein gap, try adding...")
+- Suggest a SPECIFIC food or meal for any gap.
+- If energy data is available and relevant, weave it in naturally (e.g. "Your energy has been dipping on low-protein days — worth keeping an eye on").
+- If weight trend is available, reference it briefly if useful (e.g. "You're trending down steadily, the deficit is working").
+- Don't force mood/weight references if the data doesn't say anything interesting.
+- One observation + one suggestion. Keep it under 80 words.
 - Put each point on its own line, separated by a newline.
-- No exclamation marks. Direct but constructive.`;
+- No excessive exclamation marks. Warm but grounded.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

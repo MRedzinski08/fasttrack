@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { api } from '../services/api.js';
+import InfoHeader from './InfoHeader.jsx';
 
 export default function QRScanCard({ onMealLogged }) {
   const [scanning, setScanning] = useState(false);
@@ -153,23 +154,21 @@ export default function QRScanCard({ onMealLogged }) {
   return (
     <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
       {/* Header */}
-      <span className="text-[11px] uppercase tracking-[0.2em] text-white/40 font-display block mb-2">BARCODE SCAN</span>
-      <p className="text-xs text-white/30 mb-6 leading-relaxed">Scan a product barcode with your camera to instantly look up nutrition info from the package.</p>
+      <InfoHeader title="Barcode Scan" description="Scan a product barcode with your camera to instantly look up nutrition info from the package." />
 
       {/* Idle state */}
       {!scanning && !looking && !result && !saved && (
-        <div className="text-center py-8">
-          <div className="w-16 h-16 border border-white/[0.08] rounded-full p-4 flex items-center justify-center mx-auto mb-5">
-            <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+        <div className="flex flex-col items-center gap-3 py-4">
+          <div className="w-10 h-10 border border-white/[0.08] rounded-full p-2 flex items-center justify-center">
+            <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5z" />
             </svg>
           </div>
-          <p className="text-sm text-white/40 mb-6">Scan a barcode on food packaging to instantly log nutritional info.</p>
           <button
             onClick={startScanner}
-            className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
+            className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-5 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300"
           >
             SCAN
           </button>

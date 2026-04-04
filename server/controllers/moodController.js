@@ -19,6 +19,15 @@ export async function logMood(req, res) {
     const userId = await getUserId(req.user.uid);
     if (!userId) return res.status(404).json({ error: 'User not found' });
 
+    // Check if already logged today
+    const existing = await pool.query(
+      `SELECT id FROM mood_logs WHERE user_id = $1 AND logged_at >= CURRENT_DATE AND logged_at < CURRENT_DATE + INTERVAL '1 day'`,
+      [userId]
+    );
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'Already logged energy today. Come back tomorrow.' });
+    }
+
     const result = await pool.query(
       `INSERT INTO mood_logs (user_id, rating, context, meal_id, note)
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
@@ -77,48 +86,67 @@ export async function getMoodInsights(req, res) {
       });
     }
 
-    // Average mood by context
-    const byContextResult = await pool.query(
-      `SELECT context, ROUND(AVG(rating), 1) as avg_rating, COUNT(*) as count
-       FROM mood_logs WHERE user_id = $1
-       GROUP BY context ORDER BY avg_rating DESC`,
+    // Correlate mood with same-day meals (macro breakdown)
+    const mealCorrelationResult = await pool.query(
+      `SELECT
+         m.rating,
+         COALESCE(SUM(ml.calories), 0) as day_calories,
+         COALESCE(SUM(ml.protein_g), 0) as day_protein,
+         COALESCE(SUM(ml.carbs_g), 0) as day_carbs,
+         COALESCE(SUM(ml.fat_g), 0) as day_fat
+       FROM mood_logs m
+       LEFT JOIN meal_logs ml ON ml.user_id = m.user_id
+         AND DATE(ml.eaten_at) = DATE(m.logged_at)
+       WHERE m.user_id = $1
+       GROUP BY m.id, m.rating, DATE(m.logged_at)
+       ORDER BY m.logged_at DESC`,
       [userId]
     );
 
-    // Average mood by hour of day
-    const byHourResult = await pool.query(
-      `SELECT EXTRACT(HOUR FROM logged_at) as hour, ROUND(AVG(rating), 1) as avg_rating, COUNT(*) as count
-       FROM mood_logs WHERE user_id = $1
-       GROUP BY hour ORDER BY hour`,
-      [userId]
-    );
+    // Avg mood on high-protein vs high-carb vs high-fat days
+    const dayMacros = mealCorrelationResult.rows.filter(r => parseFloat(r.day_calories) > 0);
+    const macroCorrelation = {};
+    for (const row of dayMacros) {
+      const p = parseFloat(row.day_protein);
+      const c = parseFloat(row.day_carbs);
+      const f = parseFloat(row.day_fat);
+      let dominant = 'balanced';
+      if (p > c && p > f) dominant = 'high_protein';
+      else if (c > p && c > f) dominant = 'high_carb';
+      else if (f > p && f > c) dominant = 'high_fat';
+      if (!macroCorrelation[dominant]) macroCorrelation[dominant] = { total: 0, count: 0 };
+      macroCorrelation[dominant].total += row.rating;
+      macroCorrelation[dominant].count += 1;
+    }
+    const macroInsights = Object.entries(macroCorrelation).map(([type, data]) => ({
+      meal_type: type,
+      avg_rating: (data.total / data.count).toFixed(1),
+      count: data.count,
+    }));
 
-    // Mood after high-protein vs high-carb meals
-    const postMealResult = await pool.query(
+    // Avg mood by calorie level (under/at/over goal)
+    const calorieCorrelation = await pool.query(
       `SELECT
          CASE
-           WHEN ml.protein_g > ml.carbs_g THEN 'high_protein'
-           WHEN ml.carbs_g > ml.protein_g THEN 'high_carb'
-           ELSE 'balanced'
-         END as meal_type,
+           WHEN COALESCE(day_cal, 0) < up.daily_calorie_goal * 0.8 THEN 'under'
+           WHEN COALESCE(day_cal, 0) > up.daily_calorie_goal * 1.1 THEN 'over'
+           ELSE 'on_target'
+         END as cal_level,
          ROUND(AVG(m.rating), 1) as avg_rating,
          COUNT(*) as count
        FROM mood_logs m
-       JOIN meal_logs ml ON m.meal_id = ml.id
-       WHERE m.user_id = $1 AND m.context = 'post_meal'
-       GROUP BY meal_type`,
+       JOIN user_profiles up ON up.id = m.user_id
+       LEFT JOIN LATERAL (
+         SELECT SUM(calories) as day_cal
+         FROM meal_logs ml
+         WHERE ml.user_id = m.user_id AND DATE(ml.eaten_at) = DATE(m.logged_at)
+       ) dc ON TRUE
+       WHERE m.user_id = $1
+       GROUP BY cal_level`,
       [userId]
     );
 
-    // Average mood on fasting vs eating days
-    const fastingMoodResult = await pool.query(
-      `SELECT context, ROUND(AVG(rating), 1) as avg_rating, COUNT(*) as count
-       FROM mood_logs WHERE user_id = $1 AND context IN ('fasting', 'post_meal')
-       GROUP BY context`,
-      [userId]
-    );
-
-    // Daily mood trend (last 14 days)
+    // Daily trend
     const trendResult = await pool.query(
       `SELECT DATE(logged_at) as day, ROUND(AVG(rating), 1) as avg_rating, COUNT(*) as entries
        FROM mood_logs WHERE user_id = $1 AND logged_at >= NOW() - INTERVAL '14 days'
@@ -132,42 +160,63 @@ export async function getMoodInsights(req, res) {
       [userId]
     );
 
+    // Most common foods on high-energy vs low-energy days
+    const highEnergyFoods = await pool.query(
+      `SELECT ml.food_name, COUNT(*) as freq
+       FROM mood_logs m
+       JOIN meal_logs ml ON ml.user_id = m.user_id AND DATE(ml.eaten_at) = DATE(m.logged_at)
+       WHERE m.user_id = $1 AND m.rating >= 4
+       GROUP BY ml.food_name ORDER BY freq DESC LIMIT 3`,
+      [userId]
+    );
+
+    const lowEnergyFoods = await pool.query(
+      `SELECT ml.food_name, COUNT(*) as freq
+       FROM mood_logs m
+       JOIN meal_logs ml ON ml.user_id = m.user_id AND DATE(ml.eaten_at) = DATE(m.logged_at)
+       WHERE m.user_id = $1 AND m.rating <= 2
+       GROUP BY ml.food_name ORDER BY freq DESC LIMIT 3`,
+      [userId]
+    );
+
     // Build text insights
     const insights = [];
-    const byContext = byContextResult.rows;
-    const postMeal = postMealResult.rows;
 
-    if (byContext.length > 1) {
-      const best = byContext[0];
-      const worst = byContext[byContext.length - 1];
-      if (parseFloat(best.avg_rating) - parseFloat(worst.avg_rating) >= 0.5) {
-        insights.push(`You feel best during "${best.context}" (avg ${best.avg_rating}/5) and lowest during "${worst.context}" (avg ${worst.avg_rating}/5).`);
+    // Macro correlation insight
+    const sorted = macroInsights.sort((a, b) => parseFloat(b.avg_rating) - parseFloat(a.avg_rating));
+    if (sorted.length >= 2) {
+      const best = sorted[0];
+      const worst = sorted[sorted.length - 1];
+      if (parseFloat(best.avg_rating) - parseFloat(worst.avg_rating) >= 0.3) {
+        const labels = { high_protein: 'high-protein', high_carb: 'high-carb', high_fat: 'high-fat', balanced: 'balanced' };
+        insights.push(`You tend to feel better on ${labels[best.meal_type]} days (avg ${best.avg_rating}/5) vs ${labels[worst.meal_type]} days (avg ${worst.avg_rating}/5).`);
       }
     }
 
-    const highProtein = postMeal.find(r => r.meal_type === 'high_protein');
-    const highCarb = postMeal.find(r => r.meal_type === 'high_carb');
-    if (highProtein && highCarb) {
-      const diff = parseFloat(highProtein.avg_rating) - parseFloat(highCarb.avg_rating);
-      if (Math.abs(diff) >= 0.3) {
-        const better = diff > 0 ? 'high-protein' : 'high-carb';
-        insights.push(`You tend to feel better after ${better} meals.`);
-      }
+    // Calorie level insight
+    const calLevels = calorieCorrelation.rows;
+    const onTarget = calLevels.find(r => r.cal_level === 'on_target');
+    const under = calLevels.find(r => r.cal_level === 'under');
+    if (onTarget && under && parseFloat(onTarget.avg_rating) - parseFloat(under.avg_rating) >= 0.3) {
+      insights.push(`Your energy is higher when you hit your calorie goal (${onTarget.avg_rating}/5) vs undereating (${under.avg_rating}/5).`);
     }
 
-    const bestHour = byHourResult.rows.reduce((best, r) => parseFloat(r.avg_rating) > parseFloat(best.avg_rating) ? r : best, byHourResult.rows[0]);
-    if (bestHour) {
-      const hourLabel = parseInt(bestHour.hour) >= 12 ? `${parseInt(bestHour.hour) - 12 || 12}PM` : `${parseInt(bestHour.hour) || 12}AM`;
-      insights.push(`Your peak energy tends to be around ${hourLabel}.`);
+    // Food correlation insight
+    if (highEnergyFoods.rows.length > 0) {
+      const foods = highEnergyFoods.rows.map(r => r.food_name).join(', ');
+      insights.push(`Foods you eat on high-energy days: ${foods}.`);
+    }
+    if (lowEnergyFoods.rows.length > 0) {
+      const foods = lowEnergyFoods.rows.map(r => r.food_name).join(', ');
+      insights.push(`Foods common on low-energy days: ${foods}.`);
     }
 
     res.json({
       insights,
       overallAvg: parseFloat(overallResult.rows[0].overall_avg),
       totalEntries,
-      byContext: byContextResult.rows,
-      byHour: byHourResult.rows,
-      postMealCorrelation: postMealResult.rows,
+      macroCorrelation: macroInsights,
+      calorieCorrelation: calLevels,
       trend: trendResult.rows,
     });
   } catch (err) {

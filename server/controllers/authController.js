@@ -72,12 +72,13 @@ export async function updateProfile(req, res) {
        onboardingComplete, req.user.uid]
     );
 
-    // If fasting hours changed, update the active fasting session's target
+    // If fasting hours changed, update the active fasting session's target + eating window
     if (fastingHours && result.rows[0]) {
+      const newEatingHours = 24 - fastingHours;
       await pool.query(
-        `UPDATE fasting_sessions SET target_hours = $1
-         WHERE user_id = $2 AND fast_end IS NULL`,
-        [fastingHours, result.rows[0].id]
+        `UPDATE fasting_sessions SET target_hours = $1, eating_window_hours = CASE WHEN eating_window_start IS NOT NULL THEN $2 ELSE eating_window_hours END
+         WHERE user_id = $3 AND fast_end IS NULL`,
+        [fastingHours, newEatingHours, result.rows[0].id]
       );
     }
 
