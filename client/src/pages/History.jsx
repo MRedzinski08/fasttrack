@@ -45,12 +45,14 @@ export default function History() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-black gap-6">
-        <span className="text-lg font-display tracking-[0.3em] uppercase select-none">
-          <span className="text-white/80">FAST</span>
-          <span className="text-primary-500">TRACK</span>
-        </span>
+        <div className="flex flex-col items-center gap-6 opacity-0" style={{ animation: 'fadeIn 0.6s ease forwards', animationDelay: '2s' }}>
+          <span className="text-lg font-display tracking-[0.3em] uppercase select-none">
+            <span className="text-white/80">FAST</span>
+            <span className="text-primary-500">TRACK</span>
+          </span>
+        </div>
         <div className="w-10 h-10 border-[3px] border-primary-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-[11px] text-white/30 text-center max-w-[280px] leading-relaxed">This app is still in development. As a tester, you may experience increased loading times — this is normal, and will take less than a minute to complete.</p>
+        <p className="text-[11px] text-white/30 text-center max-w-[280px] leading-relaxed opacity-0" style={{ animation: 'fadeIn 0.6s ease forwards', animationDelay: '2s' }}>This app is still in development. As a tester, you may experience increased loading times — this is normal, and will take less than a minute to complete.</p>
       </div>
     );
   }
