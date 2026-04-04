@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { api } from '../services/api.js';
 import InfoHeader from './InfoHeader.jsx';
+import Quagga from '@ericblade/quagga2';
 
 export default function QRScanCard({ onMealLogged }) {
   const [scanning, setScanning] = useState(false);
@@ -9,112 +10,77 @@ export default function QRScanCard({ onMealLogged }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
-  const scanningRef = useRef(false);
-  const canvasRef = useRef(document.createElement('canvas'));
+  const [manualCode, setManualCode] = useState('');
+  const scannerRef = useRef(null);
+  const detectedRef = useRef(false);
 
   function startScanner() {
     setError('');
     setResult(null);
     setSaved(false);
+    detectedRef.current = false;
     setScanning(true);
   }
 
-  const [manualCode, setManualCode] = useState('');
-
-  // Attach camera when video element mounts
-  const videoCallbackRef = useCallback(async (node) => {
-    videoRef.current = node;
-    if (!node) return;
-    try {
-      let stream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'environment',
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-            focusMode: { ideal: 'continuous' },
-          },
-        });
-      } catch {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      }
-      // Try to enable continuous autofocus and torch
-      const track = stream.getVideoTracks()[0];
-      if (track?.applyConstraints) {
-        try { await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }, { torch: false }] }); } catch {}
-      }
-      streamRef.current = stream;
-      node.srcObject = stream;
-      scanningRef.current = true;
-    } catch {
-      setError('Could not access camera. Please allow camera permissions.');
-      setScanning(false);
-    }
-  }, []);
-
-  // Scan frames for barcodes
+  // Initialize Quagga when scanning starts
   useEffect(() => {
-    if (!scanning) return;
+    if (!scanning || !scannerRef.current) return;
 
-    let detector = null;
-    let intervalId = null;
-
-    // Use BarcodeDetector API if available (Chrome 83+)
-    if ('BarcodeDetector' in window) {
-      detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'] });
-    }
-
-    async function scanFrame() {
-      if (!scanningRef.current || !videoRef.current || videoRef.current.readyState < 2) return;
-
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0);
-
-      if (detector) {
-        try {
-          // Try detecting from video element directly
-          let barcodes = await detector.detect(video);
-          if (barcodes.length === 0) {
-            // Also try from canvas (sometimes works better)
-            barcodes = await detector.detect(canvas);
-          }
-          if (barcodes.length > 0) {
-            handleBarcode(barcodes[0].rawValue);
-            return;
-          }
-        } catch {}
+    Quagga.init({
+      inputStream: {
+        type: 'LiveStream',
+        target: scannerRef.current,
+        constraints: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        area: { top: '20%', right: '10%', left: '10%', bottom: '20%' },
+      },
+      decoder: {
+        readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader'],
+        multiple: false,
+      },
+      locate: true,
+      frequency: 10,
+    }, (err) => {
+      if (err) {
+        console.error('Quagga init error:', err);
+        setError('Could not access camera. Please allow camera permissions.');
+        setScanning(false);
+        return;
       }
+      Quagga.start();
+    });
 
-      // Fallback: html5-qrcode from canvas frame
-      try {
-        const { Html5Qrcode } = await import('html5-qrcode');
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-        const imageFile = new File([blob], 'frame.jpg', { type: 'image/jpeg' });
-        const result = await Html5Qrcode.scanFile(imageFile, false);
-        if (result) handleBarcode(result);
-      } catch {}
+    function onDetected(data) {
+      if (detectedRef.current) return;
+      const code = data.codeResult?.code;
+      if (!code) return;
+
+      // Require high confidence — at least 3 of the digit results must agree
+      const results = data.codeResult?.decodedCodes?.filter(d => d.error != null) || [];
+      const avgError = results.length > 0
+        ? results.reduce((s, d) => s + d.error, 0) / results.length
+        : 1;
+      if (avgError > 0.15) return; // skip low-confidence reads
+
+      detectedRef.current = true;
+      Quagga.stop();
+      setScanning(false);
+      handleBarcode(code);
     }
 
-    intervalId = setInterval(scanFrame, 150);
+    Quagga.onDetected(onDetected);
 
     return () => {
-      clearInterval(intervalId);
+      Quagga.offDetected(onDetected);
+      Quagga.stop();
     };
   }, [scanning]);
 
   async function handleBarcode(code) {
-    scanningRef.current = false;
-    stopCamera();
-    setScanning(false);
     setLooking(true);
-
     try {
       const data = await api.barcode.lookup(code);
       if (data.found) {
@@ -129,12 +95,9 @@ export default function QRScanCard({ onMealLogged }) {
     }
   }
 
-  function stopCamera() {
-    scanningRef.current = false;
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
+  function stopScanner() {
+    try { Quagga.stop(); } catch {}
+    detectedRef.current = false;
     setScanning(false);
   }
 
@@ -162,17 +125,11 @@ export default function QRScanCard({ onMealLogged }) {
   }
 
   useEffect(() => {
-    return () => {
-      scanningRef.current = false;
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-      }
-    };
+    return () => { try { Quagga.stop(); } catch {} };
   }, []);
 
   return (
     <div className="bg-[#080808] border border-white/[0.06] rounded-xl p-6 sm:p-8">
-      {/* Header */}
       <InfoHeader title="Barcode Scan" description="Scan a product barcode with your camera to instantly look up nutrition info from the package." />
 
       {/* Idle state */}
@@ -213,35 +170,31 @@ export default function QRScanCard({ onMealLogged }) {
         </div>
       )}
 
-      {/* Scanning */}
+      {/* Scanning — Quagga renders its own video here */}
       {scanning && (
         <div className="space-y-4">
-          <div className="relative rounded-lg overflow-hidden bg-black">
-            <video ref={videoCallbackRef} autoPlay playsInline muted className="w-full object-cover" style={{ minHeight: '300px' }} />
-            {/* Barcode alignment guide */}
+          <div className="relative rounded-lg overflow-hidden bg-black" style={{ minHeight: '300px' }}>
+            <div ref={scannerRef} className="w-full" style={{ minHeight: '300px' }} />
+            {/* Alignment guide overlay */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              {/* Dimmed edges */}
-              <div className="absolute inset-0 bg-black/40" />
-              {/* Clear scan zone — sized for tall barcodes */}
-              <div className="relative w-[80%] h-[140px] border-2 border-primary-500/70 bg-transparent z-10" style={{ boxShadow: '0 0 0 9999px rgba(0,0,0,0.4)' }}>
-                {/* Corner markers */}
+              <div className="absolute inset-0 bg-black/30" />
+              <div className="relative w-[80%] h-[140px] border-2 border-primary-500/70 bg-transparent z-10" style={{ boxShadow: '0 0 0 9999px rgba(0,0,0,0.3)' }}>
                 <div className="absolute -top-[2px] -left-[2px] w-6 h-6 border-t-[3px] border-l-[3px] border-primary-500" />
                 <div className="absolute -top-[2px] -right-[2px] w-6 h-6 border-t-[3px] border-r-[3px] border-primary-500" />
                 <div className="absolute -bottom-[2px] -left-[2px] w-6 h-6 border-b-[3px] border-l-[3px] border-primary-500" />
                 <div className="absolute -bottom-[2px] -right-[2px] w-6 h-6 border-b-[3px] border-r-[3px] border-primary-500" />
-                {/* Scanning line */}
                 <div className="absolute left-2 right-2 h-[2px] bg-primary-500/80 animate-scan-sweep shadow-[0_0_8px_rgba(255,170,0,0.4)]" />
               </div>
             </div>
             <p className="absolute bottom-3 left-0 right-0 text-center text-[10px] uppercase tracking-[0.15em] text-white/60 z-20">Hold steady — scanning automatically</p>
           </div>
           <button
-            onClick={stopCamera}
+            onClick={stopScanner}
             className="w-full text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 py-2 transition-colors duration-300"
           >
             Cancel
           </button>
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2">
             <input
               type="text"
               inputMode="numeric"
@@ -251,9 +204,9 @@ export default function QRScanCard({ onMealLogged }) {
               className="flex-1 bg-transparent border-b border-white/[0.1] text-white py-2 text-xs focus:border-primary-500 outline-none transition-all placeholder:text-white/20"
             />
             <button
-              onClick={() => { if (manualCode.trim()) handleBarcode(manualCode.trim()); }}
+              onClick={() => { if (manualCode.trim()) { stopScanner(); handleBarcode(manualCode.trim()); setManualCode(''); } }}
               disabled={!manualCode.trim()}
-              className="px-4 py-2 text-[10px] uppercase tracking-[0.1em] border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-30 shrink-0"
+              className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-30 shrink-0"
             >
               Look Up
             </button>
@@ -267,66 +220,50 @@ export default function QRScanCard({ onMealLogged }) {
           <div className="w-full h-px bg-white/[0.04] overflow-hidden mb-4">
             <div className="h-full bg-primary-500 animate-scan-line" />
           </div>
-          <p className="text-xs text-white/30 text-center">Looking up product...</p>
+          <p className="text-xs text-white/40 text-center">Looking up product...</p>
         </div>
       )}
 
-      {/* Product found */}
-      {result && (
-        <div className="space-y-4">
-          <div className="py-4">
-            <div className="w-full h-[2px] bg-primary-500/40 mb-4" />
-            <div className="flex items-start gap-4">
-              {result.imageUrl && (
-                <img src={result.imageUrl} alt={result.name} className="w-16 h-16 rounded-lg object-cover" />
-              )}
-              <div className="flex-1">
-                <p className="text-sm text-white/70">{result.name}</p>
-                {result.brand && <p className="text-xs text-white/30 mt-1">{result.brand}</p>}
-                <p className="text-[10px] text-white/20 tracking-wide mt-1">Per {result.servingSize}</p>
-              </div>
-              <span className="text-sm text-primary-500 font-display tabular-nums">{result.calories} cal</span>
-            </div>
-            <div className="flex gap-4 mt-3 text-xs text-white/30">
-              <span>P: {result.protein}g</span>
-              <span>C: {result.carbs}g</span>
-              <span>F: {result.fat}g</span>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={logResult}
-              disabled={saving}
-              className="text-[10px] uppercase tracking-[0.15em] border border-primary-500 text-primary-500 px-6 py-2 hover:bg-primary-500 hover:text-black transition-all duration-300 disabled:opacity-40"
-            >
-              {saving ? 'Logging...' : 'LOG'}
-            </button>
-            <button
-              onClick={() => { setResult(null); startScanner(); }}
-              className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 px-4 py-2 transition-colors duration-300"
-            >
-              Scan Again
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Saved */}
-      {saved && (
-        <div className="text-center py-8">
-          <p className="text-primary-500 text-sm font-display mb-4">&#10003; Logged</p>
-          <button
-            onClick={() => setSaved(false)}
-            className="text-[10px] uppercase tracking-[0.15em] text-white/30 hover:text-white/60 transition-colors duration-300"
-          >
-            Scan Another
+      {error && !result && (
+        <div className="py-4">
+          <p className="text-xs text-red-400 mb-3">{error}</p>
+          <button onClick={() => { setError(''); }} className="text-[10px] uppercase tracking-[0.15em] text-primary-500/50 hover:text-primary-500 transition-colors">
+            Try Again
           </button>
         </div>
       )}
 
-      {/* Error */}
-      {error && (
-        <div className="border border-red-500/20 text-red-400 text-sm px-4 py-3 mt-4">{error}</div>
+      {/* Result */}
+      {result && (
+        <div className="py-4 space-y-4">
+          <div className="flex items-start gap-4">
+            {result.imageUrl && (
+              <img src={result.imageUrl} alt="" className="w-16 h-16 object-contain rounded bg-white/5" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-white font-display">{result.name}</p>
+              {result.brand && <p className="text-xs text-white/40">{result.brand}</p>}
+              <p className="text-[10px] text-white/20 tracking-wide mt-1">Per {result.servingSize}</p>
+            </div>
+            <span className="text-sm text-primary-500 font-display tabular-nums">{result.calories} cal</span>
+          </div>
+          <div className="flex gap-4 mt-3 text-xs text-white/30">
+            <span>Protein: {result.protein}g</span>
+            <span>Carbs: {result.carbs}g</span>
+            <span>Fat: {result.fat}g</span>
+          </div>
+          <button
+            onClick={logResult}
+            disabled={saving}
+            className="w-full py-2.5 text-xs uppercase tracking-[0.15em] bg-primary-500 text-black hover:bg-primary-400 transition-all duration-300 disabled:opacity-40"
+          >
+            {saving ? 'Logging...' : 'Log This Food'}
+          </button>
+        </div>
+      )}
+
+      {saved && (
+        <p className="text-xs text-primary-500/60 text-center py-4">Food logged successfully.</p>
       )}
     </div>
   );
