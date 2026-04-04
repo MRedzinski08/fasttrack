@@ -483,6 +483,32 @@ async function searchUSDA(query) {
   }
 }
 
+// ─── Curated common foods search ─────────────────────────────────────
+
+import COMMON_FOODS from '../data/commonFoods.js';
+
+function searchCurated(query) {
+  const q = query.toLowerCase().trim();
+  const qWords = q.split(/\s+/);
+
+  return COMMON_FOODS
+    .filter((f) => {
+      const nameLower = f.name.toLowerCase();
+      // All query words must appear in the name
+      return qWords.every((w) => nameLower.includes(w));
+    })
+    .map((f) => ({
+      name: f.name,
+      calories: f.cal,
+      protein: f.protein,
+      carbs: f.carbs,
+      fat: f.fat,
+      servingQty: 1,
+      servingUnit: f.serving,
+      source: 'curated',
+    }));
+}
+
 // ─── Combined search ─────────────────────────────────────────────────
 
 export async function searchFood(req, res) {
@@ -492,17 +518,27 @@ export async function searchFood(req, res) {
   }
 
   try {
+    // Tier 0: Curated common foods (instant, always first)
+    const curatedResults = searchCurated(q);
+
+    // Tier 1+2: OFF branded + USDA generic (parallel fetch)
     const [offResults, usdaResults] = await Promise.all([
       searchOpenFoodFacts(q),
       searchUSDA(q),
     ]);
 
-    const all = [...offResults, ...usdaResults].map((f) => ({
+    // Score API results by relevance
+    const apiResults = [...offResults, ...usdaResults].map((f) => ({
       ...f,
       _score: relevanceScore(f.name, q),
     }));
+    apiResults.sort((a, b) => b._score - a._score);
 
-    all.sort((a, b) => b._score - a._score);
+    // Combine: curated first (unscored, always top), then API results
+    const all = [
+      ...curatedResults.map((f) => ({ ...f, _score: 999 })),
+      ...apiResults,
+    ];
 
     const seen = new Set();
     const deduped = all.filter((f) => {
