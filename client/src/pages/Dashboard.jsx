@@ -106,6 +106,13 @@ export default function Dashboard() {
     }
   }, [load, searchParams]);
 
+  // Reload when settings are saved (e.g. fasting protocol change)
+  useEffect(() => {
+    function onSettingsSaved() { load(); }
+    window.addEventListener('settings-saved', onSettingsSaved);
+    return () => window.removeEventListener('settings-saved', onSettingsSaved);
+  }, [load]);
+
   async function handleDeleteMeal(id) {
     try {
       await api.meals.delete(id);

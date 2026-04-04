@@ -151,6 +151,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+      // Notify Dashboard to reload data
+      window.dispatchEvent(new Event('settings-saved'));
     } catch (err) {
       setError(err.message);
     } finally {
