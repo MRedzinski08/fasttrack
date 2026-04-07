@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../services/api.js';
+import ReactMarkdown from 'react-markdown';
 
 export default function AISummaryCard({ initialSummary }) {
   const [summary, setSummary] = useState(initialSummary || '');
@@ -64,9 +65,9 @@ export default function AISummaryCard({ initialSummary }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <p className="text-sm text-white leading-loose max-w-2xl">
-            {summary}
-          </p>
+          <div className="text-sm text-white leading-loose max-w-2xl prose-coaching">
+            <ReactMarkdown>{summary}</ReactMarkdown>
+          </div>
         </motion.div>
       )}
     </div>

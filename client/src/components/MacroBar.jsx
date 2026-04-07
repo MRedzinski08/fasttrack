@@ -33,7 +33,7 @@ export default function MacroBar({ protein = 0, carbs = 0, fat = 0, water = 0 })
           <span className="text-[11px] text-white w-12 shrink-0">Water</span>
           <div className="flex-1 h-[2px] bg-white/[0.08]">
             <div
-              className="h-full bg-blue-400 transition-all duration-500"
+              className="h-full bg-primary-500 transition-all duration-500"
               style={{ width: `${waterPct}%` }}
             />
           </div>
