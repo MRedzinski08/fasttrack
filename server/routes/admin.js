@@ -80,6 +80,20 @@ router.put('/users/:id/tier', requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/admin/users/:id/clear-coaching
+router.post('/users/:id/clear-coaching', requireAdmin, async (req, res) => {
+  try {
+    await pool.query(
+      'UPDATE user_profiles SET ai_summary_date = NULL, ai_summary_text = NULL WHERE id = $1',
+      [req.params.id]
+    );
+    res.json({ cleared: true });
+  } catch (err) {
+    console.error('clear-coaching error:', err);
+    res.status(500).json({ error: 'Failed to clear coaching' });
+  }
+});
+
 // POST /api/admin/migrate — run pending migrations
 router.post('/migrate', requireAdmin, async (req, res) => {
   try {
